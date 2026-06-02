@@ -50,3 +50,12 @@ docs/*.synctex.gz
 # elsarticle tutorial PDFs (Elsevier template docs, not needed for compilation;
 # users can fetch elsarticle from CTAN if they need the tutorials).
 docs/elsarticle/doc/
+
+# Paper artifacts — NOT tracked until journal acceptance.
+# Pipeline code stays public; manuscript narrative + figures remain private
+# until the systematic review is formally accepted for publication. After
+# acceptance, these entries are removed from .gitignore and re-added in a
+# clean release commit.
+docs/revision_sistematica_biofloc_es.tex
+docs/revision_sistematica_biofloc_es.pdf
+docs/figures/
