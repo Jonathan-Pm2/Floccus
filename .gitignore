@@ -47,9 +47,11 @@ docs/*.fls
 docs/*.fdb_latexmk
 docs/*.synctex.gz
 
-# elsarticle tutorial PDFs (Elsevier template docs, not needed for compilation;
-# users can fetch elsarticle from CTAN if they need the tutorials).
-docs/elsarticle/doc/
+# Elsevier elsarticle LaTeX template — used only to compile the manuscript
+# locally. Since the manuscript itself is untracked until journal acceptance,
+# the template is also untracked. Users compiling the paper post-acceptance
+# can fetch elsarticle from CTAN (https://ctan.org/pkg/elsarticle).
+docs/elsarticle/
 
 # Paper artifacts — NOT tracked until journal acceptance.
 # Pipeline code stays public; manuscript narrative + figures remain private
