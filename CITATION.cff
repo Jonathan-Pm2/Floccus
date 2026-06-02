@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+title: "Floccus: PRISMA-compliant LLM-assisted screening pipeline for systematic literature reviews on biological floc dynamics"
+message: "If you use this software in academic work, please cite the accompanying manuscript and this software entry."
+type: software
+authors:
+  - family-names: "Proaño Morales"
+    given-names: "Jonathan Josué"
+    affiliation: "Facultad de Posgrado, Universidad de Salamanca"
+    email: "REDACTED_EMAIL"
+  - family-names: "Montes"
+    given-names: "Karime"
+    affiliation: "Facultad de Posgrado, Universidad de Salamanca"
+  - family-names: "Galindo"
+    given-names: "Purificación"
+    affiliation: "Facultad de Posgrado, Universidad de Salamanca"
+repository-code: "https://github.com/Jonathan-Pm2/Floccus"
+url: "https://github.com/Jonathan-Pm2/Floccus"
+abstract: >-
+  Floccus is a reproducible PRISMA 2020-compliant pipeline for systematic
+  literature reviews on the mathematical modeling of biological floc dynamics
+  in aquaculture and wastewater treatment systems. It integrates multi-source
+  bibliographic ingestion (Scopus, Web of Science, IEEE Xplore, SciELO,
+  enriched via OpenAlex and Europe PMC), three-layer deduplication
+  (deterministic, semantic via dense embeddings on Qdrant HNSW, LLM-judged
+  reconciliation), and a LangGraph-orchestrated screening agent that evaluates
+  twelve binary PRISMA criteria with an asymmetric AND/OR rule. A second-pass
+  LLM screening uses enriched metadata (OpenAlex topics and Europe PMC MeSH
+  terms) for blind dual review of borderline records. All decisions carry a
+  textual audit trail for human verification.
+keywords:
+  - systematic review
+  - PRISMA 2020
+  - large language models
+  - LangGraph
+  - biofloc
+  - activated sludge
+  - aquaculture
+  - wastewater treatment
+  - deduplication
+  - dense embeddings
+  - bibliographic data
+license: Apache-2.0
+version: "0.1.0"
+date-released: "2026-06-02"

@@ -1,0 +1,52 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.python-version-local
+
+# Secrets
+.env
+.env.local
+
+# Data — gitignored by default; data/published/ is the exception
+# (carries sanitized release artifacts).
+data/
+!data/published/
+qdrant_storage/
+
+# Logs (long, time-stamped, not part of the pipeline definition)
+*.log
+
+# IDE / OS / generic tooling
+.idea/
+.vscode/
+.DS_Store
+*.tmp
+*.bak
+*.swp
+
+# Claude Code / agent tooling (not part of reproducible pipeline)
+.mcp.json
+.claude/
+docs/.atl/
+
+# Build artifacts from LaTeX compilation
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc
+docs/*.bbl
+docs/*.blg
+docs/*.fls
+docs/*.fdb_latexmk
+docs/*.synctex.gz
+
+# elsarticle tutorial PDFs (Elsevier template docs, not needed for compilation;
+# users can fetch elsarticle from CTAN if they need the tutorials).
+docs/elsarticle/doc/
