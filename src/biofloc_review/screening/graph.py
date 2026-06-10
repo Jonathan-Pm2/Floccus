@@ -40,7 +40,6 @@ from biofloc_review.screening.decision import FinalDecision, aggregate
 from biofloc_review.screening.prefilter import (
     is_abstract_too_short,
     is_eligible_doctype,
-    is_excluded_by_language,
 )
 
 log = logging.getLogger(__name__)
@@ -57,20 +56,16 @@ class ScreeningState(TypedDict, total=False):
 
 
 def node_prefilter(state: ScreeningState) -> dict:
-    """Evaluate the three deterministic criteria. Store as CriterionAnswer."""
+    """Evaluate the two deterministic criteria. Store as CriterionAnswer.
+
+    Note: criterion E5 (language) was removed from the criteria set after
+    a corpus review showed it added no informational value (Qwen3 reads
+    Chinese/German/Korean abstracts natively, so a hard language exclusion
+    is unjustified for a multilingual judge).
+    """
     rec = state["record"]
     answers: dict[str, CriterionAnswer] = dict(state.get("answers") or {})
 
-    # E5
-    e5_ans, e5_ev = is_excluded_by_language(rec)
-    answers["E5"] = CriterionAnswer(
-        criterion_id="E5",
-        answer=e5_ans,
-        confidence=10,
-        evidence=e5_ev,
-        reasoning="determinista sobre rec.language",
-        via="deterministic",
-    )
     # I4
     i4_ans, i4_ev = is_eligible_doctype(rec)
     answers["I4"] = CriterionAnswer(

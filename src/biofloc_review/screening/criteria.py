@@ -137,14 +137,6 @@ CRITERIA: list[Criterion] = [
         justification="Interés es flóculos BIOLÓGICOS, no químicos de potabilización.",
         deterministic=False,
     ),
-    Criterion(
-        id="E5",
-        type="exclusion",
-        question="¿El artículo NO está en inglés, español o portugués?",
-        justification="Idiomas que cubre el equipo y los modelos multilingües.",
-        deterministic=True,
-    ),
-
     # ---------- DERIVATION (any one fires → HUMAN_REVIEW; never EXCLUDE) ----------
     Criterion(
         id="D1",

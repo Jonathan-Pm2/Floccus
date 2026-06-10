@@ -37,7 +37,6 @@ from biofloc_review.screening.enricher import EnrichedRecord
 from biofloc_review.screening.prefilter import (
     is_abstract_too_short,
     is_eligible_doctype,
-    is_excluded_by_language,
 )
 from biofloc_review.screening.prompts import build_system_prompt
 
@@ -158,13 +157,9 @@ def screen_record_layer2(
     """
     answers: dict[str, CriterionAnswer] = {}
 
-    # 1. Deterministic prefilter (same as Layer 1)
-    e5_ans, e5_ev = is_excluded_by_language(paper)
-    answers["E5"] = CriterionAnswer(
-        criterion_id="E5", answer=e5_ans, confidence=10,
-        evidence=e5_ev, reasoning="determinista sobre rec.language",
-        via="deterministic",
-    )
+    # 1. Deterministic prefilter (same as Layer 1).
+    # E5 (language) was removed from the criteria set; see graph.py for the
+    # justification.
     i4_ans, i4_ev = is_eligible_doctype(paper)
     answers["I4"] = CriterionAnswer(
         criterion_id="I4", answer=i4_ans, confidence=10,
