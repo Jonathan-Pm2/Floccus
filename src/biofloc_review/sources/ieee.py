@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 import pandas as pd
@@ -12,6 +13,35 @@ from biofloc_review.normalize import (
     split_keywords,
 )
 from biofloc_review.schema import Corpus, PaperRecord, Source
+
+
+def _ieee_source_id(row: pd.Series) -> str | None:
+    """Compute a per-paper unique identifier for IEEE records.
+
+    The ``Document Identifier`` column in the IEEE Xplore CSV export is a
+    session/batch-level value with massive collisions (only ~11 unique
+    values across 545 papers in our corpus). Using it as ``source_id``
+    causes record_id collapse downstream: dozens of distinct papers map
+    to the same UUID and inherit each other's screening verdict.
+
+    This helper builds a stable per-paper identifier by preferring the
+    PDF Link (545/545 unique in practice), then the DOI, then a hash of
+    the normalized title as final fallback. The chosen value is prefixed
+    with the field name (``pdf:`` / ``doi:`` / ``titlehash:``) so the
+    provenance of the identifier remains explicit.
+    """
+    for col, prefix in (("PDF Link", "pdf"), ("DOI", "doi")):
+        v = row.get(col)
+        if v is None:
+            continue
+        s = str(v).strip()
+        if s and s.lower() not in {"nan", "none", ""}:
+            return f"{prefix}:{s}"
+    title = str(row.get("Document Title") or "").strip()
+    if title:
+        h = hashlib.sha1(normalize_title(title).encode("utf-8")).hexdigest()[:16]
+        return f"titlehash:{h}"
+    return None
 
 
 def load_ieee(path: Path, corpus: Corpus) -> list[PaperRecord]:
@@ -43,7 +73,7 @@ def load_ieee(path: Path, corpus: Corpus) -> list[PaperRecord]:
             open_access=None,
             url=(str(row.get("PDF Link")).strip() or None) if row.get("PDF Link") is not None else None,
             source=Source.IEEE,
-            source_id=(str(row.get("Document Identifier")).strip() or None) if row.get("Document Identifier") is not None else None,
+            source_id=_ieee_source_id(row),
             corpus=corpus,
             needs_enrichment=abstract_s is None,
         )
