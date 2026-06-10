@@ -108,17 +108,45 @@ uv run python -m biofloc_review.run_merge \
   data/processed/biofloc_dedup_full.parquet \
   data/processed/biofloc_dedup_primary_near_dup_pairs_judged.json
 
-# Layer 1: cribado por criterios PRISMA binarios (~42h para 17k records con 2 workers).
+# Layer 1: cribado por 11 criterios PRISMA binarios (~42h para 17k records con 2 workers).
 # Resumable con --resume. Para corrida desatachada que sobrevive suspensión:
 #   setsid bash -c '... --workers 2 --checkpoint-every 25' < /dev/null & disown
 uv run python -m biofloc_review.run_screening \
-  data/processed/biofloc_final_primary.parquet --workers 2 --checkpoint-every 25
+  data/processed/biofloc_final_primary_v3.parquet --workers 2 --checkpoint-every 25
 
-# Layer 2: enriquecimiento extendido vía OpenAlex + Europe PMC sobre los que
-# avanzan post-Layer-1 (INCLUDE + HUMAN_REVIEW). Solo metadata, no descarga PDFs.
-# arxiv opcional via --with-arxiv (lento, baja cobertura para wastewater).
+# Layer 2 enricher: OpenAlex + Europe PMC sobre INCLUDE + HUMAN_REVIEW de L1.
+# Solo metadata, no descarga PDFs. arxiv opcional via --with-arxiv.
 uv run python -m biofloc_review.run_enrich \
-  data/processed/biofloc_screened.parquet --workers 1 --rps 0.5
+  data/processed/biofloc_screened.parquet \
+  --full-parquet data/processed/biofloc_final_primary_v3.parquet \
+  --workers 1 --rps 0.5
+
+# Layer 2 LLM: segundo pase ciego sobre HUMAN_REVIEW con metadata enriquecida (~26 min)
+uv run python -m biofloc_review.run_screening_layer2 \
+  data/processed/biofloc_screened.parquet \
+  data/processed/biofloc_enriched.parquet \
+  --full-parquet data/processed/biofloc_final_primary_v3.parquet \
+  --workers 2 --checkpoint-every 25 --resume
+
+# Consolidación final + conteos PRISMA para el flowchart del manuscrito
+uv run python -m biofloc_review.run_consolidate \
+  data/processed/biofloc_screened.parquet \
+  data/processed/biofloc_layer2_screened.parquet
+
+# Validación humana: generar CSV estratificado blind para κ Cohen
+uv run python -m biofloc_review.run_validation_sample \
+  data/processed/biofloc_final_decisions.parquet
+# (el revisor completa human_decision con "cumple" / "no cumple")
+uv run python -m biofloc_review.run_kappa_analysis \
+  data/processed/validation_sample_blind.csv \
+  data/processed/validation_sample_truth.parquet
+
+# Layer 3 (opcional): descarga PDFs vía EZproxy USAL con cookies del navegador
+# El usuario debe autenticarse manualmente y exportar cookies.txt en formato Netscape
+uv run python -m biofloc_review.run_fulltext_fetch \
+  data/processed/biofloc_final_decisions.parquet \
+  data/processed/biofloc_enriched.parquet \
+  --cookies cookies.txt --workers 2 --resume
 
 # Generar las figuras del manuscrito
 uv run python -m biofloc_review.run_plots

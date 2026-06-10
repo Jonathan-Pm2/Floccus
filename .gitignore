@@ -61,3 +61,11 @@ docs/elsarticle/
 docs/revision_sistematica_biofloc_es.tex
 docs/revision_sistematica_biofloc_es.pdf
 docs/figures/
+
+# Institutional session cookies (Shibboleth/OpenAthens). Never commit:
+# they grant access to paywalled content via the user's USAL credentials.
+cookies.txt
+cookies_*.txt
+*.cookies.txt
+*cookies*.txt
+data/fulltext/
