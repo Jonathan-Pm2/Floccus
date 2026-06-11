@@ -141,12 +141,36 @@ uv run python -m biofloc_review.run_kappa_analysis \
   data/processed/validation_sample_blind.csv \
   data/processed/validation_sample_truth.parquet
 
-# Layer 3 (opcional): descarga PDFs vía EZproxy USAL con cookies del navegador
-# El usuario debe autenticarse manualmente y exportar cookies.txt en formato Netscape
+# Layer 3 Tier 1: fetch fulltext OA libre (sin cookies)
+# Recupera los ~14% de PDFs disponibles por OpenAlex OA + Europe PMC en formato OA.
 uv run python -m biofloc_review.run_fulltext_fetch \
-  data/processed/biofloc_final_decisions.parquet \
   data/processed/biofloc_enriched.parquet \
-  --cookies cookies.txt --workers 2 --resume
+  data/processed/biofloc_final_decisions.parquet \
+  --workers 2 --delay 0.8 --skip-session-check --resume
+
+# Layer 3 Tier 2/3: fetch via EZproxy USAL con cookies del navegador
+# El usuario debe autenticarse manualmente y exportar cookies.txt (Netscape).
+# Si la sesión CAS está activa (cookie CASTGC en .identidad.usal.es) cubre el ~82%
+# adicional con DOI; si solo hay cookies del proxy (.idm.oclc.org) el flow cae
+# en login CAS y los DOIs vuelven HTML, no PDF. Reset session via re-login fresh.
+uv run python -m biofloc_review.run_fulltext_fetch \
+  data/processed/biofloc_enriched.parquet \
+  data/processed/biofloc_final_decisions.parquet \
+  --cookies /path/to/cookies.txt --workers 2 --delay 1.5 --resume
+
+# Análisis post-cribado: clustering temático UMAP+HDBSCAN sobre el corpus elegible
+# Requiere umap-learn + hdbscan + scikit-learn instalados en el venv.
+# Salida: 5 archivos en data/processed/ (vectors, umap2d, clusters, assignment, summary)
+uv run python -m biofloc_review.run_thematic_clustering \
+  data/processed/biofloc_final_decisions.parquet \
+  data/processed/biofloc_final_primary_v3.parquet \
+  --collection papers_biofloc --min-cluster-size 40
+
+# Análisis post-cribado: identificación de métodos en los PDFs descargados
+# Patrones regex sobre primeras 25 págs (ASM, ODE, PDE, ABM, PBM, CFD, ML/ANN,
+# PINN, Stochastic, + 4 contextos de aplicación).
+uv run python scripts/extract_methods.py
+# → data/processed/fulltext_methods.parquet
 
 # Generar las figuras del manuscrito
 uv run python -m biofloc_review.run_plots

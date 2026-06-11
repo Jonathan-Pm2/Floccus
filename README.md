@@ -24,7 +24,7 @@ Publicación objetivo: *Ecological Modelling* (Elsevier).
   consolidación + conteos PRISMA  →
   validación humana κ Cohen  →
   Layer 3 (elegibilidad por texto completo via EZproxy USAL)  →
-  estudios incluidos + intersección biofloc ↔ biplot
+  análisis post-cribado (clustering temático + métodos + intersección)
 ```
 
 - **Stack**: Python 3.12 + uv, Pydantic, Qdrant (Docker), LangGraph 1.x, Ollama (servidor remoto con GPU).
@@ -47,8 +47,55 @@ Publicación objetivo: *Ecological Modelling* (Elsevier).
 | Layer 2 LLM screening con metadata enriquecida | ✅ | 4 225 reprocesados: +180 INCLUDE / +547 EXCLUDE / 3 498 HR |
 | **Consolidación final + conteos PRISMA** | ✅ | **1 385 INCLUDE / 3 498 HR / 12 180 EXCLUDE** → 4 883 a elegibilidad |
 | Validación humana κ Cohen (CSV blind estratificado, n=465) | ✅ | κ=0.107 (Mapeo A) / 0.209 (Mapeo B), slight; precisión EXCLUDE 91% / INCLUDE 31% / HR 16% |
-| Layer 3: elegibilidad por texto completo via EZproxy USAL | ✅ implementado, ⏳ ejecutar con cookies | rewriter URL + cookie loader Netscape + multi-tier fetcher |
-| Intersección biofloc ↔ biplot (RAG semántico) | ⏳ pendiente | usar `.tex` como query |
+| Layer 3 Tier 1 fulltext fetch (OA libre sin cookies) | ✅ | **297 PDFs descargados** (604 MB), 14,5% del corpus elegible |
+| Layer 3 Tier 2/3 EZproxy USAL | ⏸ bloqueado | requiere re-login CAS explícito o Playwright wrapper |
+| Análisis post-cribado: caracterización del corpus elegible | ✅ | temporal 1969-2026, mediana 2015, Elsevier 38,6%, IWA 7,7% |
+| Análisis post-cribado: clustering temático UMAP+HDBSCAN | ✅ | **25 clusters** sobre 4 682 embeddings, biofloc-aquaculture (C03) 3,0% |
+| Análisis post-cribado: identificación de métodos en fulltext | ✅ | ASM 36,5%, ODE 23%, ML/ANN 21%, PINN 0,3% sobre 296 PDFs OK |
+| Análisis post-cribado: tendencias temporales de métodos | ✅ | ML supera ODE en 2015-19; PINN emerge 2020+ |
+| Análisis post-cribado: co-ocurrencia + papers híbridos | ✅ | 73 papers híbridos (24,7%): ASM+ML=20, PDE+ML=1 |
+| Análisis post-cribado: búsqueda avanzada en corpus completo | ✅ | **2 PINN + 7 NeuralODE + 0 hyperbolic/Riemannian** en 4 884 abstracts |
+| Análisis post-cribado: sub-clustering del cluster núcleo C03 | ✅ | 4 sub-clusters: 84% SciELO iberoamericano vs 85% Scopus moderno |
+| Intersección biofloc ↔ biplot via RAG semántico | ✅ | bridge metodológico (no temático); **0 papers Poincaré en ambos corpus** |
+
+## Análisis post-cribado y hallazgos clave
+
+Una vez completado el cribado consolidado se ejecuta una capa de **análisis exploratorio del corpus elegible** que el manuscrito reporta en §3. Los hallazgos centrales:
+
+### Validación con revisor humano
+κ Cohen sobre n=465 records estratificados: κ=0,107 (Mapeo A PRISMA-permisivo) / κ=0,209 (Mapeo B estricto). El LLM **no reemplaza al revisor humano** para inclusiones (κ humano-humano típico = 0,5-0,8), pero **filtra exclusiones con alta especificidad (91 % precision)** y deriva correctamente los borderline a HUMAN_REVIEW (16 % precision en HR confirma su necesidad metodológica).
+
+### Estructura temática del corpus elegible
+UMAP+HDBSCAN sobre 4 682 embeddings densos detecta **25 clusters cohesivos** (73,5 % del corpus). Los más alineados con la pregunta de investigación:
+- **C03 Biofloc en acuicultura** (n=141, mediana 2019, **55 % SciELO iberoamericano**)
+- **C15 Estructura del flóculo / reología** (n=68, formal mecanístico)
+
+Sub-clustering interno de C03 separa **84 % SciELO iberoamericano clásico** (n=74) de **85 % Scopus cuantitativo moderno** (n=53). El paper *Sánchez & Bargary 2025* (J Water Process Eng) — del grupo del autor — fue detectado correctamente en el sub-cluster cuantitativo.
+
+### Métodos de modelado en el fulltext
+Análisis sobre 296 PDFs descargados y validado contra 4 884 abstracts del corpus completo:
+
+| Método | % PDFs | n abstracts corpus |
+|---|---:|---:|
+| ASM (Activated Sludge Model, IWA) | 36,5 % | dominante |
+| ODE / Monod / Michaelis-Menten | 23,0 % | declinando desde 2015 |
+| ML / ANN | 21,3 % | **supera ODE desde 2015-19** |
+| Stochastic / Langevin / MC | 8,8 % | 19 |
+| CFD | 7,4 % | — |
+| **PINN** | 0,3 % | **2** (ambos Water Research 2024-2025, ambos sobre flóculos) |
+| NeuralODE | — | 7 (frente 2024-2026) |
+| **Hyperbolic / Riemannian / Poincaré** | — | **0 en ambos corpus** |
+
+### Sweet spot doctoral identificado
+La triple intersección **Poincaré biplot × modelado de flóculos × física informada** es un **nicho metodológico vacío** en la literatura indexada que el manuscrito hace navegable:
+
+- 0 papers con Poincaré/hyperbolic en el corpus biplot completo (1 222 records)
+- 0 papers con Poincaré/hyperbolic en el corpus biofloc completo (4 884 abstracts)
+- 0 papers PINN en cluster C03 biofloc acuícola
+- 2 papers PINN + flóculos existen en Water Research pero fuera de C03
+
+### Manuscrito
+Los hallazgos están integrados en `docs/revision_sistematica_biofloc_es.tex` (50 páginas, sin warnings al compilar). Las nueve subsecciones de §3 cubren validación κ → caracterización corpus → clustering temático → métodos → tendencias temporales → co-ocurrencia → precedentes avanzados → C03 deep-dive + sub-clustering → intersección biplot + gap Poincaré.
 
 ## Migrar a otra PC
 
@@ -157,11 +204,27 @@ uv run python -m biofloc_review.run_kappa_analysis \
   data/processed/validation_sample_blind.csv \
   data/processed/validation_sample_truth.parquet
 
-# 12. Layer 3 (opcional): fetch fulltext PDFs via EZproxy USAL con cookies del usuario
+# 12. Layer 3: fetch fulltext PDFs (Tier 1 OA libre sin cookies)
 uv run python -m biofloc_review.run_fulltext_fetch \
-  data/processed/biofloc_final_decisions.parquet \
   data/processed/biofloc_enriched.parquet \
-  --cookies cookies.txt --workers 2 --resume
+  data/processed/biofloc_final_decisions.parquet \
+  --workers 2 --delay 0.8 --skip-session-check --resume
+
+# 12b. Layer 3 Tier 2/3: agregar cookies USAL para descargar paywall via EZproxy
+uv run python -m biofloc_review.run_fulltext_fetch \
+  data/processed/biofloc_enriched.parquet \
+  data/processed/biofloc_final_decisions.parquet \
+  --cookies /path/to/cookies.txt --workers 2 --delay 1.5 --resume
+
+# 13. Análisis post-cribado: clustering temático UMAP+HDBSCAN
+uv run python -m biofloc_review.run_thematic_clustering \
+  data/processed/biofloc_final_decisions.parquet \
+  data/processed/biofloc_final_primary_v3.parquet \
+  --collection papers_biofloc --min-cluster-size 40
+
+# 14. Análisis post-cribado: identificación de métodos en los PDFs descargados
+uv run python scripts/extract_methods.py
+# → data/processed/fulltext_methods.parquet (regex sobre primeras 25 págs de cada PDF)
 ```
 
 ## Estructura del proyecto
@@ -175,7 +238,10 @@ biofloc-review/
 │   ├── revision_sistematica_biofloc_es.tex   # manuscrito metodológico
 │   └── revision_sistematica_biofloc_es.pdf   # compilado
 ├── data/processed/         # parquets intermedios y finales (gitignored)
+├── data/fulltext/          # PDFs descargados Layer 3 (gitignored)
 ├── qdrant_storage/         # vector DB persistente (gitignored)
+├── scripts/                # análisis post-cribado one-shot
+│   └── extract_methods.py  # regex de métodos sobre PDFs descargados
 └── src/biofloc_review/
     ├── schema.py           # PaperRecord (Pydantic)
     ├── normalize.py        # normalize_doi, normalize_title, ...
@@ -191,6 +257,7 @@ biofloc-review/
     ├── run_validation_sample.py # CLI muestreo estratificado blind para κ
     ├── run_kappa_analysis.py    # CLI κ Cohen humano vs LLM (cumple / no cumple)
     ├── run_fulltext_fetch.py    # CLI Layer 3: descarga PDFs via EZproxy
+    ├── run_thematic_clustering.py # CLI UMAP+HDBSCAN sobre corpus elegible
     ├── run_validate_pipeline.py # CLI validador integridad por fuente
     ├── run_ieee_fix.py          # CLI fix IEEE source_id (one-shot, idempotente)
     ├── sources/                 # loaders por fuente

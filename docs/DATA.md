@@ -84,7 +84,14 @@ agregados que **no constituyen redistribución del contenido**:
    - Mapeo LLM 3-clases → humano binario (`cumple` / `no cumple`) documentado
    - Sin `record_id` ni abstracts: solo agregados por estrato
 
-4. **Snapshot del manuscrito al momento de la publicación**:
+4. **Análisis post-cribado del corpus elegible** (`data/published/post_screening_analyses.parquet`):
+   - Asignación de cluster temático por record (25 clusters UMAP+HDBSCAN)
+   - Sub-asignación dentro del cluster núcleo C03 (4 sub-clusters)
+   - Distribución de métodos detectados en el fulltext (binario por familia: ASM, ODE, ML/ANN, etc.) sobre los PDFs descargados
+   - Presencia de keywords avanzados (PINN, NeuralODE, Operator learning, hyperbolic, Riemannian, biplot, etc.) sobre todos los abstracts elegibles
+   - Solo `record_id` derivado + flags binarios, sin abstracts ni texto
+
+5. **Snapshot del manuscrito al momento de la publicación**:
    - `docs/published/revision_sistematica_biofloc_es_v1.0.pdf`
 
 ## Reproducción completa del pipeline
