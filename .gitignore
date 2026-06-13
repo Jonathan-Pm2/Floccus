@@ -70,3 +70,8 @@ cookies_*.txt
 *.cookies.txt
 *cookies*.txt
 data/fulltext/
+
+# Playwright browser profile — contains live USAL session cookies and
+# auth tokens. Never commit.
+data/playwright_profile/
+.playwright/
