@@ -31,6 +31,7 @@ from biofloc_review.plots.style import (
 def fig_source_distribution(
     biofloc_df: pd.DataFrame,
     biplot_df: pd.DataFrame,
+    lang: str = "es",
 ) -> plt.Figure:
     """
     Bar chart agrupado: número de registros por fuente, en cada corpus.
@@ -47,31 +48,40 @@ def fig_source_distribution(
     biofloc_counts = biofloc_df["source"].value_counts()
     biplot_counts = biplot_df["source"].value_counts()
 
+    L = {
+        "es": dict(xlabel="Registros (escala logarítmica)", ylabel="Base bibliográfica",
+                   title_bf="Corpus biofloc", title_bp="Corpus biplot",
+                   suptitle="Identificación: registros por fuente y corpus"),
+        "en": dict(xlabel="Records (logarithmic scale)", ylabel="Bibliographic database",
+                   title_bf="Biofloc corpus", title_bp="Biplot corpus",
+                   suptitle="Identification: records per source and corpus"),
+    }[lang]
+
     fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(7.5, 3.2), sharey=True)
 
     for ax, counts, title in [
-        (ax_a, biofloc_counts, "Corpus biofloc"),
-        (ax_b, biplot_counts, "Corpus biplot"),
+        (ax_a, biofloc_counts, L["title_bf"]),
+        (ax_b, biplot_counts, L["title_bp"]),
     ]:
         vals = [counts.get(s, 0) for s in sources]
         colors = [PALETTE_SOURCE[s] for s in sources]
         bars = ax.barh(labels, vals, color=colors, edgecolor="white", linewidth=0.8)
         ax.set_xscale("log")
-        ax.set_xlabel("Registros (escala logarítmica)")
+        ax.set_xlabel(L["xlabel"])
+        ax.set_ylabel(L["ylabel"])
         ax.set_title(title, loc="left", pad=8)
-        # solo ticks en potencias de 10
         from matplotlib.ticker import LogLocator, NullLocator
         ax.xaxis.set_major_locator(LogLocator(base=10, numticks=10))
         ax.xaxis.set_minor_locator(NullLocator())
-        # anotación al final de cada barra
+        sep = "." if lang == "es" else ","
         for bar, v in zip(bars, vals):
             ax.text(v * 1.08, bar.get_y() + bar.get_height() / 2,
-                    f"{v:,}".replace(",", "."), va="center", fontsize=8.5)
+                    f"{v:,}".replace(",", sep), va="center", fontsize=8.5)
         ax.grid(axis="x", alpha=0.3)
         ax.grid(axis="y", alpha=0)
-        ax.margins(x=0.15)  # más espacio a la derecha para que la anotación no se corte
+        ax.margins(x=0.15)
 
-    fig.suptitle("Identificación: registros por fuente y corpus", y=1.02)
+    fig.suptitle(L["suptitle"], y=1.02)
     fig.tight_layout()
     return fig
 
@@ -81,6 +91,7 @@ def fig_source_distribution(
 # --------------------------------------------------------------------------
 def fig_dedup_waterfall(
     stages: dict[str, dict[str, int]],
+    lang: str = "es",
 ) -> plt.Figure:
     """
     Waterfall mostrando cuánto reduce cada capa el corpus.
@@ -98,40 +109,50 @@ def fig_dedup_waterfall(
     """
     from biofloc_review.plots.style import TABLEAU_BLUE
 
+    L = {
+        "es": dict(stages=["Identif.", "Capa 1", "Capa 3 (final)"],
+                   xlabel="Etapa de deduplicación", ylabel="Registros",
+                   corpus="Corpus",
+                   suptitle="Reducción del corpus por capa de deduplicación",
+                   sep="."),
+        "en": dict(stages=["Identif.", "Layer 1", "Layer 3 (final)"],
+                   xlabel="Deduplication stage", ylabel="Records",
+                   corpus="Corpus",
+                   suptitle="Corpus reduction across deduplication layers",
+                   sep=","),
+    }[lang]
+
     fig, axes = plt.subplots(1, 2, figsize=(8.5, 3.8), sharey=False)
 
     for ax, corpus in zip(axes, stages.keys()):
         s = stages[corpus]
-        labels = ["Identif.", "Capa 1", "Capa 3 (final)"]
         values = [s["identif"], s["capa1"], s["capa3"]]
         diffs = [None, values[1] - values[0], values[2] - values[1]]
 
-        x = np.arange(len(labels))
+        x = np.arange(len(L["stages"]))
         bars = ax.bar(x, values, color=TABLEAU_BLUE["darkest"],
                       edgecolor="white", linewidth=0.8, width=0.62)
 
-        # anotación de valor absoluto encima de cada barra
         for bar, v in zip(bars, values):
             ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + values[0] * 0.015,
-                    f"{v:,}".replace(",", "."), ha="center", fontsize=9)
+                    f"{v:,}".replace(",", L["sep"]), ha="center", fontsize=9)
 
-        # anotación de delta DENTRO de cada barra (a media altura),
-        # color azul claro para que contraste con el azul oscuro de fondo
         for i in (1, 2):
             d = diffs[i]
             pct = 100.0 * d / values[i - 1]
             ax.text(x[i], values[i] * 0.45,
-                    f"{d:+,}".replace(",", ".") + f"\n({pct:+.1f}%)",
+                    f"{d:+,}".replace(",", L["sep"]) + f"\n({pct:+.1f}%)",
                     ha="center", va="center", fontsize=8.5,
                     color="white", alpha=0.95)
 
-        ax.set_xticks(x, labels)
-        ax.set_title(f"Corpus {corpus}", loc="left", pad=6)
-        ax.set_ylabel("Registros")
+        ax.set_xticks(x, L["stages"])
+        ax.set_title(f"{L['corpus']} {corpus}", loc="left", pad=6)
+        ax.set_xlabel(L["xlabel"])
+        ax.set_ylabel(L["ylabel"])
         ax.set_ylim(0, values[0] * 1.12)
         ax.grid(axis="x", alpha=0)
 
-    fig.suptitle("Reducción del corpus por capa de deduplicación", y=1.02)
+    fig.suptitle(L["suptitle"], y=1.02)
     fig.tight_layout()
     return fig
 
@@ -142,6 +163,7 @@ def fig_dedup_waterfall(
 def fig_capa2_scores_by_verdict(
     judged_pairs: list[dict],
     title: str,
+    lang: str = "es",
 ) -> plt.Figure:
     """
     Histograma apilado: scores coseno de la Capa 2, coloreados por el
@@ -170,18 +192,22 @@ def fig_capa2_scores_by_verdict(
         edgecolor="white",
         linewidth=0.5,
     )
-    ax.set_xlabel("Similitud coseno (Capa 2)")
-    ax.set_ylabel("Pares candidatos")
+    L = {
+        "es": dict(xlabel="Similitud coseno (Capa 2)", ylabel="Pares candidatos",
+                   tau_label=r"$\tau = 0{,}93$"),
+        "en": dict(xlabel="Cosine similarity (Layer 2)", ylabel="Candidate pairs",
+                   tau_label=r"$\tau = 0.93$"),
+    }[lang]
+    ax.set_xlabel(L["xlabel"])
+    ax.set_ylabel(L["ylabel"])
     ax.set_title(title, loc="left", pad=24)
 
-    # leyenda horizontal fuera del área de datos, justo debajo del título
     ax.legend(frameon=False, loc="upper right",
               bbox_to_anchor=(1.0, 1.08), ncol=3, fontsize=9,
               handletextpad=0.5, columnspacing=1.2)
 
-    # línea vertical en el umbral
     ax.axvline(0.93, color="black", ls=":", lw=0.8, alpha=0.6)
-    ax.text(0.931, ax.get_ylim()[1] * 0.96, r"$\tau = 0{,}93$",
+    ax.text(0.931, ax.get_ylim()[1] * 0.96, L["tau_label"],
             ha="left", va="top", fontsize=9, color="black", alpha=0.75)
 
     fig.tight_layout()
@@ -194,6 +220,7 @@ def fig_capa2_scores_by_verdict(
 def fig_capa3_confidence(
     judged_pairs: list[dict],
     title: str,
+    lang: str = "es",
 ) -> plt.Figure:
     """
     Confianza (0–10) reportada por el LLM, separada por veredicto.
@@ -218,8 +245,10 @@ def fig_capa3_confidence(
         ax.bar(centers + offset, counts, width=width, color=PALETTE_VERDICT[v],
                edgecolor="white", linewidth=0.4, label=v)
 
-    ax.set_xlabel(r"Confianza del LLM (Capa 3)")
-    ax.set_ylabel("Pares")
+    L = {"es": dict(xlabel=r"Confianza del LLM (Capa 3)", ylabel="Pares"),
+         "en": dict(xlabel=r"LLM confidence (Layer 3)", ylabel="Pairs")}[lang]
+    ax.set_xlabel(L["xlabel"])
+    ax.set_ylabel(L["ylabel"])
     ax.set_xticks(range(0, 11))
     ax.set_title(title, loc="left", pad=24)
     ax.legend(frameon=False, loc="upper right",
@@ -235,6 +264,7 @@ def fig_capa3_confidence(
 def fig_cluster_size_histogram(
     full_df: pd.DataFrame,
     title: str,
+    lang: str = "es",
 ) -> plt.Figure:
     """
     Distribución de tamaños de cluster después de la Capa 1.
@@ -252,17 +282,20 @@ def fig_cluster_size_histogram(
     bars = ax.bar(keys, vals, color=TABLEAU_BLUE["darkest"],
                   edgecolor="white", linewidth=0.7, width=0.7)
     ax.set_yscale("log")
-    ax.set_xlabel("Tamaño de cluster (registros agrupados)")
-    ax.set_ylabel("Número de clusters (escala log)")
+    L = {"es": dict(xlabel="Tamaño de cluster (registros agrupados)",
+                    ylabel="Número de clusters (escala log)", sep="."),
+         "en": dict(xlabel="Cluster size (grouped records)",
+                    ylabel="Number of clusters (log scale)", sep=",")}[lang]
+    ax.set_xlabel(L["xlabel"])
+    ax.set_ylabel(L["ylabel"])
     ax.set_title(title, loc="left", pad=8)
     ax.set_xticks(keys)
-    # solo potencias de 10 en el eje y
     ax.yaxis.set_major_locator(LogLocator(base=10, numticks=10))
     ax.yaxis.set_minor_locator(NullLocator())
 
     for bar, v in zip(bars, vals):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() * 1.25,
-                f"{v:,}".replace(",", "."), ha="center", fontsize=8.5)
+                f"{v:,}".replace(",", L["sep"]), ha="center", fontsize=8.5)
 
     fig.tight_layout()
     return fig

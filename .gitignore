@@ -60,7 +60,32 @@ docs/elsarticle/
 # clean release commit.
 docs/revision_sistematica_biofloc_es.tex
 docs/revision_sistematica_biofloc_es.pdf
+docs/revision_sistematica_biofloc_en.tex
+docs/revision_sistematica_biofloc_en.pdf
 docs/figures/
+docs/figures_en/
+docs/cover_letter_applied_ai.tex
+docs/cover_letter_applied_ai.pdf
+docs/cover_letter_statistica_neerlandica.tex
+docs/cover_letter_statistica_neerlandica.pdf
+docs/cover_letter_aquacultural_engineering.tex
+docs/cover_letter_aquacultural_engineering.pdf
+docs/cover_letter_environmental_modelling_software.tex
+docs/cover_letter_environmental_modelling_software.pdf
+docs/highlights_environmental_modelling_software.tex
+docs/highlights_environmental_modelling_software.pdf
+docs/cover_letter_ecological_informatics.tex
+docs/cover_letter_ecological_informatics.pdf
+docs/highlights_ecological_informatics.tex
+docs/highlights_ecological_informatics.pdf
+docs/supplementary_material.tex
+docs/supplementary_material.pdf
+docs/revision_sistematica_biofloc_reduced.tex
+docs/revision_sistematica_biofloc_reduced.pdf
+docs/figures_en/fig_sankey_pipeline.pdf
+docs/figures_en/fig_sankey_pipeline.png
+docs/highlights_applied_ai.tex
+docs/highlights_applied_ai.pdf
 docs/OSF_PREREGISTRATION.md
 
 # Institutional session cookies (Shibboleth/OpenAthens). Never commit:
@@ -75,3 +100,15 @@ data/fulltext/
 # auth tokens. Never commit.
 data/playwright_profile/
 .playwright/
+
+# Third-party paper PDFs downloaded at repo root (Khraisha, Elsevier, etc.).
+# Copyright of their publishers — never redistribute in a public archive.
+/*.pdf
+
+# docs/ holds the manuscript narrative, cover letters, and author-identity
+# artifacts, which stay OUT of the public code archive until journal
+# acceptance. The per-filename entries above kept drifting as files were
+# renamed, so this rule ignores ALL of docs/ except the data documentation
+# that is genuinely part of the public pipeline. Drift-proof by construction.
+docs/*
+!docs/DATA.md

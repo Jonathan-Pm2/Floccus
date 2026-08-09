@@ -22,9 +22,13 @@ log = logging.getLogger(__name__)
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate all paper figures from processed parquets")
     parser.add_argument("--data-dir", type=Path, default=Path("data/processed"))
-    parser.add_argument("--out-dir", type=Path, default=Path("docs/figures"))
+    parser.add_argument("--out-dir", type=Path, default=None)
+    parser.add_argument("--lang", choices=["es", "en"], default="es")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
+    if args.out_dir is None:
+        args.out_dir = Path("docs") / ("figures_en" if args.lang == "en" else "figures")
+    args.out_dir.mkdir(parents=True, exist_ok=True)
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
@@ -49,28 +53,47 @@ def main() -> None:
 
     log.info("Generating figures into %s", args.out_dir)
 
-    fig1 = fig_source_distribution(biofloc, biplot)
+    TITLES = {
+        "es": dict(
+            fig3a="biofloc — Capa 2 scores por veredicto Capa 3",
+            fig3b="biplot — Capa 2 scores por veredicto Capa 3",
+            fig4a="biofloc — Confianza del juez LLM por veredicto",
+            fig4b="biplot — Confianza del juez LLM por veredicto",
+            fig5a="biofloc — Tamaños de cluster (Capa 1)",
+            fig5b="biplot — Tamaños de cluster (Capa 1)",
+        ),
+        "en": dict(
+            fig3a="biofloc — Layer 2 scores by Layer 3 verdict",
+            fig3b="biplot — Layer 2 scores by Layer 3 verdict",
+            fig4a="biofloc — LLM judge confidence by verdict",
+            fig4b="biplot — LLM judge confidence by verdict",
+            fig5a="biofloc — Cluster sizes (Layer 1)",
+            fig5b="biplot — Cluster sizes (Layer 1)",
+        ),
+    }[args.lang]
+
+    fig1 = fig_source_distribution(biofloc, biplot, lang=args.lang)
     save_fig(fig1, args.out_dir, "fig01_source_distribution")
 
-    fig2 = fig_dedup_waterfall(waterfall_stages)
+    fig2 = fig_dedup_waterfall(waterfall_stages, lang=args.lang)
     save_fig(fig2, args.out_dir, "fig02_dedup_waterfall")
 
-    fig3a = fig_capa2_scores_by_verdict(biofloc_judged, "biofloc — Capa 2 scores por veredicto Capa 3")
+    fig3a = fig_capa2_scores_by_verdict(biofloc_judged, TITLES["fig3a"], lang=args.lang)
     save_fig(fig3a, args.out_dir, "fig03a_capa2_scores_biofloc")
 
-    fig3b = fig_capa2_scores_by_verdict(biplot_judged, "biplot — Capa 2 scores por veredicto Capa 3")
+    fig3b = fig_capa2_scores_by_verdict(biplot_judged, TITLES["fig3b"], lang=args.lang)
     save_fig(fig3b, args.out_dir, "fig03b_capa2_scores_biplot")
 
-    fig4a = fig_capa3_confidence(biofloc_judged, "biofloc — Confianza del juez LLM por veredicto")
+    fig4a = fig_capa3_confidence(biofloc_judged, TITLES["fig4a"], lang=args.lang)
     save_fig(fig4a, args.out_dir, "fig04a_capa3_confidence_biofloc")
 
-    fig4b = fig_capa3_confidence(biplot_judged, "biplot — Confianza del juez LLM por veredicto")
+    fig4b = fig_capa3_confidence(biplot_judged, TITLES["fig4b"], lang=args.lang)
     save_fig(fig4b, args.out_dir, "fig04b_capa3_confidence_biplot")
 
-    fig5a = fig_cluster_size_histogram(biofloc_dedup_full, "biofloc — Tamaños de cluster (Capa 1)")
+    fig5a = fig_cluster_size_histogram(biofloc_dedup_full, TITLES["fig5a"], lang=args.lang)
     save_fig(fig5a, args.out_dir, "fig05a_cluster_sizes_biofloc")
 
-    fig5b = fig_cluster_size_histogram(biplot_dedup_full, "biplot — Tamaños de cluster (Capa 1)")
+    fig5b = fig_cluster_size_histogram(biplot_dedup_full, TITLES["fig5b"], lang=args.lang)
     save_fig(fig5b, args.out_dir, "fig05b_cluster_sizes_biplot")
 
     log.info("Done.")
