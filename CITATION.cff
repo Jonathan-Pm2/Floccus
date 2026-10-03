@@ -2,17 +2,19 @@ cff-version: 1.2.0
 title: "Floccus: PRISMA-compliant LLM-assisted screening pipeline for systematic literature reviews on biological floc dynamics"
 message: "If you use this software in academic work, please cite the accompanying manuscript and this software entry."
 type: software
+# Software authorship is credited separately from authorship of the
+# accompanying manuscript. The pipeline was implemented by the author
+# listed below; Karime Montes Escobar and Purificación Vicente Galindo
+# supervised the research and are recorded in the Zenodo deposition as
+# contributors with the "Supervisor" role (see .zenodo.json). CFF 1.2.0
+# has no typed-contributor field, so the distinction cannot be expressed
+# here; .zenodo.json is authoritative for the archived record.
 authors:
   - family-names: "Proaño Morales"
     given-names: "Jonathan Josué"
     affiliation: "Facultad de Posgrado, Universidad de Salamanca"
     email: "REDACTED_EMAIL"
-  - family-names: "Montes"
-    given-names: "Karime"
-    affiliation: "Facultad de Posgrado, Universidad de Salamanca"
-  - family-names: "Galindo"
-    given-names: "Purificación"
-    affiliation: "Facultad de Posgrado, Universidad de Salamanca"
+    orcid: "https://orcid.org/0000-0002-7140-5318"
 repository-code: "https://github.com/Jonathan-Pm2/Floccus"
 url: "https://github.com/Jonathan-Pm2/Floccus"
 abstract: >-
@@ -42,3 +44,7 @@ keywords:
 license: Apache-2.0
 version: "0.1.0"
 date-released: "2026-06-02"
+# Version DOI reserved on Zenodo for v0.1.0 (record not yet published).
+# Zenodo mints the CONCEPT DOI — the one that always resolves to the latest
+# version — only at publication time; replace this with the concept DOI then.
+doi: "10.5281/zenodo.21926427"
