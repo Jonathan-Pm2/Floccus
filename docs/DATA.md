@@ -117,6 +117,6 @@ Cualquier investigador puede reproducir el pipeline siguiendo este flujo:
 
 Para uso colaborativo académico que requiera acceso a los datos crudos
 (p. ej. validación de la regla asimétrica sobre el mismo corpus exacto),
-contactar al autor de correspondencia: **Purificación Galindo
-(REDACTED_EMAIL)**. Las solicitudes se evalúan caso a caso
-respetando los términos de servicio de cada base.
+abrir un issue en el repositorio
+(<https://github.com/Jonathan-Pm2/Floccus/issues>). Las solicitudes se
+evalúan caso a caso respetando los términos de servicio de cada base.

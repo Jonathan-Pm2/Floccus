@@ -29,7 +29,7 @@ from biofloc_review.schema import Corpus, PaperRecord, Source
 
 log = logging.getLogger(__name__)
 
-_DEFAULT_EMAIL = "REDACTED_EMAIL"
+_DEFAULT_EMAIL = ""  # set OPENALEX_EMAIL in .env to join the polite pool
 _MATCH_THRESHOLD = 85.0
 _YEAR_TOLERANCE = 1
 

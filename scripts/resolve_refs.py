@@ -11,6 +11,7 @@ already resolved.
 """
 from __future__ import annotations
 
+import os
 import time
 from pathlib import Path
 
@@ -35,6 +36,10 @@ def n_authors(authorships) -> int:
     return len(authorships or [])
 
 
+_EMAIL = os.environ.get("OPENALEX_EMAIL", "")
+USER_AGENT = f"Floccus/1.0 (mailto:{_EMAIL})" if _EMAIL else "Floccus/1.0"
+
+
 def fetch_one(doi: str) -> dict:
     doi_clean = doi.strip()
     if doi_clean.startswith("http"):
@@ -43,7 +48,7 @@ def fetch_one(doi: str) -> dict:
         url = f"https://api.openalex.org/works/doi:{doi_clean}"
     try:
         r = requests.get(url, timeout=20,
-                         headers={"User-Agent": "Floccus/1.0 (mailto:REDACTED_EMAIL)"})
+                         headers={"User-Agent": USER_AGENT})
         if r.status_code != 200:
             return {"ok": False, "status": r.status_code}
         d = r.json()
