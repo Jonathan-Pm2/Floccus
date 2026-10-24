@@ -325,37 +325,50 @@ def fig10_umap_clusters() -> None:
 # fig12_methods_temporal — temporal adoption of modelling methods
 # ---------------------------------------------------------------------------
 def fig12_methods_temporal() -> None:
-    periods = ["<2000", "2000-2009", "2010-2014", "2015-2019", "2020-2026"]
-    n_pdfs = [6, 15, 30, 102, 141]
-    series = {
-        "ASM":        [33.3, 46.7, 50.0, 36.3, 32.6],
-        "ODE":        [0.0, 33.3, 36.7, 24.5, 19.1],
-        "ML_ANN":     [0.0, 13.3, 3.3,  20.6, 27.7],
-        "Stochastic": [0.0, 6.7,  10.0, 7.8,  9.2],
-        "CFD":        [16.7, 13.3, 6.7, 8.8, 5.7],
-        "PDE":        [0.0, 0.0,  6.7,  2.0,  2.1],
-        "PINN":       [0.0, 0.0,  0.0,  0.0,  0.7],
-    }
-    markers = {"ASM": "o", "ODE": "s", "ML_ANN": "^", "Stochastic": "D",
-               "CFD": "v", "PDE": ">", "PINN": "*"}
+    """Share of downloaded full texts mentioning each method, per period,
+    with exact Clopper-Pearson 95% intervals.
 
-    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(13, 4.3))
-    for k, vals in series.items():
-        ax_a.plot(periods, vals, marker=markers[k], label=k, linewidth=1.6, markersize=7)
-    ax_a.set_title("Temporal adoption of modelling methods")
-    ax_a.set_xlabel("Period")
-    ax_a.set_ylabel("% PDFs mentioning the method")
-    ax_a.legend(ncol=2, fontsize=9, frameon=False, loc="upper left")
+    Computed from papers_with_methods.parquet (previously the values were
+    typed in by hand). The two earliest periods are pooled (n = 6 and 15)
+    because n = 6 alone does not support an estimate; every interval is
+    shown so that overlapping periods are not read as trends (reviewer 2).
+    """
+    from scipy.stats import beta
+
+    p = pd.read_parquet(DATA / "papers_with_methods.parquet").dropna(subset=["year"])
+    bins, periods = [0, 2009, 2014, 2019, 2100], ["<2010", "2010–2014", "2015–2019", "2020–2026"]
+    p["period"] = pd.cut(p.year, bins, labels=periods)
+    n = p.groupby("period", observed=False).size().reindex(periods).to_numpy()
+    shown = {"ASM": ("has_ASM", "o"), "ODE": ("has_ODE", "s"),
+             "ML / ANN": ("has_ML_ANN", "^"), "PINN": ("has_PINN", "*")}
+
+    def cp(k, m):
+        lo = beta.ppf(.025, k, m - k + 1) if k else 0.0
+        hi = beta.ppf(.975, k + 1, m - k) if k < m else 1.0
+        return lo, hi
+
+    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(13, 4.4), gridspec_kw={"width_ratios": [2.1, 1]})
+    x = np.arange(len(periods))
+    for j, (lab, (col, mk)) in enumerate(shown.items()):
+        k = p.groupby("period", observed=False)[col].sum().reindex(periods).to_numpy().astype(int)
+        pct = 100 * k / n
+        lo, hi = np.array([cp(kk, nn) for kk, nn in zip(k, n)]).T * 100
+        off = (j - 1.5) * 0.09
+        ax_a.errorbar(x + off, pct, yerr=[pct - lo, hi - pct], marker=mk, markersize=7,
+                      linewidth=1.5, capsize=3, label=lab)
+    ax_a.set_xticks(x, periods)
+    ax_a.set_title("Share of full texts mentioning each method (95% CI)")
+    ax_a.set_xlabel("Period"); ax_a.set_ylabel("% of full texts")
+    ax_a.set_ylim(0, 75)
+    ax_a.legend(ncol=2, fontsize=9, frameon=False, loc="upper right")
     ax_a.grid(True, alpha=0.3, linestyle=":")
 
-    bars = ax_b.bar(periods, n_pdfs, color=AZUL, edgecolor="white")
-    for b, v in zip(bars, n_pdfs):
-        ax_b.text(b.get_x() + b.get_width() / 2, v + 2,
-                  f"{v}", ha="center", fontsize=10)
-    ax_b.set_title("Sample size per period")
-    ax_b.set_xlabel("Period")
-    ax_b.set_ylabel("Number of downloaded PDFs")
-    ax_b.set_ylim(0, max(n_pdfs) * 1.15)
+    bars = ax_b.bar(periods, n, color=AZUL, edgecolor="white")
+    for bb, v in zip(bars, n):
+        ax_b.text(bb.get_x() + bb.get_width() / 2, v + 2, f"{v}", ha="center", fontsize=10)
+    ax_b.set_title("Full texts per period (n)")
+    ax_b.set_xlabel("Period"); ax_b.set_ylabel("Number of full texts")
+    ax_b.set_ylim(0, max(n) * 1.15)
     fig.tight_layout()
     _save(fig, "fig12_methods_temporal")
 
