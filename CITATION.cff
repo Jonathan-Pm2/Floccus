@@ -44,7 +44,7 @@ keywords:
 license: Apache-2.0
 version: "0.1.0"
 date-released: "2026-06-02"
-# Version DOI reserved on Zenodo for v0.1.0 (record not yet published).
-# Zenodo mints the CONCEPT DOI — the one that always resolves to the latest
-# version — only at publication time; replace this with the concept DOI then.
-doi: "10.5281/zenodo.21926427"
+# Concept DOI: resolves to the latest published version of the record.
+# The version DOI for v0.1.0 is 10.5281/zenodo.21926427; cite the concept
+# DOI below unless a specific version must be pinned.
+doi: "10.5281/zenodo.21926426"

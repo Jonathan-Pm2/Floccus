@@ -112,3 +112,6 @@ data/playwright_profile/
 # that is genuinely part of the public pipeline. Drift-proof by construction.
 docs/*
 !docs/DATA.md
+
+# MDPI journal template (third-party, not part of the software)
+submission_mpdi_revew/
