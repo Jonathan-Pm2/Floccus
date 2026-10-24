@@ -313,6 +313,30 @@ Notas que justifican configuraciones no obvias del pipeline.
 - Cada `cluster_id` es un SHA-1 truncado determinista sobre la clave canónica, estable entre corridas.
 - Las decisiones de fusión llevan un campo `merged_from` con los `source_id` de cada fuente absorbida, habilitando auditoría completa.
 
+## Corpus audit and reproducibility
+
+Five scripts recompute, from the persisted artefacts in `data/processed/`, the
+corpus-audit figures reported in the revised manuscript. They need no LLM,
+Qdrant or OpenAlex access; each writes one JSON and prints it.
+
+| script | reproduces | output |
+|---|---|---|
+| `scripts/dedup_audit.py` | Layer 1 (22,056 → 17,326; multi-source clusters), Layer 2 pairs and cosine bands, Layer 3 verdicts and confidence, union-find closure (240 components, 251 merges → 17,075), the 12 repeated SciELO records (→ 17,063), duplicates with two DOIs | `dedup_audit.json` |
+| `scripts/cluster_labels.py` | top-10 title terms and three representative titles per cluster, with the match rate against the archived terms in `eligible_clusters_info.parquet` | `cluster_label_evidence.json` |
+| `scripts/cluster_topic_crosscheck.py` | clusters vs OpenAlex topics: top and runner-up topic per cluster, topic coverage, NMI, AMI with a permutation null, purity | `cluster_topic_crosscheck.json` |
+| `scripts/cluster_reproducibility.py` | re-run of UMAP+HDBSCAN (ARI vs archived labels), C03/C15 sub-clustering, its n_neighbors × n_components sensitivity grid and sub-cluster profiles (~1 min) | `cluster_reproducibility.json` |
+| `scripts/scielo_language_audit.py` | SciELO screening outcome, citation profile, weight in C03, the three SciELO INCLUDE records, declared-language counts (bilingual records counted for each language) | `scielo_language_audit.json` |
+
+```bash
+.venv/bin/python scripts/dedup_audit.py   # same pattern for the other four
+.venv/bin/python -m pytest -q tests/test_corpus_audit.py
+```
+
+The cluster labels were archived without the code that produced them; the
+reimplementation reports its agreement (248/250 terms, 23/25 identical ranked
+lists, 25/25 sample lists) rather than claiming exactness. UMAP results depend
+on the library versions pinned in `uv.lock`.
+
 ## Screening operating modes
 
 The title-and-abstract screener can run at two operating points. They differ
