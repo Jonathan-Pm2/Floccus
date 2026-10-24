@@ -450,90 +450,101 @@ def check_links(out: Path) -> tuple[int, list[str]]:
 
 # --------------------------------------------------------------------------
 def build_figure(path: Path, d: dict, lang: str = "en") -> None:
-    """Static cluster-to-family graph for the manuscript (networkx + matplotlib).
+    """Static cluster-to-family graph for the manuscript, drawn as a bipartite layout.
 
-    The six equation families are pinned on a hexagon so the spring layout
-    only has to place the clusters around them; otherwise the mutually
-    coupled families collapse into an unreadable centre.
+    Clusters form the left column (named, with their size) and the six
+    equation families the right column, in hierarchy order. Clusters are
+    ordered by the barycentre of their evidence edges, which keeps edge
+    crossings low. Couplings between families are drawn as arcs on the right
+    margin and the C03-C15 bridge as an arc on the left margin, so no edge
+    crosses the centre of the figure. Drawn at printed width (7 in).
     """
-    import math
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    import networkx as nx
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import FancyArrowPatch
 
-    SHORT = {"monod": "Monod\n(ODE)", "asm": "ASM", "pbm": "PBM", "langevin": "Langevin /\nFokker–Planck",
-             "cfd": "Navier–Stokes\n/ CFD", "pinn": "PINN /\ndata-driven"}
-    if lang == "es":
-        SHORT = {**SHORT, "monod": "Monod\n(EDO)", "pinn": "PINN /\nbasados en datos"}
-    mbc = d["mbc"].set_index("cluster")
+    es = lang == "es"
+    FAM = {"monod": "Monod kinetics (ODE)", "asm": "Activated-sludge models (ASM)",
+           "langevin": "Langevin / Fokker–Planck", "pbm": "Population balance (PBM)",
+           "cfd": "Navier–Stokes / CFD", "pinn": "Data-driven / PINN"}
+    if es:
+        FAM = {"monod": "Cinética de Monod (EDO)", "asm": "Modelos de lodos activados (ASM)",
+               "langevin": "Langevin / Fokker–Planck", "pbm": "Balance de población (PBM)",
+               "cfd": "Navier–Stokes / CFD", "pinn": "Basados en datos / PINN"}
+    order = ["monod", "asm", "langevin", "pbm", "cfd", "pinn"]   # elementary -> hybrid
     summ = d["summary"].set_index("cluster")
-    G = nx.Graph()
+    name = (summ["label"].to_dict() if es else CLUSTER_LABEL)
+
+    # evidence weights: full texts of a cluster mentioning a family's methods
+    mbc = d["mbc"].set_index("cluster")
+    W = {}
     for c in summ.index:
-        G.add_node(("c", int(c)), kind="cluster", n=int(summ.loc[c].n), core=int(c) in CORE_CLUSTERS)
-    fams = [k for k in FAMILY if k != "floccus"]
-    for fkey in fams:
-        G.add_node(("f", fkey), kind="family")
-    for c in mbc.index:
-        if int(c) == -1 or ("c", int(c)) not in G:
+        if c not in mbc.index:
             continue
-        m = mbc.loc[c]
-        fam_w = defaultdict(int)
         for key, fs in METHOD_FAMILIES.items():
-            n = int(m.get(key, 0))
             for f in fs:
-                fam_w[f] += n
-        for f, w in fam_w.items():
-            if w:
-                G.add_edge(("c", int(c)), ("f", f), weight=w, kind="evidence")
+                W[(int(c), f)] = W.get((int(c), f), 0) + int(mbc.loc[c].get(key, 0))
+    W = {k: v for k, v in W.items() if v}
+
+    fy = {f: 1 - i / (len(order) - 1) for i, f in enumerate(order)}          # families top -> bottom
+    def bary(c):
+        e = [(fy[f], w) for (cc, f), w in W.items() if cc == c]
+        return sum(y * w for y, w in e) / sum(w for _, w in e) if e else -1
+    clusters = sorted((int(c) for c in summ.index), key=lambda c: (-bary(c), c))
+    clusters.remove(15)                                   # keep the bridged pair adjacent
+    clusters.insert(clusters.index(3), 15)
+    CORE_COL = {3: "#BE0032", 15: "#0067A5"}              # same colours as the thematic map
+    cy = {c: 1.04 - 1.08 * i / (len(clusters) - 1) for i, c in enumerate(clusters)}
+    XC, XF = 0.0, 1.0
+
+    fig, ax = plt.subplots(figsize=(7.0, 7.4))
+    for (c, f), w in sorted(W.items(), key=lambda kv: kv[1]):
+        core = c in CORE_CLUSTERS
+        ax.plot([XC, XF], [cy[c], fy[f]], color=CORE_COL.get(c, "#9aa3ad"),
+                alpha=0.9 if core else 0.22, lw=0.4 + 0.45 * w ** 0.5, zorder=2 if core else 1,
+                solid_capstyle="round")
+    # couplings between families: arcs on the right margin
     for title, a, b, _, proposed in COUPLINGS:
-        if a != b:
-            G.add_edge(("f", a), ("f", b), weight=3, kind="proposed" if proposed else "coupling")
+        if a == b:
+            continue
+        ya, yb = fy[a], fy[b]
+        rad = (0.95 if proposed else 0.55) * (-1 if ya > yb else 1)   # proposed arcs wider: no overlap
+        ax.add_patch(FancyArrowPatch((XF + 0.012, ya), (XF + 0.012, yb), connectionstyle=f"arc3,rad={rad}",
+                                     arrowstyle="-", lw=1.3, ls="--" if proposed else "-",
+                                     color="#E07B00" if proposed else "#333333", zorder=2, clip_on=False))
+    # C03-C15 bridge: arc on the left margin
     nb = int((d["bridges"]["bridge_score"] >= BRIDGE_THRESHOLD).sum())
-    G.add_edge(("c", 3), ("c", 15), weight=nb, kind="bridge")
+    ax.add_patch(FancyArrowPatch((XC - 0.012, cy[3]), (XC - 0.012, cy[15]),
+                                 connectionstyle=f"arc3,rad={0.5 if cy[3] > cy[15] else -0.5}",
+                                 arrowstyle="-", lw=2.2, color="#c19a3e", zorder=2))
+    for c in clusters:
+        core = c in CORE_CLUSTERS
+        n = int(summ.loc[c].n)
+        ax.scatter([XC], [cy[c]], s=12 + 0.45 * n, color=CORE_COL.get(c, "#6d9bb5"),
+                   edgecolors="black" if core else "white", linewidths=0.5, zorder=3)
+        ax.text(XC - 0.10 if core else XC - 0.045, cy[c], f"C{c:02d}  {name[c]} ({n})", ha="right",
+                va="center", fontsize=6.8, fontweight="bold" if core else "normal",
+                color=CORE_COL.get(c, "#222222"))
+    for f in order:
+        ax.scatter([XF], [fy[f]], s=260, marker="s", color="#4a7c59", edgecolors="white", zorder=3)
+        ax.text(XF + 0.02, fy[f] + 0.042, FAM[f], ha="right", va="bottom", fontsize=7.3, fontweight="bold",
+                color="#1f3b2a", bbox=dict(boxstyle="square,pad=0.1", fc="white", ec="none", alpha=0.85), zorder=4)
+    ax.set_xlim(-1.05, 1.62); ax.set_ylim(-0.12, 1.12); ax.set_axis_off()
 
-    # families pinned on a hexagon (order follows the hierarchy: elementary -> mean-field -> macroscopic -> hybrid)
-    order = ["monod", "langevin", "asm", "pbm", "cfd", "pinn"]
-    fixed = {("f", k): (0.42 * math.cos(math.pi / 2 + i * 2 * math.pi / 6),
-                        0.42 * math.sin(math.pi / 2 + i * 2 * math.pi / 6)) for i, k in enumerate(order)}
-    pos = nx.spring_layout(G, pos=fixed, fixed=list(fixed), seed=20260603, k=0.9, iterations=300, weight="weight")
-    # clusters on an evenly spaced outer ring: keep the angular order the
-    # spring layout found (each cluster near the families it evidences) but
-    # equalise the spacing so every node and label is visible.
-    cl_nodes = [n for n in G.nodes if n[0] == "c"]
-    cl_nodes.sort(key=lambda n: math.atan2(pos[n][1], pos[n][0]))
-    start = math.atan2(pos[cl_nodes[0]][1], pos[cl_nodes[0]][0])
-    R = 0.88
-    for i, n in enumerate(cl_nodes):
-        ang = start + i * 2 * math.pi / len(cl_nodes)
-        pos[n] = (R * math.cos(ang), R * math.sin(ang))
-
-    fig, ax = plt.subplots(figsize=(10.5, 10.5))
-    for kind, style in (("evidence", dict(color="#9aa5b1", alpha=.5)),
-                        ("coupling", dict(color="#2f6d8c", alpha=.95)),
-                        ("proposed", dict(color="#b0553f", alpha=.95, style="dashed")),
-                        ("bridge", dict(color="#c19a3e", alpha=.95))):
-        es = [(u, v) for u, v, k in G.edges(data="kind") if k == kind]
-        ws = [0.5 + 0.3 * G[u][v]["weight"] ** 0.5 for u, v in es]
-        nx.draw_networkx_edges(G, pos, edgelist=es, width=ws, edge_color=style["color"],
-                               alpha=style["alpha"], style=style.get("style", "solid"), ax=ax)
-    cl = [n for n, k in G.nodes(data="kind") if k == "cluster"]
-    fa = [n for n, k in G.nodes(data="kind") if k == "family"]
-    nx.draw_networkx_nodes(G, pos, nodelist=cl, node_size=[80 + 2.4 * G.nodes[n]["n"] for n in cl],
-                           node_color=["#b0553f" if G.nodes[n]["core"] else "#6d9bb5" for n in cl],
-                           edgecolors="white", linewidths=.8, ax=ax)
-    nx.draw_networkx_nodes(G, pos, nodelist=fa, node_size=1500, node_shape="s", node_color="#4a7c59",
-                           edgecolors="white", linewidths=1.2, ax=ax)
-    nx.draw_networkx_labels(G, pos, {n: f"C{n[1]:02d}" for n in cl}, font_size=7.5, ax=ax)
-    for n in fa:                      # family labels sit just below their square, in dark text
-        x, y = pos[n]
-        ax.text(x, y - 0.075, SHORT[n[1]], ha="center", va="top", fontsize=8.5, fontweight="bold", color="#1f3b2a")
-    ax.set_xlim(-1.0, 1.0); ax.set_ylim(-1.02, 1.0); ax.set_aspect("equal"); ax.set_axis_off()
+    L = (["full-text evidence (width ∝ papers)", "coupling operator", "operator proposed here",
+          f"C03–C15 bridge ({nb} papers, b ≥ 0.7)"] if not es else
+         ["evidencia en texto completo (grosor ∝ artículos)", "operador de acoplamiento",
+          "operador propuesto aquí", f"puente C03–C15 ({nb} artículos, b ≥ 0,7)"])
+    handles = [Line2D([], [], color="#9aa3ad", lw=1.6), Line2D([], [], color="#333333", lw=1.3),
+               Line2D([], [], color="#E07B00", lw=1.3, ls="--"), Line2D([], [], color="#c19a3e", lw=2.2)]
+    ax.legend(handles, L, loc="lower center", bbox_to_anchor=(0.5, -0.04), ncol=2, fontsize=6.8, frameon=False)
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, bbox_inches="tight")
     fig.savefig(path.with_suffix(".png"), dpi=300, bbox_inches="tight")
-    print(f"[figure] {path}  nodes={G.number_of_nodes()} edges={G.number_of_edges()} bridge_papers={nb}")
+    print(f"[figure] {path}  clusters={len(clusters)} evidence_edges={len(W)} bridge_papers={nb}")
 
 
 # --------------------------------------------------------------------------
