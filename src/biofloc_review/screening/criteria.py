@@ -28,6 +28,10 @@ class Criterion:
     question: str            # Spanish yes/no question for the LLM
     justification: str       # Why this criterion exists (manuscript text)
     deterministic: bool      # True if evaluated without LLM
+    # Positive phrasing used only in the "sensitivity" operating mode. When
+    # set, the classifier asks this question and inverts the answer, so the
+    # criterion keeps its meaning while the model never answers a negation.
+    positive_question: str | None = None
 
 
 CRITERIA: list[Criterion] = [
@@ -97,6 +101,11 @@ CRITERIA: list[Criterion] = [
         ),
         justification="Descarta estudios solo descriptivos.",
         deterministic=False,
+        positive_question=(
+            "¿El estudio incluye algún componente cuantitativo formal de "
+            "modelación (ecuaciones, modelos matemáticos o simulaciones), y no "
+            "solo el reporte de mediciones?"
+        ),
     ),
     Criterion(
         id="E3",

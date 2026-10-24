@@ -312,3 +312,29 @@ Notas que justifican configuraciones no obvias del pipeline.
 - Parquets intermedios en `data/processed/` preservan el estado de cada fase, permitiendo reanudar desde cualquier punto.
 - Cada `cluster_id` es un SHA-1 truncado determinista sobre la clave canónica, estable entre corridas.
 - Las decisiones de fusión llevan un campo `merged_from` con los `source_id` de cada fuente absorbida, habilitando auditoría completa.
+
+## Screening operating modes
+
+The title-and-abstract screener can run at two operating points. They differ
+only in how two things are asked of the language model; the eleven criteria and
+the asymmetric decision rule are the same.
+
+| mode | prompt | E2 ("purely experimental, no modelling") | trade-off |
+|---|---|---|---|
+| `specificity` (default) | answer first, then reasoning — the published configuration | asked as written (negative) | fewer records reach human review |
+| `sensitivity` | reasoning first, answer last | asked positively ("does it include formal modelling?") and inverted | higher recall, more human review |
+
+```bash
+python -m biofloc_review.run_screening data/processed/biofloc_final_primary_v3.parquet --mode sensitivity
+# or: FLOCCUS_SCREENING_MODE=sensitivity
+```
+
+Why two modes. In blind validation, most records the human reviewer accepted
+but the pipeline excluded were rejected by E2 with a reasoning that argued the
+opposite of the verdict: with the answer requested before the reasoning, and
+the criterion phrased as a negation, the model committed to the wrong polarity.
+Asking for the reasoning first and phrasing E2 positively removes that error,
+which raises recall and lowers specificity. Measured operating points are
+reported in the manuscript; `scripts/pilot_prompt_v2.py` reproduces the
+validation-sample comparison and `scripts/rescreen_e2_sensitivity_mode.py` the
+corpus counts.

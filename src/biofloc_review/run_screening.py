@@ -19,6 +19,8 @@ Usage:
 """
 from __future__ import annotations
 
+import os
+
 import argparse
 import json
 import logging
@@ -151,7 +153,12 @@ def main() -> None:
     parser.add_argument("--resume", action="store_true",
                         help="Saltar record_id ya presentes en el parquet de salida")
     parser.add_argument("--verbose", "-v", action="store_true")
+    parser.add_argument("--mode", choices=["specificity", "sensitivity"], default=None,
+                        help="operating mode (default: specificity, the published "
+                             "configuration; sensitivity trades specificity for recall)")
     args = parser.parse_args()
+    if args.mode:
+        os.environ["FLOCCUS_SCREENING_MODE"] = args.mode
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
