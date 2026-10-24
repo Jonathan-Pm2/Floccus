@@ -281,43 +281,83 @@ def fig09_publishers_eligible() -> None:
 # ---------------------------------------------------------------------------
 # fig10_umap_clusters — UMAP 2D + HDBSCAN
 # ---------------------------------------------------------------------------
+# 25 visually distinct colours (Kelly's set plus five), so no two clusters share
+# a colour; the two clusters the paper turns on get the strongest hues.
+_DISTINCT = ["#20B2AA", "#875692", "#F38400", "#A1CAF1", "#C2B280", "#848482",
+             "#008856", "#E68FAC", "#F99379", "#604E97", "#8B008B", "#B3446C",
+             "#DCD300", "#882D17", "#8DB600", "#654522", "#E25822", "#2B3D26",
+             "#17BECF", "#9467BD", "#7F7F00", "#00A087", "#FF1493"]
+_FOCUS = {3: "#BE0032", 15: "#0067A5"}   # C03 biofloc, C15 floc structure
+
+
+def _cluster_colours(ids: list[int]) -> dict[int, str]:
+    rest = iter(_DISTINCT)
+    return {c: _FOCUS.get(c) or next(rest) for c in ids}
+
+
 def fig10_umap_clusters() -> None:
+    """Thematic map, sized for the printed page.
+
+    The plot is drawn at its final width so that fonts are not shrunk by
+    LaTeX; clusters are labelled in place; C03 and C15 are emphasised; and
+    the view leaves out six near-identical unclustered records that sit far
+    below the rest and would compress the map (stated in the caption).
+    """
+    import matplotlib.patheffects as pe
+    from matplotlib.lines import Line2D
+
     umap = np.load(DATA / "eligible_umap2d.npy")
     clusters = np.load(DATA / "eligible_clusters.npy")
     n = len(clusters)
+    ids = sorted(int(c) for c in set(clusters) if c != -1)
+    colour = _cluster_colours(ids)
 
-    fig, ax = plt.subplots(figsize=(12, 8))
-    cmap = plt.cm.tab20
-    unique = sorted(set(int(c) for c in clusters))
+    # frame = every clustered record; only unclustered records beyond it are cut
+    lo, hi = umap[clusters != -1].min(axis=0), umap[clusters != -1].max(axis=0)
+    pad = 0.05 * (hi - lo)
+    inside = np.all((umap >= lo - pad) & (umap <= hi + pad), axis=1)
 
-    for c in unique:
-        mask = clusters == c
-        if c == -1:
-            ax.scatter(umap[mask, 0], umap[mask, 1], c="#cccccc", s=8,
-                       alpha=0.5, label=f"C-1: Unclustered (n={mask.sum()})")
-        else:
-            color = cmap((c % 20) / 20)
-            ax.scatter(umap[mask, 0], umap[mask, 1], c=[color], s=10,
-                       alpha=0.8, edgecolor="white", linewidth=0.2)
-    handles = []
-    from matplotlib.lines import Line2D
-    for c in unique:
-        if c == -1:
-            color = "#cccccc"
-            label = f"C-1: Unclustered"
-        else:
-            color = cmap((c % 20) / 20)
-            label = f"C{c:02d}: {CLUSTER_LABELS_LONG_EN.get(c, CLUSTER_LABELS_EN.get(c, str(c)))}"
-        handles.append(Line2D([0], [0], marker="o", color="w",
-                              markerfacecolor=color, markersize=8, label=label))
-    ax.legend(handles=handles, loc="upper left", bbox_to_anchor=(1.02, 1),
-              fontsize=8.5, frameon=False)
-    ax.set_title(f"Thematic map of the eligible corpus (n={n:,})   UMAP 2D + HDBSCAN")
-    ax.set_xlabel("UMAP-1")
-    ax.set_ylabel("UMAP-2")
-    ax.set_xticks([])
-    ax.set_yticks([])
-    fig.tight_layout()
+    fig = plt.figure(figsize=(7.0, 8.4))
+    ax = fig.add_axes([0.02, 0.36, 0.96, 0.62])
+    noise = clusters == -1
+    ax.scatter(*umap[noise].T, s=2.5, c="#d0d0d0", linewidths=0, zorder=1)
+    for c in ids:
+        m = clusters == c
+        focus = c in _FOCUS
+        ax.scatter(*umap[m].T, s=6 if focus else 3.5, c=colour[c],
+                   alpha=0.95 if focus else 0.75, linewidths=0.2 if focus else 0,
+                   edgecolors="black" if focus else "none", zorder=3 if focus else 2)
+    for c in ids:
+        x, y = np.median(umap[clusters == c], axis=0)
+        ax.text(x, y, f"C{c:02d}", fontsize=8 if c in _FOCUS else 6.5,
+                fontweight="bold", ha="center", va="center", zorder=4,
+                color="black", path_effects=[pe.withStroke(linewidth=2.2, foreground="white")])
+    ax.set_xlim(lo[0] - pad[0], hi[0] + pad[0])
+    ax.set_ylim(lo[1] - pad[1], hi[1] + pad[1])
+    assert (clusters[~inside] == -1).all()
+    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_xlabel("UMAP 1", fontsize=8); ax.set_ylabel("UMAP 2", fontsize=8)
+    for side in ax.spines.values():
+        side.set_linewidth(0.6)
+
+    handles = [Line2D([0], [0], marker="o", ls="", markersize=5, markerfacecolor="#d0d0d0",
+                      markeredgecolor="none", label=f"Unclustered (n = {noise.sum():,})")]
+    for c in ids:
+        k = int((clusters == c).sum())
+        name = CLUSTER_LABELS_LONG_EN.get(c, CLUSTER_LABELS_EN[c])
+        handles.append(Line2D([0], [0], marker="o", ls="", markersize=5,
+                              markerfacecolor=colour[c],
+                              markeredgecolor="black" if c in _FOCUS else "none",
+                              label=f"C{c:02d}  {name} ({k})"))
+    leg = fig.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, 0.275),
+                     ncol=2, fontsize=7.4, frameon=False, handletextpad=0.3,
+                     columnspacing=1.2, labelspacing=0.35)
+    for t in leg.get_texts():
+        if t.get_text()[:3] in ("C03", "C15"):
+            t.set_fontweight("bold")
+    out = ~inside
+    print(f"[fig10] {n} records, {int(out.sum())} outside the frame, "
+          f"all unclustered: {bool((clusters[out] == -1).all())}")
     _save(fig, "fig10_umap_clusters")
 
 
@@ -347,28 +387,36 @@ def fig12_methods_temporal() -> None:
         hi = beta.ppf(.975, k + 1, m - k) if k < m else 1.0
         return lo, hi
 
-    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(13, 4.4), gridspec_kw={"width_ratios": [2.1, 1]})
+    with plt.rc_context({"font.size": 7.5, "axes.titlesize": 8, "axes.labelsize": 7.5}):
+        _fig12_draw(p, periods, n, shown, cp)
+
+
+def _fig12_draw(p, periods, n, shown, cp) -> None:
+    fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(7.0, 2.9), gridspec_kw={"width_ratios": [2.1, 1]})
     x = np.arange(len(periods))
     for j, (lab, (col, mk)) in enumerate(shown.items()):
         k = p.groupby("period", observed=False)[col].sum().reindex(periods).to_numpy().astype(int)
         pct = 100 * k / n
         lo, hi = np.array([cp(kk, nn) for kk, nn in zip(k, n)]).T * 100
         off = (j - 1.5) * 0.09
-        ax_a.errorbar(x + off, pct, yerr=[pct - lo, hi - pct], marker=mk, markersize=7,
-                      linewidth=1.5, capsize=3, label=lab)
+        ax_a.errorbar(x + off, pct, yerr=[pct - lo, hi - pct], marker=mk, markersize=4.5,
+                      linewidth=1.1, capsize=2, label=lab)
     ax_a.set_xticks(x, periods)
     ax_a.set_title("Share of full texts mentioning each method (95% CI)")
     ax_a.set_xlabel("Period"); ax_a.set_ylabel("% of full texts")
     ax_a.set_ylim(0, 75)
-    ax_a.legend(ncol=2, fontsize=9, frameon=False, loc="upper right")
+    ax_a.legend(ncol=2, fontsize=7, frameon=False, loc="upper right")
     ax_a.grid(True, alpha=0.3, linestyle=":")
 
     bars = ax_b.bar(periods, n, color=AZUL, edgecolor="white")
     for bb, v in zip(bars, n):
-        ax_b.text(bb.get_x() + bb.get_width() / 2, v + 2, f"{v}", ha="center", fontsize=10)
+        ax_b.text(bb.get_x() + bb.get_width() / 2, v + 2, f"{v}", ha="center", fontsize=7.5)
     ax_b.set_title("Full texts per period (n)")
     ax_b.set_xlabel("Period"); ax_b.set_ylabel("Number of full texts")
     ax_b.set_ylim(0, max(n) * 1.15)
+    ax_b.tick_params(axis="x", labelrotation=30)
+    for lab in ax_b.get_xticklabels():
+        lab.set_horizontalalignment("right")
     fig.tight_layout()
     _save(fig, "fig12_methods_temporal")
 
