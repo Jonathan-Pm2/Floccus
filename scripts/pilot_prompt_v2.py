@@ -79,11 +79,16 @@ INVERT = {"YES": "NO", "NO": "YES", "UNCLEAR": "UNCLEAR"}
 ANS = re.compile(r"ANSWER\s*:\s*(YES|NO|UNCLEAR)", re.I)
 
 
+def _text(value) -> str:
+    """Missing fields arrive as None or NaN after a merge; NaN is a truthy float."""
+    return value if isinstance(value, str) else ""
+
+
 def ask(row, cid: str) -> tuple[str, str]:
     msgs = [{"role": "system", "content": SYSTEM_V2.format(question=POSITIVE[cid])},
             {"role": "user", "content": USER.format(
-                title=row.title or "", abstract=(row.abstract or "(no abstract)")[:3000],
-                keywords=row.keywords or "", venue=row.venue or "")}]
+                title=_text(row.title), abstract=(_text(row.abstract) or "(no abstract)")[:3000],
+                keywords=_text(row.keywords), venue=_text(row.venue))}]
     text = _ollama_chat(msgs, model=default_llm_model())
     m = ANS.findall(text)               # last ANSWER wins: it is the post-reasoning verdict
     pos = m[-1].upper() if m else "UNCLEAR"
