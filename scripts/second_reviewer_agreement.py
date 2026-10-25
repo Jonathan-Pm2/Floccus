@@ -108,11 +108,12 @@ def pabak(t: np.ndarray) -> float:
 
 
 # ------------------------------------------------------------- workbook
-def validate_decisions(reg: pd.DataFrame, expected_n=None) -> tuple[pd.DataFrame, dict]:
+def validate_decisions(reg: pd.DataFrame, expected_n=None,
+                       levels=R2_LEVELS) -> tuple[pd.DataFrame, dict]:
     """Normalise the 'Registros' sheet. Returns (decided rows, problems).
 
-    Decisions are matched case- and whitespace-insensitively to Incluir /
-    Dudoso / Excluir. problems = {'blank': [N°...], 'invalid': [[N°, value]...],
+    Decisions are matched case- and whitespace-insensitively to levels
+    (default Incluir / Dudoso / Excluir). problems = {'blank': [N°...], 'invalid': [[N°, value]...],
     'missing_n': [N°...], 'duplicate_n': [N°...]}."""
     for col in (COL_N, COL_DEC):
         if col not in reg.columns:
@@ -121,7 +122,7 @@ def validate_decisions(reg: pd.DataFrame, expected_n=None) -> tuple[pd.DataFrame
     d = d[d[COL_N].notna()]
     d["n"] = d[COL_N].astype(int)
     raw = d[COL_DEC].astype("string").str.strip()
-    canon = {v.lower(): v for v in R2_LEVELS}
+    canon = {v.lower(): v for v in levels}
     d["r2_level"] = raw.str.lower().map(canon)
     blank = raw.isna() | raw.eq("")
     invalid = ~blank & d["r2_level"].isna()

@@ -102,10 +102,10 @@ def _join_keywords(k) -> str:
     return "; ".join(str(x) for x in k)
 
 
-def load_sample() -> pd.DataFrame:
-    """The 465 sampled records, with text taken from the corpus rather than the
-    sample CSV, whose text columns were double-encoded on export."""
-    ids = pd.read_parquet(DATA / "validation_sample_truth.parquet", columns=["review_id", "record_id"])
+def corpus_text(ids: pd.DataFrame) -> pd.DataFrame:
+    """Title, venue, year, DOI, abstract and keywords for the record_id values of
+    ids (other columns of ids are kept), with text taken from the corpus and
+    mojibake repaired."""
     dec = pd.read_parquet(DATA / "biofloc_final_decisions.parquet",
                           columns=["record_id", "title", "venue", "year", "doi"])
     src = pd.read_parquet(DATA / "biofloc_final_primary_v3.parquet",
@@ -121,28 +121,37 @@ def load_sample() -> pd.DataFrame:
     return out
 
 
-def build(out: Path) -> pd.DataFrame:
-    sample = load_sample().sort_values("review_id").reset_index(drop=True)
-    sample = sample.sample(frac=1, random_state=SEED).reset_index(drop=True)
-    sample.insert(0, "n", range(1, len(sample) + 1))
-    key = sample[["n", "review_id"]]
+def load_sample() -> pd.DataFrame:
+    """The 465 sampled records, with text taken from the corpus rather than the
+    sample CSV, whose text columns were double-encoded on export."""
+    ids = pd.read_parquet(DATA / "validation_sample_truth.parquet", columns=["review_id", "record_id"])
+    return corpus_text(ids)
 
-    wb = Workbook()
+
+# ------------------------------------------------------- workbook helpers
+def add_instructions_sheet(wb: Workbook, lines, counter: str):
+    """First sheet 'Instrucciones': styled lines plus a bold progress counter."""
     ins = wb.active
     ins.title = "Instrucciones"
     ins.column_dimensions["A"].width = 110
-    for i, (text, style) in enumerate(INSTRUCTIONS, start=1):
+    for i, (text, style) in enumerate(lines, start=1):
         cell = ins.cell(row=i, column=1, value=text)
         cell.alignment = Alignment(wrap_text=True, vertical="top")
         if style == "title":
             cell.font = Font(bold=True, size=14)
         elif style == "head":
             cell.font = Font(bold=True, size=11, color="1F4E79")
-    r = len(INSTRUCTIONS) + 2
-    ins.cell(row=r, column=1, value=f'=CONCATENATE("Registros decididos: ", '
-                                     f'COUNTA(Registros!H2:H{len(sample) + 1}), " de {len(sample)}")'
-             ).font = Font(bold=True)
+    ins.cell(row=len(lines) + 2, column=1, value=counter).font = Font(bold=True)
+    fit_to_width(ins)
+    return ins
 
+
+def counter_formula(ref: str, total: int, label: str = "Registros decididos") -> str:
+    return f'=CONCATENATE("{label}: ", COUNTA({ref}), " de {total}")'
+
+
+def add_criteria_sheet(wb: Workbook):
+    """Sheet 'Criterios' with the screening criteria used by the pipeline."""
     cri = wb.create_sheet("Criterios")
     cri.append(["Código", "Tipo", "Pregunta"])
     kind = {"inclusion": "Inclusión", "exclusion": "Exclusión", "derivation": "Duda (→ Dudoso)"}
@@ -156,7 +165,31 @@ def build(out: Path) -> pd.DataFrame:
             cell.alignment = Alignment(wrap_text=True, vertical="top")
     for cell in cri[1]:
         cell.font = Font(bold=True)
+    fit_to_width(cri)
+    return cri
 
+
+def fit_to_width(ws, landscape: bool = True) -> None:
+    """Print setup: one page wide, as many pages tall as needed."""
+    ws.page_setup.orientation = "landscape" if landscape else "portrait"
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+
+
+def add_list_validation(ws, values, ref: str, error: str | None = None) -> DataValidation:
+    """Dropdown with the given values on the cell range ref."""
+    kw = dict(showErrorMessage=True, errorTitle="Valor no válido", error=error) if error else {}
+    dv = DataValidation(type="list", formula1='"' + ",".join(values) + '"', allow_blank=True, **kw)
+    ws.add_data_validation(dv)
+    dv.add(ref)
+    return dv
+
+
+def write_records_sheet(wb: Workbook, sample: pd.DataFrame):
+    """Sheet 'Registros' of the screening workbooks: one row per record (columns
+    n, title, abstract, keywords, venue, year, doi of sample), decision columns
+    H-J with dropdowns."""
     reg = wb.create_sheet("Registros")
     head = ["N°", "Título", "Resumen", "Palabras clave", "Revista", "Año", "DOI",
             "Decisión", "Motivo principal de exclusión", "Comentario"]
@@ -176,16 +209,26 @@ def build(out: Path) -> pd.DataFrame:
         for cell in row[7:10]:
             cell.fill = fill
     reg.freeze_panes = "C2"
+    reg.print_title_rows = "1:1"
+    fit_to_width(reg)
     reg.auto_filter.ref = f"A1:J{len(sample) + 1}"
     last = len(sample) + 1
-    dv_dec = DataValidation(type="list", formula1='"' + ",".join(DECISIONS) + '"', allow_blank=True,
-                            showErrorMessage=True, errorTitle="Valor no válido",
-                            error="Elija Incluir, Dudoso o Excluir.")
-    dv_why = DataValidation(type="list", formula1='"' + ",".join(REASONS) + '"', allow_blank=True)
-    reg.add_data_validation(dv_dec)
-    reg.add_data_validation(dv_why)
-    dv_dec.add(f"H2:H{last}")
-    dv_why.add(f"I2:I{last}")
+    add_list_validation(reg, DECISIONS, f"H2:H{last}", "Elija Incluir, Dudoso o Excluir.")
+    add_list_validation(reg, REASONS, f"I2:I{last}")
+    return reg
+
+
+def build(out: Path) -> pd.DataFrame:
+    sample = load_sample().sort_values("review_id").reset_index(drop=True)
+    sample = sample.sample(frac=1, random_state=SEED).reset_index(drop=True)
+    sample.insert(0, "n", range(1, len(sample) + 1))
+    key = sample[["n", "review_id"]]
+
+    wb = Workbook()
+    ins = add_instructions_sheet(wb, INSTRUCTIONS,
+                                 counter_formula(f"Registros!H2:H{len(sample) + 1}", len(sample)))
+    add_criteria_sheet(wb)
+    write_records_sheet(wb, sample)
 
     wb.active = wb.index(ins)
     out.parent.mkdir(parents=True, exist_ok=True)
