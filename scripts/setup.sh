@@ -170,4 +170,4 @@ else:
 
 echo
 bold "== Setup completo =="
-echo "Próximos pasos sugeridos en README.md y SETUP.md."
+echo "Próximos pasos sugeridos en README.md."
