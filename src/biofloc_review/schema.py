@@ -12,6 +12,7 @@ class Source(StrEnum):
     IEEE = "ieee"
     SCIELO = "scielo"
     OPENALEX = "openalex"
+    PROQUEST = "proquest"
 
 
 class Corpus(StrEnum):
