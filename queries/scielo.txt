@@ -1,0 +1,40 @@
+# SciELO has no comparable boolean language. Each line below is one
+# independent search; the outputs were merged at ingestion and duplicates
+# removed by Layer-1 deduplication. Two adjacent words are interpreted by
+# SciELO as an implicit conjunction, not as an exact phrase.
+
+# Floc / biofloc axis
+biofloc
+bioflóculos
+flóculos microbianos
+flóculos bacterianos
+lodos activados
+
+# Periphyton axis
+perifiton
+perifíton
+
+# Wastewater treatment axis
+tratamiento aguas residuales
+aguas residuales modelo
+
+# Thematic combinations
+biofloc modelación
+biofloc acuicultura
+lodos activados modelo
+flóculos tratamiento agua
+modelación aguas residuales
+cinética crecimiento microbiano
+
+# English-language equivalents (second round). The protocol lists these
+# descriptors as the English equivalents of the searches above, replayed so
+# that records whose SciELO metadata is stored in English are also retrieved.
+biofloc
+microbial flocs
+bacterial flocs
+activated sludge
+periphyton
+wastewater treatment
+modeling
+simulation
+microbial growth kinetics
