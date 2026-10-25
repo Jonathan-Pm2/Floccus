@@ -1,0 +1,3 @@
+noft(("mathematical model*" OR "numerical model*" OR "kinetic model*" OR "growth kinetic*" OR simulation OR model*)
+ AND ("bacterial floc*" OR "microbial floc*" OR "floc dynamic*" OR "floc size" OR "floc formation" OR biofloc* OR "bio-floc*" OR BFT OR "biofloc technology" OR "zero water exchange" OR "minimal water exchange" OR periphyton OR "activated sludge")
+ AND (aquacultur* OR "shrimp culture" OR "fish culture" OR wastewater OR "waste water" OR "sewage treatment" OR "water treatment" OR "water quality"))
