@@ -1,0 +1,50 @@
+{
+  "identification": {
+    "by_source": {
+      "scopus": 6380,
+      "wos": 10685,
+      "ieee": 545,
+      "scielo": 4446
+    },
+    "total": 22056
+  },
+  "deduplication": {
+    "after_layer1_deterministic": 17326,
+    "after_layers2_3_and_merge": 17063,
+    "removed": 4993
+  },
+  "screening_layer1": {
+    "input": 17063,
+    "include": 1205,
+    "exclude": 11633,
+    "human_review": 4225,
+    "advanced": 5430
+  },
+  "screening_layer2": {
+    "input": 4225,
+    "processed": 4225,
+    "pending": 0,
+    "include": 180,
+    "exclude": 547,
+    "human_review": 3498
+  },
+  "final_specificity_mode": {
+    "exclude": 12180,
+    "human_review": 3498,
+    "include": 1385,
+    "to_eligibility": 4883
+  },
+  "final_sensitivity_mode": {
+    "exclude": 9586,
+    "human_review": 6092,
+    "include": 1385,
+    "to_eligibility": 7477
+  },
+  "deduplicated_by_source": {
+    "wos": 6385,
+    "scopus": 6291,
+    "scielo": 3857,
+    "ieee": 530
+  },
+  "note": "Counts recomputed from screening_decisions.csv except identification and deduplication, copied from the pipeline's PRISMA counts. screening_layer2.input counts the Layer-1 HUMAN_REVIEW records re-screened."
+}

@@ -31,7 +31,10 @@ echo "==> Zenodo deposit for Floccus v${VERSION}"
 
 # Refuse to ship anything that must stay private, even if .gitignore regresses.
 FORBIDDEN='(^|/)(Anonimus|Array|Authors|cover_letter|highlights|revision_sistematica|supplementary_material)|\.(pdf|csv|xls|parquet)$|cookies|\.env$'
-if git ls-files --cached --others --exclude-standard | grep -Ei "$FORBIDDEN"; then
+# release_data/ holds the derived decision tables (identifiers and decisions
+# only, see docs/DATA.md): its CSV files are the one sanctioned exception.
+ALLOWED='^release_data/[a-z0-9_]+\.csv$'
+if git ls-files --cached --others --exclude-standard | grep -Ev "$ALLOWED" | grep -Ei "$FORBIDDEN"; then
     echo "ABORT: the files listed above must not be published." >&2
     exit 1
 fi
