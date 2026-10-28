@@ -57,7 +57,7 @@ RIBBON_GREY = "rgba(125,135,148,0.40)"
 # ---------------------------------------------------------------------------
 # 1. Read data and compute the REAL cross-tabs and processing counts
 # ---------------------------------------------------------------------------
-def load_counts() -> dict:
+def load_counts(decisions: Path = DATA / "biofloc_final_decisions.parquet") -> dict:
     b = pd.read_parquet(DATA / "biofloc.parquet")
 
     def doc_bucket(x: str) -> str:
@@ -93,7 +93,9 @@ def load_counts() -> dict:
     lang_src = pd.crosstab(b["lang_b"], b["src_b"])
 
     # Post-deduplication per-source survivors (from the screening decisions).
-    dec = pd.read_parquet(DATA / "biofloc_final_decisions.parquet")
+    dec = pd.read_parquet(decisions)
+    if "in_round2_corpus" in dec.columns:      # round-2 table: merged-away records are flagged
+        dec = dec[dec.in_round2_corpus]
     src_dec = pd.crosstab(dec["source"].map(src_map).fillna(dec["source"]),
                           dec["final_decision"])
     survivors = src_dec.sum(axis=1)          # per source, post-dedup (= 17,063 total)
@@ -112,8 +114,15 @@ def load_counts() -> dict:
 # ---------------------------------------------------------------------------
 # 2. Build the Sankey
 # ---------------------------------------------------------------------------
-def build_sankey() -> go.Figure:
-    C = load_counts()
+def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
+                 n_oa_pdf: int = 297, n_extracted: int = 296) -> go.Figure:
+    """Processing-flow magnitudes come from the decision table; the full-text
+    stage (OA PDFs downloaded / text extracted) from the archived fetch log."""
+    C = load_counts(decisions)
+    d = C["decisions"]
+    n_inc, n_hr, n_exc = int(d["INCLUDE"]), int(d["HUMAN_REVIEW"]), int(d["EXCLUDE"])
+    n_dedup, n_elig = int(d.sum()), n_inc + n_hr
+    n_dups = int(C["identified"].sum()) - n_dedup
     doc_order = ["Article", "Other", "Proceedings", "Thesis", "Review"]
     lang_order = ["English", "Other/NA", "Spanish", "Portuguese", "Chinese"]
     src_order = ["WoS", "Scopus", "SciELO", "IEEE"]
@@ -159,23 +168,23 @@ def build_sankey() -> go.Figure:
         y += 0.22
 
     # ---- Column 4: deduplication gate ----
-    add("dedup", "Deduplicated 17,063", NODE_GREY, X_DEDUP, 0.45)
-    add("dups", "Duplicates 4,993", NODE_RED, X_DEDUP, 0.92)
+    add("dedup", f"Deduplicated {n_dedup:,}", NODE_GREY, X_DEDUP, 0.45)
+    add("dups", f"Duplicates {n_dups:,}", NODE_RED, X_DEDUP, 0.92)
 
     # ---- Column 5: screening decision ----
-    add("inc", "Include 1,385", NODE_GREEN, X_DEC, 0.30)
-    add("hr", "HumanReview 3,498", NODE_AMBER, X_DEC, 0.50)
-    add("exc", "Exclude 12,180", NODE_RED, X_DEC, 0.82)
+    add("inc", f"Include {n_inc:,}", NODE_GREEN, X_DEC, 0.30)
+    add("hr", f"HumanReview {n_hr:,}", NODE_AMBER, X_DEC, 0.50)
+    add("exc", f"Exclude {n_exc:,}", NODE_RED, X_DEC, 0.82)
 
     # ---- Column 6: eligible corpus ----
-    add("elig", "Eligible corpus 4,883", NODE_GREEN, X_ELIG, 0.42)
+    add("elig", f"Eligible corpus {n_elig:,}", NODE_GREEN, X_ELIG, 0.42)
 
     # ---- Column 7: full-text acquisition ----
-    add("oapdf", "OA PDFs 297", NODE_GREEN, X_FULLTEXT, 0.20)
-    add("manual", "Abstract-level 4,586", NODE_GREY, X_FULLTEXT, 0.60)
+    add("oapdf", f"OA PDFs {n_oa_pdf:,}", NODE_GREEN, X_FULLTEXT, 0.20)
+    add("manual", f"Abstract-level {n_elig - n_oa_pdf:,}", NODE_GREY, X_FULLTEXT, 0.60)
 
     # ---- Column 8: text extraction ----
-    add("extr", "Text extracted 296", NODE_GREEN, X_EXTRACT, 0.20)
+    add("extr", f"Text extracted {n_extracted:,}", NODE_GREEN, X_EXTRACT, 0.20)
 
     # ---- Column 9: final analysis ----
     add("analysis", "Analysis · 25 clusters", NODE_GREEN, X_ANALYSIS, 0.42)
@@ -211,20 +220,20 @@ def build_sankey() -> go.Figure:
         link(f"src_{s}", "dedup", surv, RIBBON)
         link(f"src_{s}", "dups", ident - surv, RIBBON_RED)
     # dedup -> decision (real)
-    link("dedup", "inc", 1385, RIBBON_GREEN)
-    link("dedup", "hr", 3498, RIBBON_AMBER)
-    link("dedup", "exc", 12180, RIBBON_RED)
+    link("dedup", "inc", n_inc, RIBBON_GREEN)
+    link("dedup", "hr", n_hr, RIBBON_AMBER)
+    link("dedup", "exc", n_exc, RIBBON_RED)
     # include + human review -> eligible
-    link("inc", "elig", 1385, RIBBON_GREEN)
-    link("hr", "elig", 3498, RIBBON_AMBER)
+    link("inc", "elig", n_inc, RIBBON_GREEN)
+    link("hr", "elig", n_hr, RIBBON_AMBER)
     # eligible -> full-text acquisition (297 OA PDFs) / abstract-level (rest)
-    link("elig", "oapdf", 297, RIBBON_GREEN)
-    link("elig", "manual", 4883 - 297, RIBBON_GREY)
+    link("elig", "oapdf", n_oa_pdf, RIBBON_GREEN)
+    link("elig", "manual", n_elig - n_oa_pdf, RIBBON_GREY)
     # OA PDFs -> text extracted (1 corrupt PDF lost)
-    link("oapdf", "extr", 296, RIBBON_GREEN)
+    link("oapdf", "extr", n_extracted, RIBBON_GREEN)
     # both streams feed the final thematic + methods analysis
-    link("extr", "analysis", 296, RIBBON_GREEN)
-    link("manual", "analysis", 4883 - 297, RIBBON_GREY)
+    link("extr", "analysis", n_extracted, RIBBON_GREEN)
+    link("manual", "analysis", n_elig - n_oa_pdf, RIBBON_GREY)
 
     fig = go.Figure(go.Sankey(
         arrangement="fixed",

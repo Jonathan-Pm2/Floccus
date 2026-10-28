@@ -295,19 +295,23 @@ def _cluster_colours(ids: list[int]) -> dict[int, str]:
     return {c: _FOCUS.get(c) or next(rest) for c in ids}
 
 
-def fig10_umap_clusters() -> None:
+def fig10_umap_clusters(keep: np.ndarray | None = None) -> None:
     """Thematic map, sized for the printed page.
 
     The plot is drawn at its final width so that fonts are not shrunk by
     LaTeX; clusters are labelled in place; C03 and C15 are emphasised; and
     the view leaves out six near-identical unclustered records that sit far
     below the rest and would compress the map (stated in the caption).
+    keep: optional boolean mask over the archived 4,682 records (round 2 drops
+    the records merged away as IEEE duplicates without refitting).
     """
     import matplotlib.patheffects as pe
     from matplotlib.lines import Line2D
 
     umap = np.load(DATA / "eligible_umap2d.npy")
     clusters = np.load(DATA / "eligible_clusters.npy")
+    if keep is not None:
+        umap, clusters = umap[keep], clusters[keep]
     n = len(clusters)
     ids = sorted(int(c) for c in set(clusters) if c != -1)
     colour = _cluster_colours(ids)
