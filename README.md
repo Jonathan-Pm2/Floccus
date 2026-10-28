@@ -14,7 +14,8 @@ It is the code archive of the article
 > Multi-Scale Unification of Biological-Floc Modelling Equations.**
 > Under review at *Algorithms* (MDPI).
 
-Version: **0.2.0** (the version cited by the manuscript).
+Version: **0.3.0** (round-2 revision; the manuscript as first submitted cites
+v0.2.0, see [Changelog](#changelog)).
 
 ## Pipeline
 
@@ -30,6 +31,10 @@ Scopus · Web of Science · IEEE Xplore · SciELO        (22,056 records)
   → 1,385 INCLUDE + 3,498 HUMAN_REVIEW = 4,883 eligible
   → thematic map   UMAP + HDBSCAN, 25 clusters
 ```
+
+The counts above are those of the archived run (round 1). The round-2 corpus
+(v0.3.0, see [Round 2](#round-2-corrections-v030)) has 16,965 unique records,
+1,395 INCLUDE + 3,488 HUMAN_REVIEW = 4,883 eligible.
 
 Stack: Python 3.12, uv, Pydantic, LangGraph, Qdrant (Docker), Ollama.
 
@@ -142,11 +147,74 @@ documents its inputs in its header. Scripts marked LLM need the Ollama server.
 
 All scripts live in `scripts/` and run as `.venv/bin/python scripts/<name>.py`.
 
+## Round 2 corrections (v0.3.0)
+
+The first review round surfaced two defects of the archived run. Both are
+corrected on top of the archived decision tables; nothing of round 1 is
+overwritten, and every script below has a unit test in `tests/`.
+
+1. **IEEE Xplore identifier collision.** The export's `Document Identifier`
+   is a content-type label (11 distinct values for 545 records), and it was
+   used as the IEEE `source_id`. Layer 1 keys on DOI and title, so it is
+   unaffected; in Layers 2–3 the IEEE points overwrote each other in Qdrant
+   and never entered the near-duplicate search. `ieee_integrity_check.py`
+   re-embeds every IEEE primary under its corrected id and repeats Layers 2–3
+   counterfactually: 145 candidate pairs, 124 `DUPLICATE` verdicts by the
+   Layer-3 judge, of which 98 are verified by an identical DOI or normalised
+   title. Only those 98 are applied.
+2. **Retired language criterion E5.** Layer 1 was run while a deterministic
+   language criterion E5 was still active; E5 was removed from the protocol
+   afterwards without recomputing decisions. Because it matched language names
+   by substring (`git show 54995c4^:src/biofloc_review/screening/prefilter.py`),
+   Chinese, French and Japanese records passed it and records whose language
+   field read `undefined` were flagged. E5 fired on 161 records and was
+   the sole exclusion criterion for 31. `rescreen_e5.py` puts those 31 through
+   the published pipeline without E5 (Layer 1 rule, enrichment, Layer 2,
+   cluster assignment): 11 INCLUDE, 15 HUMAN_REVIEW, 5 EXCLUDE. The 23
+   records excluded by E5 + E2 only are re-asked the corrected E2 of the
+   sensitivity mode.
+
+`build_round2_corpus.py` applies both corrections and recomputes every
+reported count OLD → NEW with the existing analysis scripts (imported). Each
+merged group keeps one record, chosen by the retention rule
+*validation-sample member > clustered record > record with DOI > IEEE record
+> smallest `record_id`*, so no validation-sample record leaves the corpus.
+Headline changes: unique records 17,063 → 16,965; eligible 4,883 (unchanged:
++26 −26); INCLUDE 1,385 → 1,395; sensitivity-mode workload 7,477 → 7,466.
+
+| step | script | output (`data/processed/`) |
+|---|---|---|
+| IEEE integrity check and counterfactual Layers 2–3 (Qdrant; embeddings cached, LLM judge) | `ieee_integrity_check.py` | `ieee_integrity.json`, `ieee_counterfactual_judged.json` |
+| E5 re-screen (LLM; resumable, `--workers`, `--e2-workers`, `--rps`, `--skip-llm`, `--skip-clusters`) | `rescreen_e5.py` | `e5_rescreen_results.json`, `e5_rescreen_decisions.parquet` |
+| round-2 corpus and all recomputed counts (`--reviewer2-workbook` required; `--quick` = 200 bootstrap draws, `--skip-bridge` skips the Qdrant block) | `build_round2_corpus.py` | `round2_final_decisions.parquet`, `round2_counts.json` |
+| WSS = (N − n_adv)/N − (1 − R̂): re-weighted vs exact-workload WSS per reference (after `second_reviewer_agreement.py`) | `wss_reconciliation.py` | `wss_reconciliation.json` |
+| cluster stability: 12 UMAP seeds, `min_cluster_size` 24–56, `n_neighbors` 15/50; ARI/AMI vs the published partition, per-cluster best Jaccard | `cluster_stability.py` | `cluster_stability.json` |
+| PRISMA flow, cluster table, Sankey and UMAP figure with round-2 counts (`--out-dir`, `--check-round1`) | `render_round2_figures.py` | TikZ/table sources, PDF/PNG in `--out-dir` |
+| published tables of the round-2 corpus | `export_release_data.py --round2` | `release_data/` |
+
+```bash
+.venv/bin/python scripts/ieee_integrity_check.py
+set -a; . ../.env; set +a
+.venv/bin/python scripts/rescreen_e5.py --workers 2
+.venv/bin/python scripts/build_round2_corpus.py --reviewer2-workbook <returned workbook.xlsx>
+.venv/bin/python scripts/wss_reconciliation.py
+.venv/bin/python scripts/cluster_stability.py
+.venv/bin/python scripts/render_round2_figures.py --out-dir <dir> --check-round1 ''
+.venv/bin/python scripts/export_release_data.py --round2 \
+  --reviewer2-workbook <...> --dedup-workbook <...> --c03-workbook <...>
+```
+
+`ieee_integrity_check.py` and `build_round2_corpus.py` need the Qdrant
+container; `ieee_integrity_check.py` (first run) and `rescreen_e5.py` need the
+Ollama server. `wss_reconciliation.py` and `cluster_stability.py` read only
+archived artefacts.
+
 ## Published data and queries
 
 - [`release_data/`](release_data/) — derived decision tables (identifiers and
-  decisions only): screening decisions for the 17,063 records in both
-  operating modes, cluster assignment of the 4,883 eligible records, the
+  decisions only): screening decisions for the 17,063 round-1 records in both
+  operating modes with their round-2 status (`round2_change`, `merged_into`),
+  cluster assignment of the 4,883 eligible records of the round-2 corpus, the
   465-record validation sample with both reviewers and the baselines, the
   deduplication audit, the C03 manual screening and the PRISMA counts.
 - [`queries/`](queries/) — the search strings of each database, with fields,
@@ -166,6 +234,22 @@ tests/                unit tests (no data files or LLM needed)
 queries/              search strings
 release_data/         published decision tables
 ```
+
+## Changelog
+
+- **v0.3.0 — round 2.** IEEE Xplore identifier-collision integrity check and
+  98 verified duplicate merges; E5 re-screen of the 31 records excluded by
+  the retired language criterion alone; round-2 corpus (16,965 unique, 4,883
+  eligible, 1,395 INCLUDE) with every reported count recomputed; WSS
+  reconciliation; cluster-stability analysis; round-2 figures;
+  `release_data/` re-exported with `--round2` (`round2_change`,
+  `merged_into`).
+- **v0.2.0 — round 1.** Version cited by the submitted manuscript: operating
+  modes (specificity / sensitivity), second-reviewer and baseline
+  comparisons, deduplication audit, C03 manual screening, bridge score,
+  supplementary ProQuest EAASD search, `release_data/` and `queries/`.
+- **v0.1.0 — initial.** Pipeline (ingestion, three-layer deduplication,
+  two-layer screening, thematic clustering) and first Zenodo deposit.
 
 ## Citation
 

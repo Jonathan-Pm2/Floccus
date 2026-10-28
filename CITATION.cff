@@ -41,8 +41,8 @@ keywords:
   - dense embeddings
   - bibliographic data
 license: Apache-2.0
-version: "0.2.0"
-date-released: "2026-10-26"
+version: "0.3.0"
+date-released: "2026-10-28"
 # Concept DOI: resolves to the latest published version of the record.
 # The version DOI for v0.1.0 is 10.5281/zenodo.21926427; cite the concept
 # DOI below unless a specific version must be pinned.

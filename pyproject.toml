@@ -1,6 +1,6 @@
 [project]
 name = "biofloc-review"
-version = "0.2.0"
+version = "0.3.0"
 description = "Floccus: LLM-assisted, criterion-wise screening pipeline for systematic reviews (biofloc modelling case study)"
 readme = "README.md"
 authors = [

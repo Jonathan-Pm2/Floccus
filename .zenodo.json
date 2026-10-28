@@ -2,7 +2,7 @@
   "title": "Floccus: PRISMA-compliant LLM-assisted screening pipeline for systematic literature reviews on biological floc dynamics",
   "upload_type": "software",
   "license": "Apache-2.0",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "doi": "10.5281/zenodo.21926426",
   "description": "Floccus is a reproducible PRISMA 2020-compliant pipeline for systematic literature reviews on the mathematical modeling of biological floc dynamics in aquaculture and wastewater treatment systems. It integrates multi-source bibliographic ingestion (Scopus, Web of Science, IEEE Xplore, SciELO, enriched via OpenAlex and Europe PMC), three-layer deduplication (deterministic, semantic via dense embeddings on Qdrant HNSW, LLM-judged reconciliation), and a LangGraph-orchestrated screening agent that evaluates eleven binary PRISMA criteria with an asymmetric AND/OR rule. A second-pass LLM screening uses enriched metadata (OpenAlex topics and Europe PMC MeSH terms) for blind dual review of borderline records. All decisions carry a textual audit trail for human verification.",
   "creators": [

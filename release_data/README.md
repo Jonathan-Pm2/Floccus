@@ -60,11 +60,11 @@ computed on it.
 | `document_type`, `language` | as declared by the source database (empty when not exported) |
 | `l1_I1` … `l1_D3` | Layer-1 verdict per criterion (`YES` / `NO` / `UNCLEAR`); criteria are defined in `src/biofloc_review/screening/criteria.py` |
 | `l1_decision` | Layer-1 decision under the asymmetric rule |
-| `l2_I1` … `l2_D3`, `l2_decision` | Layer-2 (second, enriched-metadata pass) verdicts and decision; only for the 4,225 Layer-1 HUMAN_REVIEW records, empty otherwise |
+| `l2_I1` … `l2_D3`, `l2_decision` | Layer-2 (second, enriched-metadata pass) verdicts and decision; only for the 4,245 Layer-1 HUMAN_REVIEW records (4,225 of the archived run plus the 20 E5 re-screened records routed to Layer 2), empty otherwise |
 | `final_decision` | consolidated decision, specificity (published) mode: `INCLUDE` / `HUMAN_REVIEW` / `EXCLUDE` |
 | `decision_layer` | layer that produced `final_decision` (`L1` or `L2`) |
 | `decision_reason` | rule that fired: `all_inclusion_met`, `excluded_by:<criteria>`, `inclusion_not_met:<criteria>`, `routed_by:<criteria>`, `exclusion_unclear:<criteria>` |
-| `e2_sensitivity` | E2 answer from the sensitivity-mode prompt (reasoning first, positive phrasing, mapped back to E2 polarity); asked only for the 9,047 records whose decision depends on E2 |
+| `e2_sensitivity` | E2 answer from the sensitivity-mode prompt (reasoning first, positive phrasing, mapped back to E2 polarity); asked only for the 9,096 records whose decision depends on E2 (9,047 of the archived run plus 49 E5 re-screened records) |
 | `sensitivity_decision` | decision in the sensitivity operating mode |
 | `eligible`, `eligible_sensitivity` | record advances to eligibility (INCLUDE or HUMAN_REVIEW) in each mode; always `False` for merged-away records |
 | `round2_change` | `unchanged`, `ieee_merged_away` (verified IEEE duplicate of another record, not counted) or `e5_rescreened` (re-screened without the retired language criterion E5) |
@@ -82,7 +82,7 @@ so that every decision can be traced to the verdicts that produced it.
 | `cluster` | UMAP + HDBSCAN cluster (0–24); `-1` = no cluster (noise) |
 | `cluster_label` | `C00` … `C24` as in the manuscript, `noise` for `-1` |
 | `assigned_later` | `True` for the records whose embeddings were computed after the clustering and assigned to the existing partition: 199 IEEE Xplore records (`scripts/assign_ieee_clusters.py`; 201 before the round-2 merges) and the 26 records made eligible by the E5 re-screen (`scripts/rescreen_e5.py`) |
-| `assignment_method` | `umap_hdbscan_fit` (original 4,682 records) or `umap_transform_hdbscan_approximate_predict` |
+| `assignment_method` | `umap_hdbscan_fit` (4,658 records: the 4,682 of the fitted partition minus 24 merged away) or `umap_transform_hdbscan_approximate_predict` (225) |
 | `membership_strength` | HDBSCAN membership strength of the later assignments, empty otherwise |
 
 ## `validation_sample.csv`
