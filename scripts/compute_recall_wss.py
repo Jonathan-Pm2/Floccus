@@ -51,10 +51,17 @@ ADVANCE = {"INCLUDE", "HUMAN_REVIEW"}    # Mapping A (PRISMA-permissive)
 ADVANCE_STRICT = {"INCLUDE"}             # Mapping B (strict)
 
 
-def load() -> pd.DataFrame:
+def load(population: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Blind sample with stratum weights w_c = N_c / n_c.
+
+    population: the corpus the weights refer to (columns source, final_decision);
+    defaults to the published decision table. The strata are always the
+    sampling-design cells (source x specificity-mode decision) of the sample.
+    """
     blind = pd.read_csv(DATA / "validation_sample_blind.csv")
     truth = pd.read_parquet(DATA / "validation_sample_truth.parquet")
-    pop = pd.read_parquet(DATA / "biofloc_final_decisions.parquet")
+    pop = (pd.read_parquet(DATA / "biofloc_final_decisions.parquet") if population is None
+           else population[["source", "final_decision"]].copy())
 
     df = blind[["review_id", "human_decision"]].merge(
         truth[["review_id", "source", "final_decision"]], on="review_id", how="inner"
