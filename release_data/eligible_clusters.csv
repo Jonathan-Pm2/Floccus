@@ -135,6 +135,7 @@ d8e374d2-5d32-5fda-aed3-c40441d52b82,scopus,2-s2.0-85202514702,10.1016/j.watres.
 d5736375-cff3-5e80-9085-d278bf3d2a84,scopus,2-s2.0-105032492372,10.1016/j.biortech.2026.134251,2026,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 d9a56157-550c-54e7-af7d-cba089145da2,scopus,2-s2.0-105004742511,10.1016/j.cej.2025.163590,2025,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 cfd8fd87-a23f-58e3-aa77-4ea8ea4ce847,scopus,2-s2.0-105034504745,10.12912/27197050/218520,2026,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
+29159f50-dbc9-5612-9110-161d131e43fe,scopus,2-s2.0-105026696176,10.25750/1995-4301-2025-4-140-147,2025,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 860a58fc-6dfb-5ac8-aa4c-10cbd957fd98,scopus,2-s2.0-85213979170,10.1016/j.wroa.2025.100301,2025,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 e5f4a0d2-0046-5f39-b9e6-0883158e976a,scopus,2-s2.0-105002614364,10.1590/s1413-415220240018,2025,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 812b5943-8582-5387-b92a-371269d8adfb,scopus,2-s2.0-105018676564,10.1016/j.biortech.2025.133345,2026,HUMAN_REVIEW,0,C00,False,umap_hdbscan_fit,
@@ -400,6 +401,7 @@ f92f760a-3653-59d9-aef5-73d083699be0,scopus,2-s2.0-85165964575,10.1016/j.envres.
 fc5d8343-60f8-5f55-8526-b099b774c517,scopus,2-s2.0-85174725569,10.1016/j.jenvman.2023.119427,2024,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 d926c18b-87c8-5f72-b361-4fb2f547d84c,scopus,2-s2.0-85191286630,10.1016/j.rineng.2024.102173,2024,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 47ca0c8a-b495-50b8-9e83-4702fcfe8a68,scopus,2-s2.0-85184863436,10.1016/j.btre.2024.e00831,2024,INCLUDE,10,C10,False,umap_hdbscan_fit,
+d9f32167-080d-5ea3-9f93-fdba1da4d747,scopus,2-s2.0-85214380176,10.18799/24131830/2024/12/4566,2024,HUMAN_REVIEW,18,C18,True,umap_transform_hdbscan_approximate_predict,0.8124201620493284
 1c95140c-afec-5e3a-b920-f4a3a9720bae,scopus,2-s2.0-85171388083,10.1016/j.scitotenv.2023.167031,2023,HUMAN_REVIEW,13,C13,False,umap_hdbscan_fit,
 b47d2f9d-24b9-5466-9b4d-f4eb2f1617b4,scopus,2-s2.0-85156248398,10.1186/s40168-023-01519-9,2023,HUMAN_REVIEW,8,C08,False,umap_hdbscan_fit,
 9e78b262-b079-5e22-bcdd-83fbcd479e5b,scopus,2-s2.0-85144886801,10.1007/s13399-022-03692-7,2023,HUMAN_REVIEW,17,C17,False,umap_hdbscan_fit,
@@ -664,6 +666,7 @@ ac432f2a-f9a7-5eb4-afce-06fc219d210b,scopus,2-s2.0-85126766987,10.1016/j.watres.
 0f54d48c-2078-5454-9619-69c29b489ac3,scopus,2-s2.0-85141915185,10.1039/d2ra06014k,2022,INCLUDE,6,C06,False,umap_hdbscan_fit,
 f8971ddf-77bf-5fbd-8ca4-7fc147f359e0,scopus,2-s2.0-85136135034,10.1016/j.jclepro.2022.133486,2022,HUMAN_REVIEW,0,C00,False,umap_hdbscan_fit,
 b8d15542-40fe-5d38-b5e7-3520f07fa998,scopus,2-s2.0-85125502200,10.1016/j.watres.2022.118232,2022,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
+190b1d90-c9b9-5778-8637-52e6dfad4dd5,scopus,2-s2.0-85136521650,10.5370/kiee.2022.71.8.1176,2022,HUMAN_REVIEW,22,C22,True,umap_transform_hdbscan_approximate_predict,0.9429212475915009
 c57bae6e-a701-5fcc-bb0f-579c9a7d13db,scopus,2-s2.0-85133300584,10.1016/j.enconman.2022.115926,2022,HUMAN_REVIEW,5,C05,False,umap_hdbscan_fit,
 ac0ed6cd-9d39-53de-b2c7-6b4a705bb097,scopus,2-s2.0-85149569185,10.3389/fmicb.2023.1125709,2023,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 1b022f3f-95ab-5ecf-b8aa-24272b725540,scopus,2-s2.0-85118697581,10.1016/j.watres.2021.117783,2021,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
@@ -1293,6 +1296,7 @@ fc9d630e-0c7c-59a3-844b-2e680a7115fc,scopus,2-s2.0-84928338192,10.1016/j.biortec
 4a0b5906-06c0-52ea-ab01-7a94ca540135,scopus,2-s2.0-84979234407,10.2166/wst.2016.177,2016,INCLUDE,14,C14,False,umap_hdbscan_fit,
 946ca356-6c89-5ce8-84d0-18cefe72aab3,scopus,2-s2.0-84946201207,10.1016/j.envsoft.2015.10.010,2016,INCLUDE,14,C14,False,umap_hdbscan_fit,
 7039d8e4-15d6-5f1c-bdd9-c8cd6563919f,scopus,2-s2.0-84937124817,10.1016/j.cej.2015.07.017,2015,HUMAN_REVIEW,23,C23,False,umap_hdbscan_fit,
+d3e1528c-202e-5368-b028-c4b6b80a6cd8,scopus,2-s2.0-84994786010,,2016,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 98c730ed-9d4c-58c2-a074-31a0f13c7050,scopus,2-s2.0-84988971719,10.1002/bit.25999,2016,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 047f89db-8142-5fe3-9ec4-47128c1ccd56,scopus,2-s2.0-85090873400,10.11949/j.issn.0438-1157.20161594,2017,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 d4d98b70-7cdd-5c67-9c73-1bfdf3969d14,scopus,2-s2.0-84959421357,10.2166/wst.2015.534,2016,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
@@ -1431,6 +1435,7 @@ f7d70ec0-2642-5aca-9e43-889eb19e3264,scopus,2-s2.0-84964703132,10.24846/v23i4y20
 6b1c1c11-cbe9-5dd9-ac9e-1c9c65dd1d09,scopus,2-s2.0-84877072805,,2013,HUMAN_REVIEW,4,C04,False,umap_hdbscan_fit,
 040939e3-2f13-5fe5-8c4b-56a0cd82b4e3,scopus,2-s2.0-84937949179,10.2166/wst.2015.205,2015,HUMAN_REVIEW,0,C00,False,umap_hdbscan_fit,
 d0b241ce-1ca7-5603-b860-0ef07de52528,scopus,2-s2.0-84929738867,10.11908/j.issn.0253-374x.2015.04.012,2015,HUMAN_REVIEW,14,C14,False,umap_hdbscan_fit,
+cd25cc8b-3560-5d93-ad14-affce5c96e73,scopus,2-s2.0-84954477952,,2015,HUMAN_REVIEW,9,C09,True,umap_transform_hdbscan_approximate_predict,1.0
 fc4d32c3-dbe5-5095-86a6-d94347e94e8d,scopus,2-s2.0-84879104798,10.1016/j.watres.2013.01.056,2013,INCLUDE,7,C07,False,umap_hdbscan_fit,
 f5ff74b9-aae3-54cb-bd94-5a6329dc4480,scopus,2-s2.0-84902476636,10.3964/j.issn.1000-0593(2014)06-1512-06,2014,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 e8971556-570a-5ab8-93a4-b96a6756a9f1,scopus,2-s2.0-84905053646,10.1002/cjce.21983,2014,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -1472,6 +1477,7 @@ e91cf0cb-131c-5b77-b2ad-b87d98b24d78,scopus,2-s2.0-84905869402,,2014,HUMAN_REVIE
 ac87d1d8-0e00-5aab-aca2-8fb427a85ee9,scopus,2-s2.0-84984940525,10.1039/c5ew00045a,2015,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
 8afe5391-2c48-5603-9349-ac423d78bbc8,scopus,2-s2.0-84888440995,10.1016/j.watres.2013.10.003,2014,INCLUDE,16,C16,False,umap_hdbscan_fit,
 962d5067-01f1-51f4-9256-b06443403681,scopus,2-s2.0-84907796825,10.2166/wcc.2014.047,2014,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
+4622e2dc-861a-594b-a443-b324e972d4af,scopus,2-s2.0-84876764783,10.5370/kiee.2013.62.4.554,2013,INCLUDE,22,C22,True,umap_transform_hdbscan_approximate_predict,1.0
 fb4ee78f-0575-5c11-a46b-ca45515edb81,scopus,2-s2.0-84908191519,10.1371/journal.pone.0085910,2014,INCLUDE,2,C02,False,umap_hdbscan_fit,
 8cdbdc33-2064-5faa-b813-8f2ce73e4a88,scopus,2-s2.0-84930695987,10.2166/wst.2015.086,2015,HUMAN_REVIEW,8,C08,False,umap_hdbscan_fit,
 64d4031d-c2f3-56c1-9b20-21295ef46d58,scopus,2-s2.0-84872959040,10.1016/j.cej.2013.01.004,2013,HUMAN_REVIEW,10,C10,False,umap_hdbscan_fit,
@@ -1869,6 +1875,7 @@ d9ef22ec-55db-556e-a976-ae52cc39c937,scopus,2-s2.0-33745470334,10.1016/j.conengp
 71e5e27b-6f09-506f-a33a-d6e907c9f087,scopus,2-s2.0-39449117802,,2008,INCLUDE,23,C23,False,umap_hdbscan_fit,
 ae49468e-0c4e-5e28-abb6-9fcd011a4824,scopus,2-s2.0-38549122867,10.4314/wsa.v34i1.180802,2008,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 a9c0c85b-f43f-54da-9e57-58cf22e2464a,scopus,2-s2.0-38749108116,10.1002/jctb.1773,2008,HUMAN_REVIEW,17,C17,False,umap_hdbscan_fit,
+aef52407-67bc-57e7-825a-25fb5d4c3f0e,scopus,2-s2.0-84860518425,10.5302/j.icros.2008.14.11.1174,2008,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 f87e74c4-12df-5c03-9304-64989a2c61da,scopus,2-s2.0-34249799568,10.1016/j.desal.2006.10.013,2007,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 2c507ad7-3fe8-5c3e-9d7a-19a477d28ecb,scopus,2-s2.0-42949123937,10.1002/jctb.1863,2008,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 aabc8fdb-88cc-5804-bf7a-f4d23346a2e3,scopus,2-s2.0-57649159137,10.1016/j.bej.2008.09.010,2009,INCLUDE,-1,noise,False,umap_hdbscan_fit,
@@ -1945,6 +1952,8 @@ b580c657-53c3-537f-9eb4-a5951aae2e83,scopus,2-s2.0-53549086941,10.1089/ees.2007.
 088ff2d9-0368-5ecd-a916-bbab33f3ccba,scopus,2-s2.0-64549109252,,2009,HUMAN_REVIEW,20,C20,False,umap_hdbscan_fit,
 03dfa74c-e1c7-5fe1-99e1-271394fee569,scopus,2-s2.0-33845243081,10.1002/bit.21040,2006,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 b70a9236-4d91-5f76-b3af-d80b7203c9f9,scopus,2-s2.0-37349078444,10.1016/j.watres.2007.07.004,2008,INCLUDE,6,C06,False,umap_hdbscan_fit,
+195c67b8-c7ac-5f7a-aa9e-d9c61010760a,scopus,2-s2.0-44049093744,,2008,HUMAN_REVIEW,24,C24,True,umap_transform_hdbscan_approximate_predict,0.6442082149486499
+6822e35a-56c4-58b6-93fe-b000143d2e52,scopus,2-s2.0-44049101412,,2008,INCLUDE,4,C04,True,umap_transform_hdbscan_approximate_predict,1.0
 44a641fb-885e-5c5c-b223-f386cf083a7b,scopus,2-s2.0-37249085270,10.2166/wst.2007.675,2007,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 c2ce29e3-b58a-5293-b009-436ad9712671,scopus,2-s2.0-34547242327,,2007,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 b345b1df-421f-5b4b-9574-53bd77289387,scopus,2-s2.0-37549014572,10.1016/j.ecolmodel.2007.09.009,2008,HUMAN_REVIEW,2,C02,False,umap_hdbscan_fit,
@@ -2017,6 +2026,7 @@ cd422e4a-784f-5f62-a1ec-402c6a6f5580,scopus,2-s2.0-0036216252,10.1016/s1462-0758
 6e52c688-6d9b-5dda-b6ca-a74d11fc0bdf,scopus,2-s2.0-33645543684,10.2166/wst.2006.138,2006,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 192ba57e-d3be-51f8-b43a-4dbcfbbcd697,scopus,2-s2.0-33646749080,10.2166/wst.2006.151,2006,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 5d9e6660-8809-54fd-89c1-2cf0b3fa2b44,scopus,2-s2.0-1542752435,10.1016/s0043-1354(03)00432-9,2004,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+8392436e-80a6-5a01-9474-7462f3b76d56,scopus,2-s2.0-2942661566,,2004,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 d45c5f08-a15a-52b1-9ec3-deffec321f5c,scopus,2-s2.0-25644451927,10.2175/106143005x67449,2005,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 49873639-d22c-5b8a-8550-9fe91effc11e,scopus,2-s2.0-18244406017,10.1016/j.watres.2005.01.023,2005,INCLUDE,23,C23,False,umap_hdbscan_fit,
 898ad99c-df0c-563e-a20e-b9de602b9838,scopus,2-s2.0-33646556393,10.1016/j.procbio.2006.03.021,2006,INCLUDE,15,C15,False,umap_hdbscan_fit,
@@ -2080,6 +2090,7 @@ bc97d218-8fd7-56c9-9b9b-a58435e42dcb,scopus,2-s2.0-0345057345,10.1023/a:10226398
 8d6b6154-e1a4-52b1-8a01-b5bb5f72d55a,scopus,2-s2.0-4544304791,,2004,HUMAN_REVIEW,23,C23,False,umap_hdbscan_fit,
 fec4f6ba-e92c-5ff0-a326-878bc8b64990,scopus,2-s2.0-17644396067,10.1021/es048950y,2005,INCLUDE,4,C04,False,umap_hdbscan_fit,
 626f326b-ba87-5020-92be-80d71ec79478,scopus,2-s2.0-24644473141,10.1016/j.biortech.2005.02.003,2006,INCLUDE,17,C17,False,umap_hdbscan_fit,
+90e54408-30a1-59bd-9a10-2ac1580f86b5,scopus,2-s2.0-0038673899,,2003,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 c8c7422c-eda3-5db8-8d6c-eb82653ebd15,scopus,2-s2.0-28844441965,10.1061/(asce)0733-9372(2005)131:12(1698),2005,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 e1dbdf20-624c-5dbf-8c68-33402d31e3fa,scopus,2-s2.0-0037955601,10.1061/(asce)0733-9372(2003)129:5(394),2003,INCLUDE,20,C20,False,umap_hdbscan_fit,
 68a0afa7-81cc-5310-bca8-511df84a9d85,scopus,2-s2.0-0037383717,10.1016/s0043-1354(02)00580-8,2003,INCLUDE,21,C21,False,umap_hdbscan_fit,
@@ -2144,7 +2155,6 @@ c7c81cb7-54a1-593c-91f9-a3b9b76eabe8,scopus,2-s2.0-33645539800,10.2166/wst.2006.
 845026d1-6c24-520a-8327-5772d1707454,scopus,2-s2.0-2442505381,10.2166/wst.2004.0765,2004,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 f38127ba-b814-5b6e-9d65-fb155fa0ea1f,scopus,2-s2.0-32844461104,10.1016/j.chemosphere.2005.06.010,2006,INCLUDE,17,C17,False,umap_hdbscan_fit,
 75c39128-4369-5f35-8976-406afd44e730,scopus,2-s2.0-4544312493,10.2166/wst.2004.0153,2004,INCLUDE,17,C17,False,umap_hdbscan_fit,
-06226790-7ad7-5e2b-8f90-f83668617fe6,scopus,2-s2.0-23944510170,10.1007/s00449-005-0412-6,2005,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 cf46ea9f-43b1-5734-b70a-afe42a7f926b,scopus,2-s2.0-2442540936,10.2166/wst.2004.0763,2004,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 b044f962-2cb1-5409-a292-241ea7560f81,scopus,2-s2.0-5644268031,10.1016/j.watres.2004.07.009,2004,INCLUDE,24,C24,False,umap_hdbscan_fit,
 79db2076-7a77-5d1f-b044-d39588dcc421,scopus,2-s2.0-11144321542,10.1016/j.enzmictec.2004.09.010,2005,INCLUDE,4,C04,False,umap_hdbscan_fit,
@@ -2180,6 +2190,7 @@ fa10c8d3-5ecf-5b65-a4ec-808131437b98,scopus,2-s2.0-0037406293,10.1016/s0376-7388
 db640959-bfc9-5309-9fa8-0db67bbbea53,scopus,2-s2.0-33745499780,10.1111/j.1365-2672.2006.02950.x,2006,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 fc56960f-b279-56f4-b200-55c8fa0bdaa9,scopus,2-s2.0-1842608694,10.2175/106143003x141303,2003,INCLUDE,24,C24,False,umap_hdbscan_fit,
 e0583d1a-effd-5d66-bbc2-590ab5877a8b,scopus,2-s2.0-33747461334,,2006,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
+437c8d7c-afd2-5bad-8cac-fef98c252d46,scopus,2-s2.0-1242332751,,2004,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 40519499-6a6d-5373-bcd7-ed6c948ef84e,scopus,2-s2.0-33645939560,10.1089/ees.2006.23.263,2006,INCLUDE,12,C12,False,umap_hdbscan_fit,
 a5858b96-3650-5947-ae65-2a20734e48b4,scopus,2-s2.0-33646350801,,2006,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 c3d5b0f1-a1c2-5b7f-bcba-e989ffad3951,scopus,2-s2.0-33845445970,10.3166/ejc.10.84-96,2004,INCLUDE,22,C22,False,umap_hdbscan_fit,
@@ -2265,6 +2276,7 @@ e3694224-c611-5f79-816b-d1bb5b991ee8,scopus,2-s2.0-0034555872,10.1023/a:10052183
 f5decb5d-6981-5d6c-9b4d-8763ba85b2c7,scopus,2-s2.0-0033626891,10.2175/106143000x137554,2000,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 f84d8f44-b58a-5c6f-a3b1-7defcea67c87,scopus,2-s2.0-0029553345,10.1016/0273-1223(96)00137-0,1995,HUMAN_REVIEW,17,C17,False,umap_hdbscan_fit,
 95741ae3-1a57-5b00-8750-4272bae9f407,scopus,2-s2.0-0031193685,10.2175/106143097x125678,1997,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
+c630b02d-3383-536f-8d1b-017b0828bf5e,scopus,2-s2.0-0036300246,,2002,INCLUDE,24,C24,True,umap_transform_hdbscan_approximate_predict,0.6461301144734996
 fe3a5495-2f9b-5027-8440-215fcea85d50,scopus,2-s2.0-0033230451,10.1016/s0032-9592(99)00058-8,1999,INCLUDE,9,C09,False,umap_hdbscan_fit,
 f06c74f6-efc3-57f7-a78f-efd1e8df300a,scopus,2-s2.0-0029078698,10.1016/0273-1223(95)00188-s,1995,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 e4749250-9b13-5059-8c0d-6a896d909d4f,scopus,2-s2.0-0034174501,10.1016/s0043-1354(99)00318-8,2000,HUMAN_REVIEW,19,C19,False,umap_hdbscan_fit,
@@ -2277,6 +2289,7 @@ f1e4ea7e-6964-54ac-b4de-3083c1efae6b,scopus,2-s2.0-0032817516,10.1016/s1389-1723
 f1ec19bb-4fe0-55d7-9b13-2a06cba9ff22,scopus,2-s2.0-0029555531,10.1016/0273-1223(96)00148-5,1995,INCLUDE,18,C18,False,umap_hdbscan_fit,
 026abb99-73ee-5029-9db2-eafe61a5aac4,scopus,2-s2.0-0031194408,10.2175/106143097x125669,1997,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 c9227d70-10f2-5855-b1cb-6f91dea977e3,scopus,2-s2.0-0031986260,10.1016/s0043-1354(97)00170-x,1998,HUMAN_REVIEW,17,C17,False,umap_hdbscan_fit,
+a94b561b-4ef7-5290-af8f-4f403feff449,scopus,2-s2.0-0035192298,,2001,HUMAN_REVIEW,14,C14,True,umap_transform_hdbscan_approximate_predict,1.0
 d72583fd-3937-5b99-89c0-d59bea449892,scopus,2-s2.0-0031046622,10.1080/10934529709376529,1997,INCLUDE,23,C23,False,umap_hdbscan_fit,
 05f0ae59-e1f2-5a4d-b6c7-db57c864428c,scopus,2-s2.0-0035088381,10.1080/02533839.2001.9670608,2001,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 825510d2-297d-50e2-a5c1-3f5a7654cc27,scopus,2-s2.0-0034259186,,2000,HUMAN_REVIEW,17,C17,False,umap_hdbscan_fit,
@@ -2294,6 +2307,7 @@ a786242e-4c65-53c6-a775-ad877ac79dc7,scopus,2-s2.0-0032457947,10.1111/j.1747-659
 2d91dfd6-2638-5eb4-b253-c2b8025269cb,scopus,2-s2.0-0029044592,10.1016/0273-1223(95)00181-l,1995,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 8cdafb23-b99f-58a5-ba51-1081769d3a1a,scopus,2-s2.0-0032720391,10.1016/s0043-1354(99)00031-7,1999,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 9f15cddd-2895-5227-87fb-fb455f68035b,scopus,2-s2.0-0032487741,10.1002/(sici)1097-0290(19981105)60:3<326::aid-bit8>3.0.co;2-j,1998,INCLUDE,24,C24,False,umap_hdbscan_fit,
+9c0e9050-72d1-5ae6-bec7-b4fd1bbc2caa,scopus,2-s2.0-85037265340,10.1524/auto.1998.46.5.257,1998,INCLUDE,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
 df69a5e7-3571-55fd-b0a6-42655272a57c,scopus,2-s2.0-0031875853,10.1016/s0922-338x(98)80040-8,1998,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 c9e9ab0e-b1f8-525b-b867-661583035616,scopus,2-s2.0-0029054323,10.1016/0273-1223(95)00195-s,1995,HUMAN_REVIEW,16,C16,False,umap_hdbscan_fit,
 6f8ddae4-7cb8-5dcb-a9e8-c383cb95e04c,scopus,2-s2.0-0029054320,10.1016/0273-1223(95)00175-m,1995,INCLUDE,24,C24,False,umap_hdbscan_fit,
@@ -2304,9 +2318,11 @@ b9a329ef-6ca2-5846-8fa4-c73172339690,scopus,2-s2.0-0031081988,10.1016/s0043-1354
 0b908030-8958-5aee-9dd0-7e71ca6a2f40,scopus,2-s2.0-0031058522,10.1016/s0043-1354(99)80001-3,1997,HUMAN_REVIEW,12,C12,False,umap_hdbscan_fit,
 dd2039e6-1d71-51a8-b80b-2a7e13233352,scopus,2-s2.0-0029012614,10.1016/0273-1223(95)00194-r,1995,INCLUDE,14,C14,False,umap_hdbscan_fit,
 c317f219-ce72-5270-b61a-73e02c9a4da8,scopus,2-s2.0-0030251090,10.1016/0043-1354(96)00129-7,1996,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
+7f33c901-0117-5eec-97ec-2540976fdfe6,scopus,2-s2.0-0032311066,10.1002/(sici)1521-401x(199809)26:5<288::aid-aheh288>3.0.co;2-x,1998,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 fc925d87-7c38-534b-be1d-4e71483ea82a,scopus,2-s2.0-0030251096,10.1016/0043-1354(96)00153-4,1996,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 512377ef-a0de-5593-ab5e-3aea53fbbfd2,scopus,2-s2.0-0035274248,10.1590/s0104-66322001000100008,2001,INCLUDE,21,C21,False,umap_hdbscan_fit,
 6d2141bd-414a-5b05-a37d-c9baf5027bdf,scopus,2-s2.0-0033080623,10.1016/s0043-1354(98)00220-6,1999,HUMAN_REVIEW,14,C14,False,umap_hdbscan_fit,
+0077ad98-45f7-5c76-b519-a71a760f7763,scopus,2-s2.0-0035678091,,2001,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 9ea9e696-7048-5517-86e9-2f4e4d847e63,scopus,2-s2.0-0033674524,10.1007/s004499900191,2000,INCLUDE,21,C21,False,umap_hdbscan_fit,
 4fe63533-f753-5595-92ed-ad6533da79c9,scopus,2-s2.0-0033805629,10.1007/s004499900061,2000,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 2d740f28-a5ed-5c2d-95ee-f4865b1ab95a,scopus,2-s2.0-0035116759,10.1006/eesa.2000.1964,2001,INCLUDE,-1,noise,False,umap_hdbscan_fit,
@@ -2403,6 +2419,7 @@ da415c98-456c-513d-aac7-0f36f55813d5,scopus,2-s2.0-0031781056,10.1897/1551-5028(
 faa736db-d261-5a5a-b96b-0b6d085ba6fa,scopus,2-s2.0-0031107039,10.1016/s0043-1354(96)00369-7,1997,INCLUDE,24,C24,False,umap_hdbscan_fit,
 72084986-e97b-5c30-bd81-2715ed0c5efc,scopus,2-s2.0-0034063992,10.1080/02772240009358866,2000,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 4ac0caf5-8077-5e13-b8d6-dc49b373fff8,scopus,2-s2.0-0030742735,10.1007/s004490050357,1997,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+37e47160-abcb-56a9-bc46-b7cea802226a,scopus,2-s2.0-0031084579,,1997,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 160e8003-571c-5648-8d87-9b088f2bf913,scopus,2-s2.0-0036849043,10.1016/s0043-1354(02)00192-6,2002,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 313c979c-367d-5270-a380-0be73b202ceb,scopus,2-s2.0-0032444279,10.1016/s0273-1223(98)00452-1,1998,INCLUDE,23,C23,False,umap_hdbscan_fit,
 d9967ee0-54db-5493-a767-7fcce829093d,scopus,2-s2.0-0031554870,10.1002/(sici)1097-0290(19970905)55:5<773::aid-bit7>3.0.co;2-8,1997,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
@@ -2476,6 +2493,7 @@ fe3ab311-eb36-5878-9096-60d4c25149a7,scopus,2-s2.0-0026020397,10.1080/1093452910
 dd62351a-504b-50b1-a2ce-ae48080ebf56,scopus,2-s2.0-0021453470,10.1177/014233128400600308,1984,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 56710343-7b0a-5cd5-a330-86940ff2821b,scopus,2-s2.0-0024024333,10.1016/0043-1354(88)90186-8,1988,HUMAN_REVIEW,16,C16,False,umap_hdbscan_fit,
 12f13eb4-94dc-5984-a76a-a52ae419fad5,scopus,2-s2.0-0023645705,10.1002/bit.260300503,1987,INCLUDE,16,C16,False,umap_hdbscan_fit,
+58b6fba6-77bc-5dd4-9a4f-76b9f8a70158,scopus,2-s2.0-0023932699,,1988,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 4efc3264-912d-5d23-b49f-0a2574d01091,scopus,2-s2.0-0020858089,10.1002/bit.260251109,1983,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 3552767c-5674-529c-ae6e-a4424307095a,scopus,2-s2.0-0023348121,,1987,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 a2564464-9ab4-530e-b1d0-f6120f524fd0,scopus,2-s2.0-0027384833,10.1016/0043-1354(93)90136-6,1993,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -2520,6 +2538,7 @@ e4b72e9f-1043-577d-ad76-bec62d899f10,scopus,2-s2.0-0026146003,,1991,INCLUDE,18,C
 f615d33f-681c-58d5-8cbc-f21b7b3f99eb,scopus,2-s2.0-0021250644,10.1016/0043-1354(84)90257-4,1984,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 7eb2b0e7-fc63-5462-8135-fa3e2fcb1017,scopus,2-s2.0-0022093010,,1985,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 913c423a-3ba9-56b6-b07f-c4c883c70956,scopus,2-s2.0-0022037128,,1985,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+89c9df2f-b64c-56bf-a83d-08ffc9c2d9ac,scopus,2-s2.0-0024358653,,1989,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 18968231-29f2-53f2-8796-afe3312ab0cb,scopus,2-s2.0-0024642482,,1989,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 9c414f9f-eb9a-54a3-b28b-a1e81ac815eb,scopus,2-s2.0-0028094168,,1994,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 133154c2-16f8-553f-9600-5457a0374681,scopus,2-s2.0-0022332421,,1985,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -2534,7 +2553,9 @@ a7b6740e-9ef7-5579-a654-01c72b2f7231,scopus,2-s2.0-0027580091,10.1016/0043-1354(
 e1dfe302-5385-5533-ad92-521a09a8b97c,scopus,2-s2.0-0021425068,10.1002/aic.690300304,1984,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 89987978-7310-5aea-a9af-fbdbaedac664,scopus,2-s2.0-0023253874,10.2166/wst.1987.0201,1987,HUMAN_REVIEW,20,C20,False,umap_hdbscan_fit,
 8ecb7460-8e11-5092-9f75-2339a4d9d700,scopus,2-s2.0-0028074443,10.1016/0922-338x(94)90259-3,1994,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+c3bd4362-3ccf-5ce3-8401-5a69a18aec3a,scopus,2-s2.0-0023398211,,1987,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 1d92adf7-a05a-5b40-ab4d-bf007d4ab02e,scopus,2-s2.0-0021804501,10.1016/0043-1354(85)90153-8,1985,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+638de6c5-f5e3-55af-bdaa-7b16eb12a550,scopus,2-s2.0-0024135623,,1988,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 30c3d574-b67f-549e-815e-a30ace41bab6,scopus,2-s2.0-0027587896,10.1016/0043-1354(93)90172-e,1993,HUMAN_REVIEW,17,C17,False,umap_hdbscan_fit,
 cf0cb863-1f5b-5d10-90d8-f32964fe9c72,wos,WOS:A1994BB68C00110,10.1109/cca.1994.381390,1994,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 03f47552-b217-55b1-9b4a-d895a4bdd830,scopus,2-s2.0-0024644129,,1989,INCLUDE,24,C24,False,umap_hdbscan_fit,
@@ -2595,8 +2616,10 @@ cc38ddd8-4933-5197-b09a-aba91827d55a,scopus,2-s2.0-0016078348,10.1016/0043-1354(
 2f9e4ebb-0079-5f94-ab60-b2958af48bc8,scopus,2-s2.0-0018074496,,1978,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 797d5b0b-dbbe-5faf-ae79-0f49768947f5,scopus,2-s2.0-0018529318,,1979,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 bb5ee2c7-c86d-52dc-bc41-ee4fca25b2b7,scopus,2-s2.0-0018476814,,1979,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+c0b18980-43fb-5cc5-8366-21ff61e9a74f,scopus,2-s2.0-0017462562,,1977,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 fc4fc0bd-a8e1-59fb-8730-4bd7b30ee737,scopus,2-s2.0-0020816049,10.1002/bit.260250905,1983,INCLUDE,12,C12,False,umap_hdbscan_fit,
 5e9c2a31-ea95-56ac-895b-79a0509bebbe,scopus,2-s2.0-0020766823,10.1002/bit.260250609,1983,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
+738e5be1-ee0b-5dd6-b606-5fe1ac051dab,scopus,2-s2.0-0017739845,,1977,INCLUDE,14,C14,True,umap_transform_hdbscan_approximate_predict,1.0
 2679a3c5-24b0-543b-81fd-5442ea0354eb,scopus,2-s2.0-0020165176,10.1002/bit.260240802,1982,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 4b0dfe9b-4355-5c89-82dc-9b990f4accca,scopus,2-s2.0-0020044716,10.2166/wst.1982.0060,1982,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 d760e690-4bb0-5692-8358-8d93cb21a202,scopus,2-s2.0-0017902088,10.1016/0043-1354(78)90131-8,1978,INCLUDE,-1,noise,False,umap_hdbscan_fit,
@@ -2604,6 +2627,7 @@ b077a060-2d0a-5d38-b481-756234d2c297,scopus,2-s2.0-0018341883,10.1002/bit.260210
 211724fd-8c4c-55a2-aa82-552f9704dd05,scopus,2-s2.0-0017478201,10.1080/00207727708942050,1977,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 c49e284a-630e-53ca-992e-aae13723df57,scopus,2-s2.0-0018291168,,1979,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 39b72570-1e84-5a0d-bf45-0b8439618c71,scopus,2-s2.0-0018304423,10.1016/0043-1354(79)90239-2,1979,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
+61ce75d0-7e40-5bfb-bb9f-43077ba45de8,scopus,2-s2.0-85097855068,,1976,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 0ea05e4d-8dc9-5bc8-9043-732c3f4a4ca6,scopus,2-s2.0-0016506838,10.1016/0043-1354(75)90082-2,1975,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 5d423a93-5f2e-5dee-9b6b-f75fdb213c30,scopus,2-s2.0-0020081434,10.1016/0043-1354(82)90104-x,1982,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 a4abbe6b-ad6b-591c-8dbd-dce0d2a14839,scopus,2-s2.0-0016044881,,1974,INCLUDE,-1,noise,False,umap_hdbscan_fit,
@@ -2616,6 +2640,7 @@ c03584f6-5e7b-5fec-b1ed-48f8425374ae,scopus,2-s2.0-0016568016,10.1007/bf00431585
 9ae93ec0-f795-50ed-aa79-3d1e2b4e5976,scopus,2-s2.0-0017329885,10.1016/0043-1354(77)90060-4,1977,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 0778d4a8-d4fa-5111-8de1-aa22aefbce22,scopus,2-s2.0-0018869875,10.1016/0304-3800(80)90066-6,1980,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 63fac52d-dd89-56fe-8a17-2c3f7abd9634,scopus,2-s2.0-0017095141,10.1016/0043-1354(76)90022-1,1976,INCLUDE,-1,noise,False,umap_hdbscan_fit,
+b07e2283-8b47-5754-9626-ce0314b7f006,scopus,2-s2.0-85042243118,,1969,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 91b9c270-02e0-5731-bd11-bb696080fde9,scopus,2-s2.0-0018501141,,1979,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 a43fea4e-74bb-5002-96ff-e7592ab8a760,scopus,2-s2.0-0017711238,10.1016/0043-1354(77)90085-9,1977,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 78dcb32f-1d18-5581-aa6e-6c5280c6a0b1,scopus,2-s2.0-0016579960,,1975,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -2674,7 +2699,6 @@ b443a293-491e-50b3-90d6-0282a489839d,wos,WOS:000177734800033,10.1007/s00253-002-
 d67504a8-bd3a-58b2-8c8f-a69d47430008,wos,WOS:000790572200001,10.1016/j.jece.2022.107500,2022,INCLUDE,4,C04,False,umap_hdbscan_fit,
 bdbdee19-9ef4-50fc-be7e-28cca3daa997,wos,WOS:A1976BV03100010,,1976,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 cb2d24db-323d-51b1-830b-920f2c234d0d,wos,WOS:000652153400001,10.1007/s13399-021-01574-y,2023,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
-80aef4bd-083b-5a96-9f58-899a7cd755ac,wos,WOS:000593848900006,,2020,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 8119a5de-c82b-56e5-8176-fc0dc17ad796,wos,WOS:001418246500001,10.1007/s12155-025-10824-0,2025,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 e983f916-c589-5449-9471-cdfc10967d8c,wos,WOS:000336337400031,10.4028/www.scientific.net/amm.409-410.152,2013,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 678b3fb3-c4aa-5852-8a2a-e0cd55930d63,wos,WOS:000311380200014,10.1002/bit.24620,2013,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
@@ -2794,7 +2818,6 @@ a44c7d6b-8627-5b4c-98b5-a353e55a7c28,wos,WOS:000445897400040,10.1016/j.biortech.
 4db0a338-c510-5d45-86c8-a9f9ea545b71,wos,WOS:000460357700001,10.1080/09593330.2017.1397765,2019,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 04ca359b-5467-567e-8a66-d4d6360547af,wos,KJD:ART001936996,,2014,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
 95b62a3c-d9cb-5ee4-8c2d-0fcf4002c78b,wos,WOS:000407263200009,10.1002/clen.201600702,2017,HUMAN_REVIEW,8,C08,False,umap_hdbscan_fit,
-05849efa-cf0c-57de-be85-306a7715ca42,wos,WOS:000382384100096,,2015,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 15911fa4-7707-5611-830a-9ba257bba8de,wos,WOS:000259034500013,,2008,HUMAN_REVIEW,23,C23,False,umap_hdbscan_fit,
 a5ff8f1e-de1d-5d0a-93c7-7f0ab843fd4a,wos,WOS:000362308200072,10.1016/j.cej.2015.07.015,2015,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
 5553d44c-eae2-54a2-b3bc-da75f907fa3e,wos,WOS:000455532500002,10.1016/j.envint.2018.11.039,2019,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -2811,7 +2834,6 @@ cb8409ef-979d-5c27-9611-3d6a72e8a550,wos,WOS:000080959500019,10.1016/s0043-1354(
 366bf019-393e-5b46-9f75-fcac5831f1ab,wos,WOS:A1992JK39800010,,1992,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 eda8140e-3b79-5855-8dd6-0a62cb8ad3e1,wos,WOS:000583691900003,10.1515/revce-2018-0076,2020,HUMAN_REVIEW,7,C07,False,umap_hdbscan_fit,
 0be2355f-c5ae-52ee-9e4d-03fba0cc5318,wos,WOS:A1996UP56500007,10.1016/0273-1223(95)00159-x,1996,INCLUDE,-1,noise,False,umap_hdbscan_fit,
-ae8e25ce-cc4e-5eca-83fb-0e55a978c758,wos,WOS:000224688300933,,2004,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 cd9b11c2-32c2-5524-a35e-1d32f47ae581,wos,WOS:000523571900034,10.1016/j.watres.2020.115632,2020,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
 174b38b0-16e8-5ba3-8730-82fae367106a,wos,PQDT:64453511,,1994,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 8d8843c8-2f25-54dd-bc79-ea1a508dea5e,wos,WOS:000380489900147,10.1016/j.proeng.2015.08.973,2015,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
@@ -3339,12 +3361,9 @@ dac66c4a-bb12-57b0-a76c-1d86b7be8a19,wos,WOS:000320833500009,10.4028/www.scienti
 dd9760d8-ebf9-56af-8e7a-5d578449ea22,wos,WOS:000262863300019,10.2166/wst.2009.590,2009,HUMAN_REVIEW,13,C13,False,umap_hdbscan_fit,
 1f4959e4-6f4b-5caa-a9e3-3f51f10ce6ed,wos,WOS:A1988N982700002,,1988,HUMAN_REVIEW,12,C12,False,umap_hdbscan_fit,
 d0c3f3d0-e779-5784-9963-a5bb73960d59,wos,WOS:000270132600013,10.2166/wst.2009.482,2009,HUMAN_REVIEW,22,C22,False,umap_hdbscan_fit,
-fcf83ae0-f17a-5d3a-b595-54bee4dc5062,wos,WOS:000072279900053,,1997,HUMAN_REVIEW,22,C22,False,umap_hdbscan_fit,
-ef6f04c4-f4d9-55f7-a319-71a1c4c26651,wos,WOS:000349955700088,,2014,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 4e3d7e27-33ad-5bfe-b453-fb789dfaffaa,wos,WOS:000521167900088,10.3390/pr8020131,2020,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 cd7caf0c-88bb-5e50-94b0-7c556e3c1276,wos,WOS:000312926100004,10.4028/www.scientific.net/amr.490-495.19,2012,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 6f5c90ab-79ff-5415-9319-bc7c3bac00b5,wos,WOS:000189084600006,10.2166/wst.2004.0010,2004,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
-3fd7b2f9-888e-5495-983b-260446e079a5,wos,WOS:000330192800041,,2013,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 80f69aee-b8f5-5a47-8d60-0de9d46a89f7,wos,WOS:000245876900016,10.1016/j.watres.2007.01.007,2007,INCLUDE,20,C20,False,umap_hdbscan_fit,
 4d2f44bb-e58f-5f45-8de6-934efbd1adb7,wos,WOS:000239498100010,10.2166/wst.2006.373,2006,HUMAN_REVIEW,19,C19,False,umap_hdbscan_fit,
 5c18c74a-4a97-5db9-988e-1f4b31125c13,wos,WOS:A1978EZ80900020,10.1049/piee.1978.0108,1978,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
@@ -3362,7 +3381,6 @@ b478bf41-8a21-513e-868a-e312ae7d2ddc,wos,WOS:000753726100002,10.1007/s10532-022-
 cb7b09f9-0b66-5c4e-ade8-0f22e941b9c9,wos,PQDT:67084767,,2010,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 a0e7d6e4-7bfa-5625-9901-650b1ed84a13,wos,WOS:000299864400049,10.1021/es202756d,2012,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 9c7eb162-76c9-5f97-b113-74cfbdd43b05,wos,KJD:ART001285195,,2008,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
-50f803b4-74c7-5242-b65b-7c93c1da3b80,wos,WOS:000263554800173,,2008,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 e31ff918-5f84-5480-8131-6e952cdfd251,wos,WOS:000228266600011,10.1111/j.1462-2920.2004.00746.x,2005,HUMAN_REVIEW,8,C08,False,umap_hdbscan_fit,
 1c4b284a-5bf4-5c03-8f4c-257e6f86b95d,wos,WOS:000384244700004,10.1061/(asce)ee.1943-7870.0001110,2016,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 80901e20-b905-5b14-a079-86faeae56d3b,wos,WOS:000398132700025,,2017,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -3379,7 +3397,6 @@ d684ec6e-9d90-54a0-8ccc-f543e3acdc7c,wos,WOS:000486940300016,10.21285/2227-2925-
 68befdab-3d8e-5aff-9588-58dda1838ae7,wos,WOS:000756261700010,10.2166/9781789060362_0419,2020,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 69c62b4b-02ff-5799-9791-ed12522ef6cb,wos,WOS:000247929200004,10.1007/s10532-006-9077-3,2007,HUMAN_REVIEW,12,C12,False,umap_hdbscan_fit,
 77e04b58-57fc-5f85-bd24-0019a0fcf8ad,wos,WOS:000433649800016,10.1016/j.jenvman.2018.04.019,2018,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
-dc2594d0-209d-59e0-a40c-4fe2ba2f3b02,wos,WOS:000182534000094,,2002,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 9f4b3f8f-9a1f-5ac2-9709-12326b0c8c71,wos,WOS:000281176200001,10.1016/j.watres.2010.06.007,2010,INCLUDE,9,C09,False,umap_hdbscan_fit,
 2e618fb1-ecd2-5581-adf8-4b25a379bdd3,wos,WOS:000353384400002,10.3390/w7020377,2015,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 79c42496-7ac1-57cc-bec2-a7ee21f3339d,wos,WOS:000756261700019,10.2166/9781789060362_0813,2020,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
@@ -3395,7 +3412,6 @@ a82d4ffb-a26c-5883-bf24-7d8d372ecc05,wos,PQDT:86367517,,2023,HUMAN_REVIEW,3,C03,
 0c7a4506-c9d3-59fd-9e5c-3f93440017cb,wos,WOS:000239543700026,10.2166/wst.2006.426,2006,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 1555de0e-89ef-5bb1-8cc0-b5d67b0a373b,wos,WOS:001535606200001,10.3390/pr13072204,2025,HUMAN_REVIEW,3,C03,False,umap_hdbscan_fit,
 6da80a80-056f-5f3b-9615-58959ad21e16,wos,WOS:000288685700289,,2010,HUMAN_REVIEW,23,C23,False,umap_hdbscan_fit,
-b40e72c8-3f25-5a4b-9914-0fb29ab6759d,wos,WOS:000299641700024,,2011,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 5dd554b3-8b17-5877-836e-0d3371778044,wos,WOS:000675857000010,10.1016/j.apenergy.2021.117157,2021,HUMAN_REVIEW,5,C05,False,umap_hdbscan_fit,
 5e8ee2be-ea74-5b88-9e03-f95afb7947a4,wos,WOS:000240052200018,10.1016/j.watres.2006.04.005,2006,INCLUDE,-1,noise,False,umap_hdbscan_fit,
 a61bf67f-2244-5cf6-a4fb-09fc14ccae6f,wos,WOS:000396565300069,,2010,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -3431,7 +3447,6 @@ d0263376-159a-53e0-ae22-67772fe15461,wos,PQDT:61319801,,2003,HUMAN_REVIEW,1,C01,
 dac7e561-dde3-5f98-b400-2a1dcdb0ab36,wos,WOS:001455285000001,10.1016/j.biortech.2025.132428,2025,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 e6f30077-4fec-525a-bfb0-9c4bb8b5a731,wos,WOS:000653229500014,10.1016/j.cej.2020.127907,2021,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 acd8fb0a-bff2-5ac8-830e-10d8ae9e12ff,wos,WOS:001585438000008,10.1016/j.envres.2025.122448,2025,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
-2841bb32-1205-52e1-8152-36d90e919892,wos,WOS:000233365800092,,2004,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 4efbb382-1db3-5ee5-aee2-bab2960dd234,wos,WOS:000259463900007,,2008,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 ba390ae4-9b35-5d9b-bd29-c03a8930cb5c,wos,WOS:000313794400052,10.1080/19443994.2012.699361,2013,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 b18bc730-837d-5a61-9154-8a9324f25ca6,wos,WOS:000430181700062,10.1007/978-3-319-58421-8_62,2017,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
@@ -3443,10 +3458,8 @@ fb7c728f-3216-57cb-af0a-b970c5948ab9,wos,WOS:000345275100186,,2014,HUMAN_REVIEW,
 ede01d69-8a5f-540f-a202-051d1a60971a,wos,PQDT:68747731,,2018,HUMAN_REVIEW,3,C03,False,umap_hdbscan_fit,
 1deb2812-d7bf-55d7-8284-d00eb7f58da2,wos,WOS:000258866800012,10.1002/bit.21880,2008,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 9aa43c4b-0b7f-505c-9edb-93307aa3c1d2,wos,WOS:000407723100043,10.1007/s11356-017-9437-z,2017,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
-027ac24f-16df-553a-8cb1-c1ba4e29140a,wos,WOS:000318818700316,10.4028/www.scientific.net/amm.263-266.1647,2013,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 0bf7d0b4-14c8-5769-81a6-2e3cc4cbc46d,wos,WOS:001032268400001,10.1089/ees.2022.0367,2023,INCLUDE,4,C04,False,umap_hdbscan_fit,
 ae1b2365-60cf-57ac-b96c-11f57bb973e3,wos,WOS:001066922500001,10.1016/j.scitotenv.2023.166551,2023,HUMAN_REVIEW,7,C07,False,umap_hdbscan_fit,
-3b4a60ff-f3dd-58b8-acd2-3233d853f769,wos,WOS:000286342802434,,2009,HUMAN_REVIEW,19,C19,False,umap_hdbscan_fit,
 ae829e06-3de8-521a-ab2d-626a89c7d7b1,wos,WOS:000640551900001,10.1002/cjce.24095,2022,HUMAN_REVIEW,14,C14,False,umap_hdbscan_fit,
 baed47d5-1ef1-5ea1-bf36-f3585e6e76d5,wos,WOS:000430181700115,10.1007/978-3-319-58421-8_115,2017,HUMAN_REVIEW,23,C23,False,umap_hdbscan_fit,
 f336cc70-94b1-5d10-a8eb-51c8ec62f14c,wos,GRANTS:14292026,,1995,INCLUDE,23,C23,False,umap_hdbscan_fit,
@@ -3470,7 +3483,6 @@ e1eb2d6a-cd60-5ac3-86fd-140e1ff5c3bd,wos,WOS:000337697900020,10.1002/jctb.4208,2
 c8c0af15-db10-579c-b590-2e82038a407a,wos,WOS:A1978FE64200015,,1978,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 19d0f5e5-1197-526a-ba7e-8849899bd174,wos,WOS:000265406500023,,2009,HUMAN_REVIEW,10,C10,False,umap_hdbscan_fit,
 c0095f6b-b114-5f98-9ceb-33cc495001d2,wos,GRANTS:14374758,,2010,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
-9f364909-2291-5f21-9f30-650762451f8a,wos,WOS:000391609900035,,2016,HUMAN_REVIEW,19,C19,False,umap_hdbscan_fit,
 e02f9ebb-0247-5251-91ce-fe0f9a93211f,wos,WOS:000973246500001,10.1016/j.energy.2023.127355,2023,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 8212b3db-f8a6-5fee-9c7a-5a4347bfc1b6,wos,WOS:000079976300092,,1998,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 53d08285-abdc-5065-8e17-7c847d26e16d,wos,WOS:000485997800001,10.1002/bit.27152,2019,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -3528,7 +3540,6 @@ d1e052a1-3a8f-5a50-b5c2-a4b6f859d6a4,wos,WOS:000294218900020,,2011,HUMAN_REVIEW,
 681a0c3f-b49c-51dd-a5be-a9a3b6cbae28,wos,PQDT:67504568,,1993,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 8f907bdf-0ec6-526e-aeec-f9dc426e879a,wos,WOS:001273643700001,10.1016/j.jenvman.2024.121874,2024,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 d17066b4-758d-55a4-9bdf-0c19b3022838,wos,WOS:000323240100029,10.1016/j.watres.2013.05.010,2013,INCLUDE,13,C13,False,umap_hdbscan_fit,
-4259685a-f2a4-5414-9ad0-ffb0b56dfbfb,wos,WOS:000241773205094,,2006,HUMAN_REVIEW,22,C22,False,umap_hdbscan_fit,
 e56b1a60-c852-59fb-b7bb-2b7214e27c7f,wos,WOS:000243743700016,10.1016/j.chemosphere.2006.05.004,2007,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 1ace20fc-9de9-576f-920e-48c22b63d5e4,wos,WOS:000861377100010,10.1016/j.scitotenv.2022.158849,2023,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
 a3f51e04-b39d-5f9f-bda0-617f7e98c465,wos,WOS:000800808100002,10.1016/j.cej.2022.136774,2022,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -3536,14 +3547,12 @@ a3f51e04-b39d-5f9f-bda0-617f7e98c465,wos,WOS:000800808100002,10.1016/j.cej.2022.
 e25f41a1-65ba-5ccc-9328-05c71c488399,wos,PQDT:47027443,,2015,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 74f1df45-1e62-59c6-9a43-9588d8529f63,wos,WOS:A1994BB68C00165,,1994,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 e2fc73ee-b0ce-5563-a50e-8f4c1ecce41c,wos,WOS:000314115500030,10.1016/j.memsci.2012.11.042,2013,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
-4fb275e7-f6ba-5c36-a99e-3b9699b47398,wos,WOS:000241773201154,,2006,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 b82176fb-511f-5b03-9215-fe324f7c563d,wos,WOS:000084439600016,,2000,HUMAN_REVIEW,14,C14,False,umap_hdbscan_fit,
 12e4b37b-9dae-5a6c-a70c-cc84a381e810,wos,WOS:001242618200001,10.1016/j.biortech.2024.130838,2024,HUMAN_REVIEW,8,C08,False,umap_hdbscan_fit,
 0ab9a2b8-4c51-565a-b92d-04c4fc8a2b50,wos,WOS:000678175800014,10.1177/01423312211005624,2021,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 a034a064-279d-58dd-9201-d0b901065707,wos,WOS:000668154500017,10.1016/b978-0-12-819854-4.00016-2,2020,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 134974c1-eb2d-5c3d-adbc-ad95cc3c722b,wos,PQDT:63369242,,2005,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 0ed38fad-c72b-5cf4-a6c6-f5124725b70d,wos,WOS:A1996BG78J00008,,1996,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
-941063a1-9653-53ba-a82b-498eab994644,wos,WOS:000374287000120,,2015,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 d4dd528e-38e6-5755-980a-fe486a997aa2,wos,WOS:000683032500003,10.1016/j.cej.2021.128870,2021,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 7f8fd3d3-9eeb-55e4-8830-c1eb5cae8e12,wos,WOS:000274769500015,10.1016/j.cej.2009.07.004,2009,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 e445a2b8-edc5-5d42-a33c-5de7904b4dfc,wos,WOS:000476841100013,10.2166/wst.2019.192,2019,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -3700,10 +3709,8 @@ bbc10cb3-5a59-5252-a5ff-612cdb63fc62,wos,WOS:001071498300001,10.1016/j.scitotenv
 88b1d685-b45d-500a-8a23-b0928a7c3cb9,wos,PQDT:88615732,,2015,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 b93b3647-719e-5f85-ab2f-5dbf77a66006,wos,WOS:000444000000061,10.1016/j.cej.2018.06.126,2018,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 ce864b66-f538-567d-bec8-91a89ab1a33e,wos,WOS:000674547300020,10.1038/s41598-021-93302-9,2021,HUMAN_REVIEW,15,C15,False,umap_hdbscan_fit,
-2331c0e7-bee9-5346-8596-1dff60874141,wos,WOS:000380502300295,,2015,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 420716cc-e831-5632-b969-11e2edae9724,wos,WOS:000440707900011,10.1080/09593330.2017.1355934,2018,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 d27c7a62-2238-5b98-8768-adb1a6ba2394,wos,WOS:001222779800001,10.1016/j.jwpe.2024.105203,2024,HUMAN_REVIEW,10,C10,False,umap_hdbscan_fit,
-907bbd4f-a2ab-54ca-83b2-4ee355959863,wos,WOS:000428251402051,,2017,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 5ca6dd52-56ae-58e9-9fee-30ea6029e830,wos,WOS:000228127200044,10.1021/bp049674u,2005,INCLUDE,4,C04,False,umap_hdbscan_fit,
 e60937a6-e30f-518b-8ca7-55f935f23e4f,wos,WOS:001201042700001,10.3390/w16071018,2024,HUMAN_REVIEW,22,C22,False,umap_hdbscan_fit,
 a98c570e-4c28-5cca-86a4-739b0e8d8226,wos,WOS:000397691900008,10.1016/j.jhazmat.2017.01.048,2017,HUMAN_REVIEW,19,C19,False,umap_hdbscan_fit,
@@ -3717,7 +3724,6 @@ d57bf96d-65b5-545a-8ea6-d27cb5bb4221,wos,WOS:000167316800021,10.2166/wst.2001.00
 d1e89776-c7f3-5a32-ad8b-367526117871,wos,PQDT:61482702,,2006,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 d290ac65-3c83-544a-8ef2-3762e016591c,wos,WOS:000178434900040,10.2166/wst.2002.0611,2002,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 bf787706-b66b-5466-9e7f-a84bd179070f,wos,WOS:000316032300038,10.1016/j.biortech.2012.11.103,2013,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
-f6882ba5-dde2-5156-bb7d-8c7e4cf32551,wos,WOS:000374287000107,,2015,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 311491dc-9969-596c-acc6-52ad8a62c006,wos,WOS:000878106100005,10.1016/j.jece.2022.108414,2022,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
 d434617d-2288-579d-aca4-1b5c74f33000,wos,WOS:000392270000118,10.1051/e3sconf/20161000119,2016,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 b1c1ee67-1b36-5960-a82e-f81dc4a9a8f5,wos,WOS:000171282100004,10.2166/wst.2001.0748,2001,HUMAN_REVIEW,23,C23,False,umap_hdbscan_fit,
@@ -3730,7 +3736,6 @@ b936f884-dd3a-5f4a-8474-422ead47adb5,wos,WOS:000756261700013,10.2166/97817890603
 801748f3-4e50-53c2-b942-4ecc9d78dd5f,wos,WOS:000233473700033,10.1016/j.watres.2005.08.019,2005,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
 a93e12fc-394a-5841-9ada-8e03c4dd1250,wos,WOS:000643727100002,10.1016/j.jenvman.2021.112362,2021,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 5a8979a3-a353-54d4-bf6f-9e89fcb7f79d,wos,WOS:000240508700012,10.1089/ees.2006.23.886,2006,HUMAN_REVIEW,10,C10,False,umap_hdbscan_fit,
-7a0c1df5-7974-5541-9307-575512e40e34,wos,WOS:000382523600072,,2016,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 e8840161-a44a-5fde-b384-bf09405f6f30,wos,WOS:000309630300044,10.1016/j.cej.2012.07.067,2012,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 67d92093-9721-580f-9ca4-66457ad01300,wos,WOS:000777213400003,10.1016/j.envres.2022.112923,2022,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 41fde93e-9fea-50d5-a145-52ee4a7d4ac8,wos,PQDT:59657558,,2016,HUMAN_REVIEW,0,C00,False,umap_hdbscan_fit,
@@ -3749,7 +3754,6 @@ f6145429-eb08-5680-846f-8d57c08ade64,wos,PQDT:87639024,,2008,HUMAN_REVIEW,1,C01,
 91626618-420c-5437-9b91-4cfa5f83a28e,wos,WOS:000296003200026,10.1016/j.seppur.2011.08.026,2011,HUMAN_REVIEW,9,C09,False,umap_hdbscan_fit,
 bcae2004-ceba-5658-b43f-6c6f8702500e,wos,WOS:000255663400003,10.1002/j.1554-7531.2007.tb00347.x,2007,HUMAN_REVIEW,24,C24,False,umap_hdbscan_fit,
 0c1083bf-25de-58b0-bae2-0e3a73e70969,wos,PQDT:64998807,,1992,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
-9410fdc7-8e07-5d62-84b1-7e52c834a800,wos,WOS:000380587600013,,2014,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 d1bed60d-273f-56eb-a392-04aa3ff3cea6,wos,WOS:000400226700085,10.1016/j.cej.2017.02.091,2017,HUMAN_REVIEW,11,C11,False,umap_hdbscan_fit,
 c55d0f9e-91ca-539d-81b0-24f55fcdecf7,wos,WOS:000421088400006,,2012,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 664bf67b-0072-53d0-a983-366faa370174,wos,WOS:000332446100007,10.1061/(asce)ee.1943-7870.0000779,2014,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
@@ -3924,7 +3928,6 @@ ee7d4953-9dd9-507b-9808-8115b2a89529,wos,PQDT:56370725,,2003,HUMAN_REVIEW,1,C01,
 bd9c2641-63e4-50b1-8692-f8062efb036d,wos,PQDT:67129556,,2012,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 f6424322-0c6f-52a0-b0a5-eea2eefc808f,wos,WOS:000467510800031,10.1016/j.jenvman.2019.03.131,2019,INCLUDE,5,C05,False,umap_hdbscan_fit,
 8bdd5f1f-1e84-56eb-b31e-7ec3fc4d225f,wos,PQDT:67395823,,2011,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
-44667b7c-6e8a-54af-9336-2bc63c2b733d,wos,WOS:000397260208043,,2010,HUMAN_REVIEW,6,C06,False,umap_hdbscan_fit,
 2e873a59-c40a-5c21-80f1-21331b19d291,wos,PQDT:65447598,,2006,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 91a1b222-07cf-5da8-9d2a-e14882df0fe7,wos,PQDT:54056763,,2002,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 c29059f1-34d1-546b-943d-e59e8091399f,wos,WOS:001583127900003,10.1016/j.watres.2025.124354,2025,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
@@ -4208,7 +4211,6 @@ ddbbc969-fe1a-52f1-9eee-99e44692367b,wos,WOS:000286195800033,10.1007/s11270-010-
 223024a2-3442-59c5-ba6e-62ef68f0af95,wos,WOS:000491627200059,10.1016/j.seppur.2019.116049,2020,INCLUDE,4,C04,False,umap_hdbscan_fit,
 83fcc661-95eb-5939-8a61-dfdc2266b5f3,wos,PQDT:65258922,,1995,HUMAN_REVIEW,1,C01,False,umap_hdbscan_fit,
 d7bde371-30f2-5ecd-9277-4d1f896ff8fd,wos,WOS:A1995BF39P00025,,1995,HUMAN_REVIEW,2,C02,False,umap_hdbscan_fit,
-01762ee8-d0ce-5415-8f7d-f83ac968ef5e,wos,WOS:000425229300183,,2017,HUMAN_REVIEW,21,C21,False,umap_hdbscan_fit,
 f28c72be-5358-58eb-be39-43059fae44ab,wos,WOS:000777612900004,10.1016/j.cej.2021.133621,2022,HUMAN_REVIEW,-1,noise,False,umap_hdbscan_fit,
 67569b81-3f96-5f57-ab6d-650942741c1c,wos,WOS:000260009200019,10.1007/s10295-008-0415-9,2008,HUMAN_REVIEW,18,C18,False,umap_hdbscan_fit,
 523a5631-dd07-5a9d-aaa7-28ea91be8e75,wos,WOS:A1997WQ01700003,10.1061/(asce)0733-9372(1997)123:4(311),1997,HUMAN_REVIEW,22,C22,False,umap_hdbscan_fit,
@@ -4747,7 +4749,6 @@ b6c919a9-fb5b-53bf-8117-86d86335686c,ieee,pdf:https://ieeexplore.ieee.org/stamp/
 31ca08cb-68d5-5bd2-8962-e9ba186a92c8,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8942417,10.1109/wincom47513.2019.8942417,2019,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
 170d2f24-cba3-5447-adbe-69c926817e74,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8279055,10.1109/icomicon.2017.8279055,2017,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
 65ea3a74-c50a-5668-bfff-9d480e1714b1,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8973313,10.1109/cts48763.2019.8973313,2019,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
-a91438d1-3d47-5756-9587-3cadc9e16fdb,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7125140,10.1109/icit.2015.7125140,2015,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
 f8be157e-f099-586a-95ad-a01f273587bf,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=4588790,10.1109/aqtr.2008.4588790,2008,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
 ae05bde2-c78e-5eb7-80f5-1a4bc6b10616,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=5968283,10.1109/ccdc.2011.5968283,2011,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,0.9026553044315682
 4b2cb75d-b2ba-5f2a-b16f-2192fcc39384,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7082090,10.23919/ecc.1997.7082090,1997,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
@@ -4779,7 +4780,6 @@ d76d7c6a-bf01-5f42-98e7-1244816cb49c,ieee,pdf:https://ieeexplore.ieee.org/stamp/
 c8d2dfb1-7535-5611-b083-0d0b4190671e,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=1597407,10.1109/tsmca.2005.853498,2006,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 af6ff4fb-a990-5493-820f-2d740a66c6a6,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=4535968,10.1109/icbbe.2008.1088,2008,INCLUDE,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 9c58190a-a208-5f3d-a539-ae6719e58314,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=11258650,10.1109/hnicem64917.2024.11258650,2024,HUMAN_REVIEW,22,C22,True,umap_transform_hdbscan_approximate_predict,1.0
-8a663f8a-d41a-5276-bda2-fd024e07bcea,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7158914,10.1109/med.2015.7158914,2015,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,0.9142314688499833
 21a76ac5-dbfb-51dd-b7f1-804a039fde3b,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=4108222,10.1109/sice.2006.315119,2006,HUMAN_REVIEW,-1,noise,True,umap_transform_hdbscan_approximate_predict,0.0
 177c6de4-9a49-5d96-be0c-1612ee5aae78,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=5931435,10.1109/wosspa.2011.5931435,2011,INCLUDE,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0
 37e2c938-930f-57f4-bd0f-87f072da5fcd,ieee,pdf:https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=7321355,10.1109/icstcc.2015.7321355,2015,HUMAN_REVIEW,21,C21,True,umap_transform_hdbscan_approximate_predict,1.0

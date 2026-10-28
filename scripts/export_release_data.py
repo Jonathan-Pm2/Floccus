@@ -25,11 +25,18 @@ source, source_id (identifier in the source database), doi, year. Free text
 personal names are never written. The expected manuscript counts are checked
 at the end; a mismatch is reported and the exit status is 1.
 
+With --round2 the tables reflect the round-2 corpus
+(scripts/build_round2_corpus.py): screening_decisions.csv keeps all 17,063
+round-1 records and adds round2_change (unchanged / ieee_merged_away /
+e5_rescreened) and merged_into; the 98 merged-away records are flagged and
+excluded from every count; eligible_clusters.csv and prisma_counts.json are
+computed on the 16,965 retained records.
+
 Run:  .venv/bin/python scripts/export_release_data.py \\
           --reviewer2-workbook <second reviewer's returned workbook.xlsx> \\
           --dedup-workbook <returned deduplication audit workbook.xlsx> \\
           --c03-workbook <returned C03 screening workbook.xlsx> \\
-          [--out-dir release_data]
+          [--out-dir release_data] [--round2]
 """
 from __future__ import annotations
 
@@ -56,6 +63,10 @@ ID_COLS = ["record_id", "source", "source_id", "doi", "year"]
 
 EXPECTED = {"deduplicated_records": 17063, "eligible_records": 4883, "include": 1385,
             "validation_sample": 465, "dedup_audit_pairs": 110, "c03_records": 141}
+EXPECTED_ROUND2 = {**EXPECTED, "deduplicated_records": 16965, "eligible_records": 4883, "include": 1395}
+ASSIGNED_LATER = {False: 201, True: 225}       # 201 IEEE; round 2: 199 IEEE + 26 E5
+ROUND2_DECISIONS = DATA / "round2_final_decisions.parquet"
+ROUND2_COUNTS = DATA / "round2_counts.json"
 
 LEVEL_EN = {"Incluir": "include", "Dudoso": "uncertain", "Excluir": "exclude"}
 BINARY_EN = {"cumple": "advance", "no cumple": "exclude"}
@@ -121,16 +132,26 @@ def read_workbook(path: Path, sheet: str, levels, expected_n) -> pd.DataFrame:
 
 
 # ---------------------------------------------------------------- tables
-def screening_decisions() -> pd.DataFrame:
-    dec = pd.read_parquet(DATA / "biofloc_final_decisions.parquet")
+def screening_decisions(round2: bool = False) -> pd.DataFrame:
+    dec = pd.read_parquet(ROUND2_DECISIONS if round2 else DATA / "biofloc_final_decisions.parquet")
     dec = dec.merge(source_ids(), on="record_id", how="left", validate="one_to_one")
-    l2 = pd.read_parquet(DATA / "biofloc_layer2_screened.parquet",
-                         columns=["record_id", "l2_final_decision"]
-                         + [f"l2_{c}_answer" for c in CRITERIA])
+    l2cols = ["record_id", "l2_final_decision"] + [f"l2_{c}_answer" for c in CRITERIA]
+    l2 = pd.read_parquet(DATA / "biofloc_layer2_screened.parquet", columns=l2cols)
     l2 = l2.drop_duplicates("record_id", keep="last")
-    e2 = pd.read_parquet(DATA / "e2_v2_answers.parquet", columns=["record_id", "E2_v2"])
-    dec = (dec.merge(l2, on="record_id", how="left", validate="one_to_one")
-              .merge(e2, on="record_id", how="left", validate="one_to_one"))
+    if round2:
+        # Layer-2 answers of the E5 records re-screened without the language criterion
+        e5 = pd.read_parquet(DATA / "e5_rescreen_decisions.parquet")
+        e5 = e5[e5.l2_processed_new.astype(bool)].assign(record_id=e5.record_id.astype(str))
+        e5 = e5.reindex(columns=l2cols)          # E5 has no Layer-2 answer: its column stays empty
+        l2 = pd.concat([l2[~l2.record_id.isin(e5.record_id)], e5], ignore_index=True)
+        dec = dec.merge(l2, on="record_id", how="left", validate="one_to_one")
+        dec["sensitivity_decision_r2"] = dec.sensitivity_decision
+    else:
+        e2 = pd.read_parquet(DATA / "e2_v2_answers.parquet", columns=["record_id", "E2_v2"])
+        dec = (dec.merge(l2, on="record_id", how="left", validate="one_to_one")
+                  .merge(e2, on="record_id", how="left", validate="one_to_one"))
+        dec["sensitivity_decision_r2"] = sensitivity_decision(dec).to_numpy()
+        dec["round2_change"], dec["merged_into"], dec["in_round2_corpus"] = "unchanged", None, True
     layer_reason = dec.final_decision_source.map(decision_reason)
     out = pd.DataFrame({
         "record_id": dec.record_id, "source": dec.source, "source_id": dec.source_id,
@@ -146,14 +167,22 @@ def screening_decisions() -> pd.DataFrame:
         "decision_layer": layer_reason.str[0],
         "decision_reason": layer_reason.str[1],
         "e2_sensitivity": dec.E2_v2,
-        "sensitivity_decision": sensitivity_decision(dec).to_numpy(),
+        "sensitivity_decision": dec.sensitivity_decision_r2.to_numpy(),
+        "round2_change": dec.round2_change,
+        "merged_into": dec.merged_into,
     })
-    out["eligible"] = out.final_decision.isin(ELIGIBLE)
-    out["eligible_sensitivity"] = out.sensitivity_decision.isin(ELIGIBLE)
+    retained = dec.in_round2_corpus.to_numpy().astype(bool)
+    out["eligible"] = out.final_decision.isin(ELIGIBLE) & retained
+    out["eligible_sensitivity"] = out.sensitivity_decision.isin(ELIGIBLE) & retained
     return out
 
 
-def eligible_clusters(screen: pd.DataFrame) -> pd.DataFrame:
+def retained(screen: pd.DataFrame) -> pd.DataFrame:
+    """Records of the (round-2) corpus: the merged-away IEEE duplicates are flagged, not counted."""
+    return screen[screen.round2_change != "ieee_merged_away"]
+
+
+def eligible_clusters(screen: pd.DataFrame, round2: bool = False) -> pd.DataFrame:
     base = pd.read_parquet(DATA / "eligible_clusters_assignment.parquet", columns=["record_id", "cluster"])
     base["assigned_later"] = False
     base["assignment_method"] = "umap_hdbscan_fit"
@@ -163,7 +192,16 @@ def eligible_clusters(screen: pd.DataFrame) -> pd.DataFrame:
     ieee = ieee.rename(columns={"strength": "membership_strength"})
     ieee["assigned_later"] = True
     ieee["assignment_method"] = "umap_transform_hdbscan_approximate_predict"
-    cl = pd.concat([base, ieee], ignore_index=True)
+    frames = [base, ieee]
+    if round2:   # the 26 E5 records newly eligible, mapped with the same procedure (rescreen_e5.py)
+        e5 = pd.read_parquet(DATA / "e5_cluster_assignment.parquet",
+                             columns=["record_id", "cluster", "cluster_strength"])
+        e5 = e5.rename(columns={"cluster_strength": "membership_strength"})
+        e5["assigned_later"] = True
+        e5["assignment_method"] = "umap_transform_hdbscan_approximate_predict"
+        frames.append(e5)
+    cl = pd.concat(frames, ignore_index=True)
+    cl["record_id"] = cl.record_id.astype(str)
     if cl.record_id.duplicated().any():
         raise SystemExit("a record has two cluster assignments")
     out = screen.loc[screen.eligible, ID_COLS + ["final_decision"]].merge(
@@ -175,8 +213,9 @@ def eligible_clusters(screen: pd.DataFrame) -> pd.DataFrame:
                           "assignment_method", "membership_strength"]]
 
 
-def validation_sample(screen: pd.DataFrame, r2_path: Path) -> pd.DataFrame:
-    df, _ = load()                      # review_id, human_decision, stratum, w, ...
+def validation_sample(screen: pd.DataFrame, r2_path: Path, round2: bool = False) -> pd.DataFrame:
+    # review_id, human_decision, stratum, w, ...; round 2 re-weights to the retained corpus
+    df, _ = load(population=retained(screen) if round2 else None)
     truth = pd.read_parquet(DATA / "validation_sample_truth.parquet", columns=["review_id", "record_id"])
     df = df.merge(truth, on="review_id", how="left", validate="one_to_one")
     df["N_c"] = df.groupby("stratum")["w"].transform("first") * df.groupby("stratum")["w"].transform("size")
@@ -240,10 +279,11 @@ def c03_screening(screen: pd.DataFrame, path: Path) -> pd.DataFrame:
     })
 
 
-def prisma(screen: pd.DataFrame) -> dict:
+def prisma(screen: pd.DataFrame, round2: bool = False) -> dict:
     p = json.loads((DATA / "prisma_counts.json").read_text())
     vc = lambda s: {k.lower(): int(v) for k, v in s.value_counts().items()}  # noqa: E731
-    return {
+    kept = retained(screen)
+    out = {
         "identification": {"by_source": p["identification"]["by_source"],
                            "total": p["identification"]["total"]},
         "deduplication": {"after_layer1_deterministic": p["deduplication"]["post_capa1"],
@@ -251,15 +291,29 @@ def prisma(screen: pd.DataFrame) -> dict:
                           "removed": p["deduplication"]["removed_by_dedup"]},
         "screening_layer1": p["screening_layer1"],
         "screening_layer2": {k.removeprefix("l2_"): v for k, v in p["screening_layer2"].items()},
-        "final_specificity_mode": {**vc(screen.final_decision),
-                                   "to_eligibility": int(screen.eligible.sum())},
-        "final_sensitivity_mode": {**vc(screen.sensitivity_decision),
-                                   "to_eligibility": int(screen.eligible_sensitivity.sum())},
-        "deduplicated_by_source": {k: int(v) for k, v in screen.source.value_counts().items()},
+        "final_specificity_mode": {**vc(kept.final_decision),
+                                   "to_eligibility": int(kept.eligible.sum())},
+        "final_sensitivity_mode": {**vc(kept.sensitivity_decision),
+                                   "to_eligibility": int(kept.eligible_sensitivity.sum())},
+        "deduplicated_by_source": {k: int(v) for k, v in kept.source.value_counts().items()},
         "note": "Counts recomputed from screening_decisions.csv except identification and "
                 "deduplication, copied from the pipeline's PRISMA counts. "
                 "screening_layer2.input counts the Layer-1 HUMAN_REVIEW records re-screened.",
     }
+    if round2:
+        r2 = json.loads(ROUND2_COUNTS.read_text())["prisma"]
+        new = lambda block: {k: v["new"] for k, v in block.items()}  # noqa: E731
+        out["deduplication"]["ieee_verified_merges_round2"] = r2["duplicates_removed"]["ieee_verified_merges"]["new"]
+        out["deduplication"]["after_round2_ieee_merges"] = r2["unique"]["new"]
+        out["deduplication"]["removed"] = r2["duplicates_removed"]["total"]["new"]
+        out["screening_layer1"] = new(r2["screening_layer1"])
+        out["screening_layer2"] = {k.removeprefix("l2_"): v for k, v in new(r2["screening_layer2"]).items()}
+        out["round2"] = {"records_flagged_ieee_merged_away": int((screen.round2_change == "ieee_merged_away").sum()),
+                         "records_e5_rescreened": int((screen.round2_change == "e5_rescreened").sum()),
+                         "source": "scripts/build_round2_corpus.py (data/processed/round2_counts.json)"}
+        out["note"] += (" Round 2: the 98 merged-away IEEE duplicates are flagged in "
+                        "screening_decisions.csv (round2_change) and excluded from every count.")
+    return out
 
 
 # ------------------------------------------------------------------ main
@@ -274,15 +328,18 @@ def main() -> None:
     ap.add_argument("--dedup-workbook", type=Path, required=True)
     ap.add_argument("--c03-workbook", type=Path, required=True)
     ap.add_argument("--out-dir", type=Path, default=ROOT / "release_data")
+    ap.add_argument("--round2", action="store_true",
+                    help="export the round-2 corpus (build_round2_corpus.py) instead of the round-1 one")
     args = ap.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
+    expected = EXPECTED_ROUND2 if args.round2 else EXPECTED
 
-    screen = screening_decisions()
-    clusters = eligible_clusters(screen)
-    sample = validation_sample(screen, args.reviewer2_workbook)
+    screen = screening_decisions(args.round2)
+    clusters = eligible_clusters(screen, args.round2)
+    sample = validation_sample(screen, args.reviewer2_workbook, args.round2)
     audit = dedup_audit(args.dedup_workbook)
     c03 = c03_screening(screen, args.c03_workbook)
-    counts = prisma(screen)
+    counts = prisma(screen, args.round2)
 
     print(f"-> {args.out_dir}")
     write_csv(screen, args.out_dir / "screening_decisions.csv")
@@ -293,14 +350,17 @@ def main() -> None:
     (args.out_dir / "prisma_counts.json").write_text(json.dumps(counts, indent=2) + "\n", encoding="utf-8")
     print("  prisma_counts.json")
 
-    observed = {"deduplicated_records": len(screen), "eligible_records": len(clusters),
-                "include": int((screen.final_decision == "INCLUDE").sum()),
+    kept = retained(screen)
+    observed = {"deduplicated_records": len(kept), "eligible_records": len(clusters),
+                "include": int((kept.final_decision == "INCLUDE").sum()),
                 "validation_sample": len(sample), "dedup_audit_pairs": len(audit),
                 "c03_records": len(c03)}
     checks = {
         "source_id withheld (free text) for at most 1 record": screen.source_id.isna().sum() <= 1,
         "every eligible record has a cluster": clusters.cluster.notna().all(),
-        "IEEE records assigned later": int(clusters.assigned_later.sum()) == 201,
+        "records assigned to clusters later": int(clusters.assigned_later.sum()) == ASSIGNED_LATER[args.round2],
+        "merged-away records carry merged_into": bool(
+            (screen.loc[screen.round2_change == "ieee_merged_away", "merged_into"].notna()).all()),
         "C03 table matches cluster 3": set(c03.record_id) == set(clusters.record_id[clusters.cluster == 3]),
         "every sample record labelled by both reviewers":
             sample.reviewer_1.notna().all() and sample.reviewer_2.notna().all(),
@@ -309,7 +369,7 @@ def main() -> None:
     }
     ok = True
     print("\ncount checks (expected = manuscript):")
-    for k, exp in EXPECTED.items():
+    for k, exp in expected.items():
         good = observed[k] == exp
         ok &= good
         print(f"  {k:<22} {observed[k]:>6}  expected {exp:>6}  {'ok' if good else 'MISMATCH'}")

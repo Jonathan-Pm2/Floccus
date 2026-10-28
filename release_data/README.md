@@ -19,10 +19,24 @@ published) and the three returned human-labelling workbooks by:
 The script checks the counts reported in the manuscript and exits with status
 1 on any mismatch.
 
+**Round 2 (`--round2`).** After the first review round two corrections were
+applied (`scripts/build_round2_corpus.py`): the 98 IEEE Xplore records verified
+as duplicates of Web of Science / Scopus records (identical title or DOI) were
+merged, keeping one record per pair (validation-sample member > clustered
+record > record with DOI > IEEE record), and the 31 records excluded solely by
+the retired language criterion E5 were re-screened without it (11 INCLUDE, 15
+HUMAN_REVIEW, 5 EXCLUDE; 23 further records excluded by E5 + E2 were re-asked
+the corrected E2 for the sensitivity mode). `screening_decisions.csv` keeps all
+17,063 round-1 records: `round2_change` is `unchanged`, `ieee_merged_away` (98
+records, `merged_into` = the retained record, excluded from every count) or
+`e5_rescreened` (54 records). The round-2 corpus has 16,965 records, 4,883
+eligible (1,395 INCLUDE); `eligible_clusters.csv` and `prisma_counts.json` are
+computed on it.
+
 | file | rows | content |
 |---|---:|---|
-| `screening_decisions.csv` | 17,063 | every deduplicated record: criterion verdicts and decisions in both operating modes |
-| `eligible_clusters.csv` | 4,883 | eligible records (INCLUDE or HUMAN_REVIEW) and their thematic cluster |
+| `screening_decisions.csv` | 17,063 | every deduplicated record: criterion verdicts and decisions in both operating modes; round-2 status |
+| `eligible_clusters.csv` | 4,883 | eligible records (INCLUDE or HUMAN_REVIEW) of the round-2 corpus and their thematic cluster |
 | `validation_sample.csv` | 465 | blind validation sample: design, pipeline decisions, two human reviewers, two baselines |
 | `dedup_audit_pairs.csv` | 110 | manual audit of deduplication pairs |
 | `c03_manual_screening.csv` | 141 | full manual screening of cluster C03 |
@@ -52,7 +66,9 @@ The script checks the counts reported in the manuscript and exits with status
 | `decision_reason` | rule that fired: `all_inclusion_met`, `excluded_by:<criteria>`, `inclusion_not_met:<criteria>`, `routed_by:<criteria>`, `exclusion_unclear:<criteria>` |
 | `e2_sensitivity` | E2 answer from the sensitivity-mode prompt (reasoning first, positive phrasing, mapped back to E2 polarity); asked only for the 9,047 records whose decision depends on E2 |
 | `sensitivity_decision` | decision in the sensitivity operating mode |
-| `eligible`, `eligible_sensitivity` | record advances to eligibility (INCLUDE or HUMAN_REVIEW) in each mode |
+| `eligible`, `eligible_sensitivity` | record advances to eligibility (INCLUDE or HUMAN_REVIEW) in each mode; always `False` for merged-away records |
+| `round2_change` | `unchanged`, `ieee_merged_away` (verified IEEE duplicate of another record, not counted) or `e5_rescreened` (re-screened without the retired language criterion E5) |
+| `merged_into` | for `ieee_merged_away` records, the `record_id` of the retained twin |
 
 The `E5` columns hold a deterministic language check (`determinista sobre
 rec.language`) that was part of the archived run; they are exported as stored
@@ -65,7 +81,7 @@ so that every decision can be traced to the verdicts that produced it.
 | `final_decision` | `INCLUDE` or `HUMAN_REVIEW` |
 | `cluster` | UMAP + HDBSCAN cluster (0–24); `-1` = no cluster (noise) |
 | `cluster_label` | `C00` … `C24` as in the manuscript, `noise` for `-1` |
-| `assigned_later` | `True` for the 201 IEEE Xplore records whose embeddings were computed after the clustering and assigned to the existing partition (`scripts/assign_ieee_clusters.py`) |
+| `assigned_later` | `True` for the records whose embeddings were computed after the clustering and assigned to the existing partition: 199 IEEE Xplore records (`scripts/assign_ieee_clusters.py`; 201 before the round-2 merges) and the 26 records made eligible by the E5 re-screen (`scripts/rescreen_e5.py`) |
 | `assignment_method` | `umap_hdbscan_fit` (original 4,682 records) or `umap_transform_hdbscan_approximate_predict` |
 | `membership_strength` | HDBSCAN membership strength of the later assignments, empty otherwise |
 
