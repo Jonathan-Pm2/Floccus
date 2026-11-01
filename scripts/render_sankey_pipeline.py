@@ -57,12 +57,14 @@ SOURCE_COLOURS = {
 NODE_VIOLET = "#7d5a8c"   # enrichment side-band    (muted plum)
 
 # Ribbon fills — semi-transparent versions of the node colours
-RIBBON = "rgba(91,122,153,0.16)"       # descriptive strata ribbons (faint steel blue)
+RIBBON = "rgba(70,118,168,0.20)"       # descriptive strata ribbons (light steel blue)
 RIBBON_SRC = "rgba(47,109,140,0.38)"   # source -> dedup survivors (main flow, petrol)
 RIBBON_GREEN = "rgba(46,139,87,0.45)"
 RIBBON_AMBER = "rgba(230,159,0,0.45)"
 RIBBON_RED = "rgba(192,57,43,0.35)"
 RIBBON_GREY = "rgba(52,73,94,0.22)"
+NODE_TEAL = "#3f8f80"     # abstract-level analysis path (teal-green: part of the eligible corpus)
+RIBBON_TEAL = "rgba(63,143,128,0.32)"
 
 
 # ---------------------------------------------------------------------------
@@ -193,7 +195,7 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
 
     # ---- Column 7: full-text acquisition ----
     add("oapdf", f"OA PDFs {n_oa_pdf:,}", NODE_GREEN, X_FULLTEXT, 0.20)
-    add("manual", f"Abstract-level {n_elig - n_oa_pdf:,}", NODE_GREY, X_FULLTEXT, 0.60)
+    add("manual", f"Abstract-level {n_elig - n_oa_pdf:,}", NODE_TEAL, X_FULLTEXT, 0.60)
 
     # ---- Column 8: text extraction ----
     add("extr", f"Text extracted {n_extracted:,}", NODE_GREEN, X_EXTRACT, 0.20)
@@ -240,12 +242,12 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     link("hr", "elig", n_hr, RIBBON_AMBER)
     # eligible -> full-text acquisition (297 OA PDFs) / abstract-level (rest)
     link("elig", "oapdf", n_oa_pdf, RIBBON_GREEN)
-    link("elig", "manual", n_elig - n_oa_pdf, RIBBON_GREY)
+    link("elig", "manual", n_elig - n_oa_pdf, RIBBON_TEAL)
     # OA PDFs -> text extracted (1 corrupt PDF lost)
     link("oapdf", "extr", n_extracted, RIBBON_GREEN)
     # both streams feed the final thematic + methods analysis
     link("extr", "analysis", n_extracted, RIBBON_GREEN)
-    link("manual", "analysis", n_elig - n_oa_pdf, RIBBON_GREY)
+    link("manual", "analysis", n_elig - n_oa_pdf, RIBBON_TEAL)
 
     fig = go.Figure(go.Sankey(
         arrangement="fixed",
