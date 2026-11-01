@@ -36,35 +36,36 @@ OUT = ROOT / "docs" / "figures_en"
 OUT.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# Colour palette — muted, publication-grade "sophisticated" scheme
-# (colour-blind safe; harmonised desaturated tones).
+# Colour palette — three harmonious families with matched saturation:
+#   blues  : the four sources (navy -> sky), one hue family so they do not compete
+#   earths : screening outcomes (sage / muted gold / terracotta), equal lightness
+#   sand   : descriptive context strata (document type, language)
 # ---------------------------------------------------------------------------
-NODE_SLATE = "#9c8461"    # document-type stratum  (warm taupe: context)
-NODE_CYAN = "#c4ae86"     # language stratum       (sand: context)
-NODE_BLUE = "#2f6d8c"     # sources / identification (deep petrol blue)
-NODE_GREY = "#34495e"     # dedup gate / abstract-level (dark slate blue)
-NODE_GREEN = "#2e8b57"    # include / eligible / extracted (green)
-NODE_AMBER = "#e69f00"    # human review            (amber, Okabe-Ito)
-NODE_RED = "#c0392b"      # exclude / duplicates    (red)
-# One colour per source (Okabe-Ito based, colour-blind safe), used for the
-# source nodes and their ribbons into deduplication.
+NODE_SLATE = "#a89272"    # document-type stratum  (taupe: context)
+NODE_CYAN = "#cdbb98"     # language stratum       (sand: context)
+NODE_BLUE = "#2b5f8e"     # fallback source colour
+NODE_GREY = "#1f3a52"     # dedup gate              (deep navy)
+NODE_GREEN = "#4f8f5f"    # include / eligible / extracted (sage green)
+NODE_AMBER = "#d1a24a"    # human review            (muted gold)
+NODE_RED = "#b85c48"      # exclude / duplicates    (terracotta)
+NODE_TEAL = "#6fa58a"     # abstract-level analysis path (light sage)
+# Sources: one blue family, from dark to light, ribbons in the same tones.
 SOURCE_COLOURS = {
-    "WoS": ("#0072b2", "rgba(0,114,178,0.42)"),
-    "Scopus": ("#d55e00", "rgba(213,94,0,0.38)"),
-    "SciELO": ("#009e73", "rgba(0,158,115,0.40)"),
-    "IEEE": ("#7b4fa0", "rgba(123,79,160,0.45)"),
+    "WoS": ("#1d4e89", "rgba(29,78,137,0.40)"),
+    "Scopus": ("#3a78b5", "rgba(58,120,181,0.38)"),
+    "SciELO": ("#6a9fcf", "rgba(106,159,207,0.42)"),
+    "IEEE": ("#9dbfe0", "rgba(157,191,224,0.55)"),
 }
 NODE_VIOLET = "#7d5a8c"   # enrichment side-band    (muted plum)
 
 # Ribbon fills — semi-transparent versions of the node colours
-RIBBON = "rgba(196,174,134,0.32)"      # doc -> language ribbons (sand)
-RIBBON_SRC = "rgba(47,109,140,0.38)"   # source -> dedup survivors (main flow, petrol)
-RIBBON_GREEN = "rgba(46,139,87,0.45)"
-RIBBON_AMBER = "rgba(230,159,0,0.45)"
-RIBBON_RED = "rgba(192,57,43,0.35)"
-RIBBON_GREY = "rgba(52,73,94,0.22)"
-NODE_TEAL = "#3f8f80"     # abstract-level analysis path (teal-green: part of the eligible corpus)
-RIBBON_TEAL = "rgba(63,143,128,0.32)"
+RIBBON = "rgba(205,187,152,0.34)"      # doc -> language ribbons (sand)
+RIBBON_SRC = "rgba(43,95,142,0.38)"    # fallback source ribbon
+RIBBON_GREEN = "rgba(79,143,95,0.40)"
+RIBBON_AMBER = "rgba(209,162,74,0.42)"
+RIBBON_RED = "rgba(184,92,72,0.32)"
+RIBBON_GREY = "rgba(31,58,82,0.20)"
+RIBBON_TEAL = "rgba(111,165,138,0.32)"
 
 
 # ---------------------------------------------------------------------------
