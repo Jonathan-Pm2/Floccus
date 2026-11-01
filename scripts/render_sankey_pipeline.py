@@ -37,8 +37,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Colour palette — muted, publication-grade "sophisticated" scheme
 # (colour-blind safe; harmonised desaturated tones).
 # ---------------------------------------------------------------------------
-NODE_SLATE = "#37474f"    # document-type stratum  (deep blue-grey)
-NODE_CYAN = "#6d9bb5"     # language stratum       (dusty blue)
+NODE_SLATE = "#90a4ae"    # document-type stratum  (light blue-grey: context)
+NODE_CYAN = "#b0bec5"     # language stratum       (pale blue-grey: context)
 NODE_BLUE = "#2f6d8c"     # sources / identification (deep petrol blue)
 NODE_GREY = "#7d8794"     # dedup / neutral         (cool grey)
 NODE_GREEN = "#4a7c59"    # include / eligible / extracted (muted forest)
@@ -47,7 +47,8 @@ NODE_RED = "#b0553f"      # exclude / duplicates    (muted terracotta)
 NODE_VIOLET = "#7d5a8c"   # enrichment side-band    (muted plum)
 
 # Ribbon fills — semi-transparent versions of the node colours
-RIBBON = "rgba(109,155,181,0.30)"      # descriptive strata ribbons (dusty blue)
+RIBBON = "rgba(144,164,174,0.20)"      # descriptive strata ribbons (faint, background)
+RIBBON_SRC = "rgba(47,109,140,0.38)"   # source -> dedup survivors (main flow, petrol)
 RIBBON_GREEN = "rgba(74,124,89,0.50)"
 RIBBON_AMBER = "rgba(193,154,62,0.50)"
 RIBBON_RED = "rgba(176,85,63,0.45)"
@@ -217,7 +218,7 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     for s in src_order:
         surv = int(C["survivors"][s])
         ident = int(C["identified"][s])
-        link(f"src_{s}", "dedup", surv, RIBBON)
+        link(f"src_{s}", "dedup", surv, RIBBON_SRC)
         link(f"src_{s}", "dups", ident - surv, RIBBON_RED)
     # dedup -> decision (real)
     link("dedup", "inc", n_inc, RIBBON_GREEN)
