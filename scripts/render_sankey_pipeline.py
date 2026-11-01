@@ -39,8 +39,8 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Colour palette — muted, publication-grade "sophisticated" scheme
 # (colour-blind safe; harmonised desaturated tones).
 # ---------------------------------------------------------------------------
-NODE_SLATE = "#5b7a99"    # document-type stratum  (steel blue: context)
-NODE_CYAN = "#8fa9c4"     # language stratum       (light steel blue: context)
+NODE_SLATE = "#9c8461"    # document-type stratum  (warm taupe: context)
+NODE_CYAN = "#c4ae86"     # language stratum       (sand: context)
 NODE_BLUE = "#2f6d8c"     # sources / identification (deep petrol blue)
 NODE_GREY = "#34495e"     # dedup gate / abstract-level (dark slate blue)
 NODE_GREEN = "#2e8b57"    # include / eligible / extracted (green)
@@ -57,7 +57,7 @@ SOURCE_COLOURS = {
 NODE_VIOLET = "#7d5a8c"   # enrichment side-band    (muted plum)
 
 # Ribbon fills — semi-transparent versions of the node colours
-RIBBON = "rgba(70,118,168,0.20)"       # descriptive strata ribbons (light steel blue)
+RIBBON = "rgba(196,174,134,0.32)"      # doc -> language ribbons (sand)
 RIBBON_SRC = "rgba(47,109,140,0.38)"   # source -> dedup survivors (main flow, petrol)
 RIBBON_GREEN = "rgba(46,139,87,0.45)"
 RIBBON_AMBER = "rgba(230,159,0,0.45)"
@@ -155,9 +155,9 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
         ypos.append(y)
 
     # ---- Column x-positions (0..1) ----
-    X_DOC, X_LANG, X_SRC = 0.01, 0.125, 0.25
-    X_DEDUP, X_DEC, X_ELIG = 0.375, 0.52, 0.655
-    X_FULLTEXT, X_EXTRACT, X_ANALYSIS = 0.765, 0.86, 0.96
+    X_DOC, X_LANG, X_SRC = 0.005, 0.13, 0.255
+    X_DEDUP, X_DEC, X_ELIG = 0.385, 0.535, 0.675
+    X_FULLTEXT, X_EXTRACT, X_ANALYSIS = 0.785, 0.893, 0.995
 
     # ---- Column 1: document type ----
     doc_tot = int(C["doc_lang"].sum(axis=1).sum())
@@ -226,7 +226,8 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     # language -> source (real cross-tab)
     for lg in lang_order:
         for s in src_order:
-            link(f"lang_{lg}", f"src_{s}", int(C["lang_src"].loc[lg, s]), RIBBON)
+            link(f"lang_{lg}", f"src_{s}", int(C["lang_src"].loc[lg, s]),
+                 SOURCE_COLOURS.get(s, (None, RIBBON))[1].rsplit(",", 1)[0] + ",0.20)")
     # source -> dedup survivors and duplicates (real)
     for s in src_order:
         surv = int(C["survivors"][s])
@@ -251,7 +252,7 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
 
     fig = go.Figure(go.Sankey(
         arrangement="fixed",
-        textfont=dict(family="Latin Modern Roman, serif", size=17,
+        textfont=dict(family="Latin Modern Roman, serif", size=19,
                       color="#000000"),
         node=dict(
             label=labels, color=color, x=xpos, y=ypos,
@@ -316,8 +317,8 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
 
     fig.update_layout(
         font=dict(family="Latin Modern Roman, serif", size=12, color="#222"),
-        width=1700, height=760,
-        margin=dict(l=15, r=150, t=200, b=45),
+        width=1500, height=760,
+        margin=dict(l=15, r=15, t=200, b=45),
         annotations=annotations,
         shapes=shapes,
     )
