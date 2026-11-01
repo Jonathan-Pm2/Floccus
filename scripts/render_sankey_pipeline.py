@@ -40,19 +40,27 @@ OUT.mkdir(parents=True, exist_ok=True)
 NODE_SLATE = "#90a4ae"    # document-type stratum  (light blue-grey: context)
 NODE_CYAN = "#b0bec5"     # language stratum       (pale blue-grey: context)
 NODE_BLUE = "#2f6d8c"     # sources / identification (deep petrol blue)
-NODE_GREY = "#7d8794"     # dedup / neutral         (cool grey)
-NODE_GREEN = "#4a7c59"    # include / eligible / extracted (muted forest)
-NODE_AMBER = "#c19a3e"    # human review            (soft ochre)
-NODE_RED = "#b0553f"      # exclude / duplicates    (muted terracotta)
+NODE_GREY = "#546e7a"     # dedup gate              (slate)
+NODE_GREEN = "#2e8b57"    # include / eligible / extracted (green)
+NODE_AMBER = "#e69f00"    # human review            (amber, Okabe-Ito)
+NODE_RED = "#c0392b"      # exclude / duplicates    (red)
+# One colour per source (Okabe-Ito based, colour-blind safe), used for the
+# source nodes and their ribbons into deduplication.
+SOURCE_COLOURS = {
+    "WoS": ("#0072b2", "rgba(0,114,178,0.42)"),
+    "Scopus": ("#d55e00", "rgba(213,94,0,0.38)"),
+    "SciELO": ("#009e73", "rgba(0,158,115,0.40)"),
+    "IEEE": ("#7b4fa0", "rgba(123,79,160,0.45)"),
+}
 NODE_VIOLET = "#7d5a8c"   # enrichment side-band    (muted plum)
 
 # Ribbon fills — semi-transparent versions of the node colours
 RIBBON = "rgba(144,164,174,0.20)"      # descriptive strata ribbons (faint, background)
 RIBBON_SRC = "rgba(47,109,140,0.38)"   # source -> dedup survivors (main flow, petrol)
-RIBBON_GREEN = "rgba(74,124,89,0.50)"
-RIBBON_AMBER = "rgba(193,154,62,0.50)"
-RIBBON_RED = "rgba(176,85,63,0.45)"
-RIBBON_GREY = "rgba(125,135,148,0.40)"
+RIBBON_GREEN = "rgba(46,139,87,0.45)"
+RIBBON_AMBER = "rgba(230,159,0,0.45)"
+RIBBON_RED = "rgba(192,57,43,0.35)"
+RIBBON_GREY = "rgba(84,110,122,0.30)"
 
 
 # ---------------------------------------------------------------------------
@@ -165,7 +173,7 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     y = 0.06
     for s in src_order:
         n = int(C["identified"][s])
-        add(f"src_{s}", f"{s} {n:,}", NODE_BLUE, X_SRC, min(y, 0.9))
+        add(f"src_{s}", f"{s} {n:,}", SOURCE_COLOURS.get(s, (NODE_BLUE,))[0], X_SRC, min(y, 0.9))
         y += 0.22
 
     # ---- Column 4: deduplication gate ----
@@ -218,7 +226,7 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     for s in src_order:
         surv = int(C["survivors"][s])
         ident = int(C["identified"][s])
-        link(f"src_{s}", "dedup", surv, RIBBON_SRC)
+        link(f"src_{s}", "dedup", surv, SOURCE_COLOURS.get(s, (None, RIBBON_SRC))[1])
         link(f"src_{s}", "dups", ident - surv, RIBBON_RED)
     # dedup -> decision (real)
     link("dedup", "inc", n_inc, RIBBON_GREEN)
