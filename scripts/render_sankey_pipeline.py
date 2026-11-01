@@ -23,6 +23,8 @@ Run:  .venv/bin/python scripts/render_sankey_pipeline.py
 """
 from __future__ import annotations
 
+import re
+
 from pathlib import Path
 
 import pandas as pd
@@ -37,10 +39,10 @@ OUT.mkdir(parents=True, exist_ok=True)
 # Colour palette — muted, publication-grade "sophisticated" scheme
 # (colour-blind safe; harmonised desaturated tones).
 # ---------------------------------------------------------------------------
-NODE_SLATE = "#90a4ae"    # document-type stratum  (light blue-grey: context)
-NODE_CYAN = "#b0bec5"     # language stratum       (pale blue-grey: context)
+NODE_SLATE = "#5b7a99"    # document-type stratum  (steel blue: context)
+NODE_CYAN = "#8fa9c4"     # language stratum       (light steel blue: context)
 NODE_BLUE = "#2f6d8c"     # sources / identification (deep petrol blue)
-NODE_GREY = "#546e7a"     # dedup gate              (slate)
+NODE_GREY = "#34495e"     # dedup gate / abstract-level (dark slate blue)
 NODE_GREEN = "#2e8b57"    # include / eligible / extracted (green)
 NODE_AMBER = "#e69f00"    # human review            (amber, Okabe-Ito)
 NODE_RED = "#c0392b"      # exclude / duplicates    (red)
@@ -55,12 +57,12 @@ SOURCE_COLOURS = {
 NODE_VIOLET = "#7d5a8c"   # enrichment side-band    (muted plum)
 
 # Ribbon fills — semi-transparent versions of the node colours
-RIBBON = "rgba(144,164,174,0.20)"      # descriptive strata ribbons (faint, background)
+RIBBON = "rgba(91,122,153,0.16)"       # descriptive strata ribbons (faint steel blue)
 RIBBON_SRC = "rgba(47,109,140,0.38)"   # source -> dedup survivors (main flow, petrol)
 RIBBON_GREEN = "rgba(46,139,87,0.45)"
 RIBBON_AMBER = "rgba(230,159,0,0.45)"
 RIBBON_RED = "rgba(192,57,43,0.35)"
-RIBBON_GREY = "rgba(84,110,122,0.30)"
+RIBBON_GREY = "rgba(52,73,94,0.22)"
 
 
 # ---------------------------------------------------------------------------
@@ -144,15 +146,16 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
 
     def add(key: str, disp: str, col_color: str, x: float, y: float) -> None:
         idx[key] = len(labels)
-        labels.append(f"<b>{disp}</b>")   # bold node labels for legibility
+        # name in regular weight, counts in bold so the values stand out
+        labels.append(re.sub(r"(\d[\d,]*)", r"<b>\1</b>", disp))
         color.append(col_color)
         xpos.append(x)
         ypos.append(y)
 
     # ---- Column x-positions (0..1) ----
-    X_DOC, X_LANG, X_SRC = 0.01, 0.11, 0.23
-    X_DEDUP, X_DEC, X_ELIG = 0.36, 0.51, 0.65
-    X_FULLTEXT, X_EXTRACT, X_ANALYSIS = 0.76, 0.86, 0.96
+    X_DOC, X_LANG, X_SRC = 0.01, 0.125, 0.25
+    X_DEDUP, X_DEC, X_ELIG = 0.375, 0.52, 0.655
+    X_FULLTEXT, X_EXTRACT, X_ANALYSIS = 0.765, 0.86, 0.96
 
     # ---- Column 1: document type ----
     doc_tot = int(C["doc_lang"].sum(axis=1).sum())
@@ -246,8 +249,8 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
 
     fig = go.Figure(go.Sankey(
         arrangement="fixed",
-        textfont=dict(family="Latin Modern Roman, serif", size=14,
-                      color="#1a1a1a"),
+        textfont=dict(family="Latin Modern Roman, serif", size=17,
+                      color="#000000"),
         node=dict(
             label=labels, color=color, x=xpos, y=ypos,
             pad=16, thickness=18, line=dict(color="white", width=0.8),
@@ -270,22 +273,22 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
         # Row 1 (highest) — OpenAlex stage 1, above the dedup column
         dict(x=X_DEDUP, y=1.30, xref="paper", yref="paper",
              text="<b>OpenAlex</b> · stage 1<br>metadata recovery (5,122)",
-             showarrow=False, font=dict(size=10, color=NODE_VIOLET),
+             showarrow=False, font=dict(size=12, color="#5a3d6b"),
              bgcolor="rgba(129,86,168,0.07)", bordercolor=NODE_VIOLET,
              borderwidth=1, borderpad=4, align="center"),
         # Row 2 — OpenAlex + Europe PMC stage 2, above the decision column
         dict(x=X_DEC + 0.02, y=1.30, xref="paper", yref="paper",
              text="<b>OpenAlex + Europe PMC</b> · stage 2<br>"
                   "topics + MeSH (4,542 / 1,830 / 272)",
-             showarrow=False, font=dict(size=10, color=NODE_VIOLET),
+             showarrow=False, font=dict(size=12, color="#5a3d6b"),
              bgcolor="rgba(129,86,168,0.07)", bordercolor=NODE_VIOLET,
              borderwidth=1, borderpad=4, align="center"),
         # Row 3 (lower) — Ollama compute backend, centred over dedup+decision
-        dict(x=(X_DEDUP + X_DEC) / 2, y=1.09, xref="paper", yref="paper",
-             text="<b>Ollama</b> local LLM server · "
+        dict(x=(X_DEDUP + X_DEC) / 2, y=1.11, xref="paper", yref="paper",
+             text="<b>Ollama</b> local LLM server<br>"
                   "<i>Qwen3-14B</i> (dedup judge + screening) + "
                   "<i>Qwen3-Embedding-8B</i> (semantic dedup)",
-             showarrow=False, font=dict(size=10, color=OLLAMA_C),
+             showarrow=False, font=dict(size=12, color="#145c5c"),
              bgcolor="rgba(29,122,122,0.07)", bordercolor=OLLAMA_C,
              borderwidth=1, borderpad=4, align="center"),
     ]
@@ -293,25 +296,25 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     shapes = [
         # OpenAlex stage 1 (violet dotted) -> Deduplicated node
         dict(type="line", xref="paper", yref="paper",
-             x0=X_DEDUP, y0=1.25, x1=X_DEDUP, y1=0.66,
+             x0=X_DEDUP, y0=1.21, x1=X_DEDUP, y1=0.66,
              line=dict(color=NODE_VIOLET, width=1.2, dash="dot")),
         # OpenAlex + Europe PMC stage 2 (violet dotted) -> advancing subset
         dict(type="line", xref="paper", yref="paper",
-             x0=X_DEC + 0.02, y0=1.25, x1=X_DEC + 0.02, y1=0.74,
+             x0=X_DEC + 0.02, y0=1.21, x1=X_DEC + 0.02, y1=0.74,
              line=dict(color=NODE_VIOLET, width=1.2, dash="dot")),
         # Ollama (teal dashed) -> deduplication column
         dict(type="line", xref="paper", yref="paper",
-             x0=(X_DEDUP + X_DEC) / 2 - 0.03, y0=1.04, x1=X_DEDUP, y1=0.62,
+             x0=(X_DEDUP + X_DEC) / 2 - 0.03, y0=1.01, x1=X_DEDUP, y1=0.62,
              line=dict(color=OLLAMA_C, width=1.2, dash="dash")),
         # Ollama (teal dashed) -> screening decision column
         dict(type="line", xref="paper", yref="paper",
-             x0=(X_DEDUP + X_DEC) / 2 + 0.03, y0=1.04, x1=X_DEC, y1=0.78,
+             x0=(X_DEDUP + X_DEC) / 2 + 0.03, y0=1.01, x1=X_DEC, y1=0.78,
              line=dict(color=OLLAMA_C, width=1.2, dash="dash")),
     ]
 
     fig.update_layout(
         font=dict(family="Latin Modern Roman, serif", size=12, color="#222"),
-        width=1360, height=720,
+        width=1700, height=760,
         margin=dict(l=15, r=150, t=200, b=45),
         annotations=annotations,
         shapes=shapes,
