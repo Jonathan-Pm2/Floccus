@@ -92,6 +92,11 @@ CLUSTER_LABELS_LONG_EN = {
 }
 
 
+def _fmt(n: int) -> str:
+    """MDPI number style: thousands comma only from five digits (1233, 16,965)."""
+    return f"{n:,}" if n >= 10000 else str(n)
+
+
 def _save(fig: plt.Figure, name: str) -> None:
     fig.savefig(OUT / f"{name}.pdf", bbox_inches="tight")
     fig.savefig(OUT / f"{name}.png", dpi=200, bbox_inches="tight")
@@ -345,7 +350,7 @@ def fig10_umap_clusters(keep: np.ndarray | None = None) -> None:
         side.set_linewidth(0.6)
 
     handles = [Line2D([0], [0], marker="o", ls="", markersize=5, markerfacecolor="#d0d0d0",
-                      markeredgecolor="none", label=f"Unclustered (n = {noise.sum():,})")]
+                      markeredgecolor="none", label=f"Unclustered (n = {_fmt(int(noise.sum()))})")]
     for c in ids:
         k = int((clusters == c).sum())
         name = CLUSTER_LABELS_LONG_EN.get(c, CLUSTER_LABELS_EN[c])
