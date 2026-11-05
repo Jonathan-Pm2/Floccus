@@ -35,6 +35,11 @@ DATA = ROOT / "data" / "processed"
 OUT = ROOT / "docs" / "figures_en"
 OUT.mkdir(parents=True, exist_ok=True)
 
+def fmt(n: int) -> str:
+    """MDPI number style: thousands comma only from five digits (4883, 16,965)."""
+    return f"{n:,}" if n >= 10000 else str(n)
+
+
 # ---------------------------------------------------------------------------
 # Colour palette — three harmonious families with matched saturation:
 #   blues  : the four sources (navy -> sky), one hue family so they do not compete
@@ -165,41 +170,41 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     y = 0.05
     for d in doc_order:
         n = int(C["doc_lang"].loc[d].sum())
-        add(f"doc_{d}", f"{d} {n:,}", NODE_SLATE, X_DOC, min(y, 0.95))
+        add(f"doc_{d}", f"{d} {fmt(n)}", NODE_SLATE, X_DOC, min(y, 0.95))
         y += 0.19
 
     # ---- Column 2: language ----
     y = 0.05
     for lg in lang_order:
         n = int(C["lang_src"].loc[lg].sum())
-        add(f"lang_{lg}", f"{lg} {n:,}", NODE_CYAN, X_LANG, min(y, 0.95))
+        add(f"lang_{lg}", f"{lg} {fmt(n)}", NODE_CYAN, X_LANG, min(y, 0.95))
         y += 0.19
 
     # ---- Column 3: source ----
     y = 0.06
     for s in src_order:
         n = int(C["identified"][s])
-        add(f"src_{s}", f"{s} {n:,}", SOURCE_COLOURS.get(s, (NODE_BLUE,))[0], X_SRC, min(y, 0.9))
+        add(f"src_{s}", f"{s} {fmt(n)}", SOURCE_COLOURS.get(s, (NODE_BLUE,))[0], X_SRC, min(y, 0.9))
         y += 0.22
 
     # ---- Column 4: deduplication gate ----
-    add("dedup", f"Deduplicated {n_dedup:,}", NODE_GREY, X_DEDUP, 0.45)
-    add("dups", f"Duplicates {n_dups:,}", NODE_RED, X_DEDUP, 0.92)
+    add("dedup", f"Deduplicated {fmt(n_dedup)}", NODE_GREY, X_DEDUP, 0.45)
+    add("dups", f"Duplicates {fmt(n_dups)}", NODE_RED, X_DEDUP, 0.92)
 
     # ---- Column 5: screening decision ----
-    add("inc", f"Include {n_inc:,}", NODE_GREEN, X_DEC, 0.30)
-    add("hr", f"HumanReview {n_hr:,}", NODE_AMBER, X_DEC, 0.50)
-    add("exc", f"Exclude {n_exc:,}", NODE_RED, X_DEC, 0.82)
+    add("inc", f"Include {fmt(n_inc)}", NODE_GREEN, X_DEC, 0.30)
+    add("hr", f"HumanReview {fmt(n_hr)}", NODE_AMBER, X_DEC, 0.50)
+    add("exc", f"Exclude {fmt(n_exc)}", NODE_RED, X_DEC, 0.82)
 
     # ---- Column 6: eligible corpus ----
-    add("elig", f"Eligible corpus {n_elig:,}", NODE_GREEN, X_ELIG, 0.42)
+    add("elig", f"Eligible corpus {fmt(n_elig)}", NODE_GREEN, X_ELIG, 0.42)
 
     # ---- Column 7: full-text acquisition ----
-    add("oapdf", f"OA PDFs {n_oa_pdf:,}", NODE_GREEN, X_FULLTEXT, 0.20)
-    add("manual", f"Abstract-level {n_elig - n_oa_pdf:,}", NODE_TEAL, X_FULLTEXT, 0.60)
+    add("oapdf", f"OA PDFs {fmt(n_oa_pdf)}", NODE_GREEN, X_FULLTEXT, 0.20)
+    add("manual", f"Abstract-level {fmt(n_elig - n_oa_pdf)}", NODE_TEAL, X_FULLTEXT, 0.60)
 
     # ---- Column 8: text extraction ----
-    add("extr", f"Text extracted {n_extracted:,}", NODE_GREEN, X_EXTRACT, 0.20)
+    add("extr", f"Text extracted {fmt(n_extracted)}", NODE_GREEN, X_EXTRACT, 0.20)
 
     # ---- Column 9: final analysis ----
     add("analysis", "Analysis · 25 clusters", NODE_GREEN, X_ANALYSIS, 0.42)
@@ -276,14 +281,14 @@ def build_sankey(decisions: Path = DATA / "biofloc_final_decisions.parquet",
     annotations = [
         # Row 1 (highest) — OpenAlex stage 1, above the dedup column
         dict(x=X_DEDUP, y=1.30, xref="paper", yref="paper",
-             text="<b>OpenAlex</b> · stage 1<br>metadata recovery (5,122)",
+             text=f"<b>OpenAlex</b> · stage 1<br>metadata recovery ({fmt(5122)})",
              showarrow=False, font=dict(size=12, color="#5a3d6b"),
              bgcolor="rgba(129,86,168,0.07)", bordercolor=NODE_VIOLET,
              borderwidth=1, borderpad=4, align="center"),
         # Row 2 — OpenAlex + Europe PMC stage 2, above the decision column
         dict(x=X_DEC + 0.02, y=1.30, xref="paper", yref="paper",
              text="<b>OpenAlex + Europe PMC</b> · stage 2<br>"
-                  "topics + MeSH (4,542 / 1,830 / 272)",
+                  f"topics + MeSH ({fmt(4542)} / {fmt(1830)} / {fmt(272)})",
              showarrow=False, font=dict(size=12, color="#5a3d6b"),
              bgcolor="rgba(129,86,168,0.07)", bordercolor=NODE_VIOLET,
              borderwidth=1, borderpad=4, align="center"),
