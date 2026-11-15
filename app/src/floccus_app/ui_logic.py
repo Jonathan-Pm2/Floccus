@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -110,18 +111,36 @@ def step_command(home: Path, project: str, step: str, limit: int | None = None) 
 
 
 def launch_step(home: Path, project: str, step: str, limit: int | None = None) -> None:
-    """Start the step in the background; output goes to runs/<step>.log."""
-    import subprocess
+    """Take the project lock, then start the step in the background (output in
+    runs/<step>.log). The child process takes the lock over; a second launch
+    while it runs raises PipelineError."""
+    import os
 
-    log_path = home / project / "runs" / f"{step}.log"
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(log_path, "w", encoding="utf-8") as log:
-        subprocess.Popen(step_command(home, project, step, limit), stdout=log, stderr=subprocess.STDOUT,
-                         start_new_session=True)
+    from floccus_app import pipeline
+
+    path = home / project
+    pipeline.acquire_lock(path, step, handoff=True)
+    log_path = path / "runs" / f"{step}.log"
+    kwargs = {"start_new_session": True} if os.name != "nt" else {
+        "creationflags": getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)}
+    try:
+        with open(log_path, "w", encoding="utf-8") as log:
+            proc = subprocess.Popen(step_command(home, project, step, limit), stdout=log,
+                                    stderr=subprocess.STDOUT, env={**os.environ, "FLOCCUS_LOCK_HANDOFF": "1"},
+                                    **kwargs)
+    except BaseException:
+        pipeline.release_lock(path)
+        raise
+    pipeline.set_lock_pid(path, proc.pid, step)
 
 
 def log_tail(home: Path, project: str, step: str, lines: int = 15) -> str:
     path = home / project / "runs" / f"{step}.log"
     if not path.is_file():
         return ""
-    return "\n".join(path.read_text(encoding="utf-8", errors="replace").splitlines()[-lines:])
+    from floccus_app.textsafe import redact
+
+    return "\n".join(redact(x) for x in path.read_text(encoding="utf-8", errors="replace").splitlines()[-lines:])
+
+
+from floccus_app.textsafe import doi_url, md_escape, redact  # noqa: E402,F401  (re-exported for the UI)

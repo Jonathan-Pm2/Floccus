@@ -12,6 +12,7 @@ from biofloc_review.protocol import ProtocolError
 
 from floccus_app.branding import PRIMARY_COLOR
 from floccus_app.pipeline import PipelineError
+from floccus_app.textsafe import redact
 from floccus_app.projects import ProjectError, create_project, list_projects, projects_home
 
 
@@ -26,13 +27,16 @@ def _parser() -> argparse.ArgumentParser:
     run = sub.add_parser("run", help="run one pipeline step for a project")
     run.add_argument("project", help="project folder name")
     run.add_argument("step", choices=("import", "dedup", "dedup-ai", "screen-l1", "screen-l2", "consolidate", "clusters"))
-    run.add_argument("--limit", type=int, help="screen at most N more records (try a small sample first)")
+    run.add_argument("--limit", type=_positive_int, help="screen at most N more records (try a small sample first)")
     run.add_argument("--workers", type=int, default=2, help="parallel LLM calls per record (default 2)")
     run.add_argument("--mode", choices=("specificity", "sensitivity"), default="specificity")
     ui = sub.add_parser("ui", help="open the graphical interface in the browser")
     ui.add_argument("--port", type=int, default=8501, help="local port (default 8501)")
     ui.add_argument("--theme", choices=("auto", "dark", "light"), default="auto",
                     help="auto follows the system and lets users switch in the ⋮ menu (default)")
+    ui.add_argument("--host", default="localhost",
+                    help="network address to listen on (default localhost: only this computer). "
+                         "Use 0.0.0.0 only on a trusted network: anyone who reaches it can run steps and read data.")
     ui.add_argument("--headless", action="store_true", help="do not open a browser window")
     return p
 
@@ -43,13 +47,29 @@ def _theme_args(mode: str) -> list[str]:
     return ["--theme.base", mode, "--theme.primaryColor", PRIMARY_COLOR]
 
 
-def _run(home: Path, args) -> int:
-    from floccus_app import pipeline
+def _positive_int(value: str) -> int:
+    try:
+        n = int(value)
+    except ValueError:
+        n = 0
+    if n < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive integer (got {value!r})")
+    return n
 
+
+def _run(home: Path, args) -> int:
+    import os
+
+    from floccus_app import pipeline
+    from floccus_app.projects import validate_name
+
+    validate_name(args.project)
     project = home / args.project
     if not (project / "protocol.yaml").is_file():
         raise ProjectError(f"no project named '{args.project}' in {home}")
-    pipeline.acquire_lock(project, args.step)
+    pipeline.acquire_lock(project, args.step, take_over=os.environ.get("FLOCCUS_LOCK_HANDOFF") == "1")
+    if not args.step.startswith("screen"):
+        pipeline.write_progress(project, step=args.step, status="starting", done=0, total=0, errors=0)
     try:
         if args.step == "import":
             by = pipeline.import_records(project)
@@ -78,6 +98,11 @@ def _run(home: Path, args) -> int:
                       file=sys.stderr)
         if args.step in ("screen-l1", "screen-l2", "consolidate"):
             pipeline.consolidate(project)
+        if not args.step.startswith("screen"):
+            pipeline.write_progress(project, status="done")
+    except Exception as exc:
+        pipeline.write_progress(project, step=args.step, status="failed", message=redact(str(exc)))
+        raise
     finally:
         pipeline.release_lock(project)
     return 0
@@ -91,6 +116,7 @@ def main(argv: list[str] | None = None) -> int:
         return subprocess.call([
             sys.executable, "-m", "streamlit", "run", str(app),
             "--server.port", str(args.port),
+            "--server.address", args.host,
             "--server.headless", "true" if args.headless or not sys.stdin.isatty() else "false",
             "--browser.gatherUsageStats", "false",
             "--client.toolbarMode", "viewer",  # hides Deploy, keeps the theme menu
@@ -110,7 +136,10 @@ def main(argv: list[str] | None = None) -> int:
             for folder, name in rows:
                 print(f"{folder}\t{name}")
     except (ProjectError, ProtocolError, PipelineError) as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        print(f"error: {redact(str(exc))}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # never show endpoints or tracebacks to the user
+        print(f"error: {type(exc).__name__}: {redact(str(exc))}", file=sys.stderr)
         return 1
     return 0
 

@@ -74,6 +74,18 @@ def _require_text(entry: dict, key: str, where: str) -> str:
     return value
 
 
+def _validate_params(cid: str, params: dict) -> None:
+    for key in ("included", "excluded"):
+        if key in params:
+            value = params[key]
+            if not isinstance(value, list) or not all(isinstance(v, str) and v.strip() for v in value):
+                raise ProtocolError(f"{cid}: '{key}' must be a list of document types, e.g. [article, review]")
+    if "min_words" in params:
+        value = params["min_words"]
+        if isinstance(value, bool) or not isinstance(value, int) or value < 1:
+            raise ProtocolError(f"{cid}: 'min_words' must be a positive whole number")
+
+
 def protocol_from_dict(data: Any) -> Protocol:
     if not isinstance(data, dict):
         raise ProtocolError("protocol must be a mapping with name, language, topic and criteria")
@@ -117,6 +129,7 @@ def protocol_from_dict(data: Any) -> Protocol:
             unknown = sorted(set(params) - set(CHECKS[check_name]))
             if unknown:
                 raise ProtocolError(f"{cid}: unknown params for {check_name}: {', '.join(unknown)}")
+            _validate_params(cid, params)
             checks[cid] = Check(name=check_name, params=dict(params))
         elif "params" in entry:
             raise ProtocolError(f"{cid}: 'params' requires 'check'")

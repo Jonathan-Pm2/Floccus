@@ -66,15 +66,17 @@ def test_resume_skips_records_already_screened(project):
     assert len(pd.read_parquet(project / "data" / "processed" / "screening_l1.parquet")) == 6
 
 
-def test_errors_are_counted_in_progress_and_output(project):
+def test_unresponsive_model_stops_the_run_and_reports_it(project):
     def broken(messages, model):
         raise ConnectionError("no server")
 
-    out = pipeline.screen(project, layer=1, chat=broken, model="m")
-    assert out["errors"] == 12
-    assert _progress(project)["errors"] == 12
+    with pytest.raises(pipeline.PipelineError, match="the AI model is not responding"):
+        pipeline.screen(project, layer=1, chat=broken, model="m")
+    prog = _progress(project)
+    assert (prog["status"], prog["errors"]) == ("failed", 6)  # 3 records x 2 LLM criteria
+    assert "not responding" in prog["message"]
     df = pd.read_parquet(project / "data" / "processed" / "screening_l1.parquet")
-    assert int(df["l1_errors"].sum()) == 12
+    assert len(df) == 3 and int(df["l1_errors"].sum()) == 6
 
 
 def test_layer2_rescreens_uncertain_records_with_extra_context(project):
@@ -125,7 +127,7 @@ def test_cli_run_refuses_while_another_run_is_active(tmp_path, capsys):
     import os
 
     p = create_project(tmp_path, "demo")
-    (p / "runs" / "lock.json").write_text(json.dumps({"pid": os.getpid(), "step": "screen-l1"}))
+    (p / "runs" / "lock.json").write_text(json.dumps(pipeline.lock_payload(os.getpid(), "screen-l1")))
     assert cli.main(["--home", str(tmp_path), "run", "demo", "import"]) == 1
     assert capsys.readouterr().err == "error: another run is active in this project (screen-l1)\n"
 

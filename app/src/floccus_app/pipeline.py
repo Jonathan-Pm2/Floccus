@@ -159,9 +159,30 @@ def runs_dir(project: Path) -> Path:
     return project / "runs"
 
 
+def _proc_start(pid: int) -> str | None:
+    """Process start time on Linux (/proc), used to tell a reused PID apart."""
+    try:
+        stat = Path(f"/proc/{pid}/stat").read_text()
+    except OSError:
+        return None
+    return stat.rsplit(")", 1)[1].split()[19]
+
+
 def _pid_alive(pid: int) -> bool:
     import os
 
+    if pid <= 0:
+        return False
+    if os.name == "nt":  # os.kill(pid, 0) would terminate the process on Windows
+        import ctypes
+
+        handle = ctypes.windll.kernel32.OpenProcess(0x1000, False, pid)  # QUERY_LIMITED_INFORMATION
+        if not handle:
+            return False
+        code = ctypes.c_ulong()
+        ctypes.windll.kernel32.GetExitCodeProcess(handle, ctypes.byref(code))
+        ctypes.windll.kernel32.CloseHandle(handle)
+        return code.value == 259  # STILL_ACTIVE
     try:
         os.kill(pid, 0)
     except (ProcessLookupError, ValueError, OverflowError):
@@ -171,31 +192,81 @@ def _pid_alive(pid: int) -> bool:
     return True
 
 
-def active_run(project: Path) -> dict | None:
-    """The run holding the project lock, or None (stale locks are ignored)."""
+def lock_payload(pid: int, step: str, handoff: bool = False) -> dict:
+    return {"pid": pid, "step": step, "start": _proc_start(pid), "handoff": handoff}
+
+
+def _read_lock(project: Path) -> dict | None:
     lock = runs_dir(project) / "lock.json"
-    if not lock.is_file():
-        return None
     try:
-        info = json.loads(lock.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
+        return json.loads(lock.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
         return None
-    return info if _pid_alive(int(info.get("pid", -1))) else None
 
 
-def acquire_lock(project: Path, step: str) -> None:
+def active_run(project: Path) -> dict | None:
+    """The run holding the project lock, or None. A lock whose process is gone,
+    or whose PID now belongs to another process (Linux start time differs), is stale."""
     import os
 
-    current = active_run(project)
-    if current:
-        raise PipelineError(f"another run is active in this project ({current.get('step')})")
+    info = _read_lock(project)
+    if not info:
+        return None
+    pid = int(info.get("pid", -1))
+    if not _pid_alive(pid):
+        return None
+    if os.path.isdir("/proc") and info.get("start") != _proc_start(pid):
+        return None
+    return info
+
+
+def acquire_lock(project: Path, step: str, pid: int | None = None, handoff: bool = False,
+                 take_over: bool = False) -> None:
+    """Atomically create runs/lock.json. ``handoff`` marks a lock taken by the UI
+    for a child process; the child calls with ``take_over`` to become its owner."""
+    import os
+
     runs_dir(project).mkdir(parents=True, exist_ok=True)
-    (runs_dir(project) / "lock.json").write_text(json.dumps({"pid": os.getpid(), "step": step}),
-                                                  encoding="utf-8")
+    path = runs_dir(project) / "lock.json"
+    if take_over:
+        current = _read_lock(project)
+        if current and current.get("handoff") and current.get("step") == step:
+            tmp = path.with_suffix(f".{os.getpid()}.tmp")
+            tmp.write_text(json.dumps(lock_payload(os.getpid(), step)), encoding="utf-8")
+            tmp.replace(path)
+            return
+    payload = json.dumps(lock_payload(pid or os.getpid(), step, handoff))
+    for _ in range(2):
+        try:
+            fd = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        except FileExistsError:
+            current = active_run(project)
+            if current:
+                raise PipelineError(f"another run is active in this project ({current.get('step')})") from None
+            path.unlink(missing_ok=True)  # stale lock
+            continue
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(payload)
+        return
+    raise PipelineError("could not take the project lock; try again")
+
+
+def set_lock_pid(project: Path, pid: int, step: str) -> None:
+    import os
+
+    path = runs_dir(project) / "lock.json"
+    tmp = path.with_suffix(f".{os.getpid()}.tmp")
+    tmp.write_text(json.dumps(lock_payload(pid, step, handoff=True)), encoding="utf-8")
+    tmp.replace(path)
 
 
 def release_lock(project: Path) -> None:
-    (runs_dir(project) / "lock.json").unlink(missing_ok=True)
+    """Remove the lock only if this process owns it."""
+    import os
+
+    info = _read_lock(project)
+    if info is None or int(info.get("pid", -1)) == os.getpid():
+        (runs_dir(project) / "lock.json").unlink(missing_ok=True)
 
 
 def write_progress(project: Path, **fields) -> None:
@@ -233,6 +304,9 @@ def _record_id(rec: PaperRecord) -> str:
     return rec.cluster_id or f"{rec.source}:{rec.source_id}"
 
 
+MAX_FAILING_RECORDS = 3  # stop when every LLM call failed for this many records in a row
+
+
 def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mode: str = "specificity",
            workers: int = 1, checkpoint_every: int = 25, limit: int | None = None, enrich=None) -> dict:
     """Screen layer 1 (all unique records) or layer 2 (layer-1 HUMAN_REVIEW, with
@@ -263,13 +337,18 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
         raise PipelineError("layer must be 1 or 2")
 
     out_path = processed_dir(project) / f"screening_l{layer}.parquet"
+    if not records:
+        raise PipelineError("no records to screen")
+    current = {_record_id(r) for r in records}
     rows = pd.read_parquet(out_path).to_dict("records") if out_path.is_file() else []
+    # keep only finished rows of records still in the corpus; failed ones are retried
+    rows = [r for r in rows if r["record_id"] in current and int(r.get(f"l{layer}_errors", 0)) == 0]
     done = {r["record_id"] for r in rows}
     todo = [r for r in records if _record_id(r) not in done]
     if limit is not None:
         todo = todo[:limit]
     total = len(done) + len(todo)
-    errors = sum(int(r.get(f"l{layer}_errors", 0)) for r in rows)
+    errors = 0
     write_progress(project, step=step, status="starting", done=len(done), total=total, errors=errors)
 
     def flush() -> None:
@@ -278,6 +357,8 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
         tmp.replace(out_path)
 
     p = f"l{layer}_"
+    n_llm = sum(1 for c in protocol.criteria if not c.deterministic)
+    failing_in_a_row = 0
     try:
         for i, rec in enumerate(todo, start=1):
             extra = enrich(rec) if enrich else None
@@ -293,14 +374,26 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
             row[p + "errors"] = result.errors
             rows.append(row)
             errors += result.errors
+            failing_in_a_row = failing_in_a_row + 1 if n_llm and result.errors == n_llm else 0
+            if failing_in_a_row >= MAX_FAILING_RECORDS:
+                flush()
+                last = result.error_messages[-1] if result.error_messages else "unknown error"
+                raise PipelineError(
+                    f"the AI model is not responding ({last}); stopped after {MAX_FAILING_RECORDS} records "
+                    "in a row failed. Check the AI model settings and run the step again: finished "
+                    "records are kept and failed ones are retried")
             if i % checkpoint_every == 0:
                 flush()
             write_progress(project, status="running", done=len(done) + i, errors=errors)
         flush()
-    except BaseException:
-        if rows:
-            flush()
-        write_progress(project, status="failed")
+    except BaseException as exc:
+        try:
+            if rows:
+                flush()
+        finally:
+            from floccus_app.textsafe import redact
+
+            write_progress(project, status="failed", errors=errors, message=redact(str(exc)))
         raise
     write_progress(project, status="done")
     decisions = Counter(r[p + "decision"] for r in rows)

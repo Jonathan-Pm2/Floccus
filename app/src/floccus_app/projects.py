@@ -22,9 +22,13 @@ def projects_home(home: str | Path | None = None) -> Path:
     return Path(home or os.environ.get("FLOCCUS_HOME") or DEFAULT_HOME)
 
 
-def create_project(home: Path, name: str, example: str | None = None) -> Path:
+def validate_name(name: str) -> None:
     if not _NAME.match(name):
         raise ProjectError(f"project name must use letters, digits, '-' or '_' (got '{name}')")
+
+
+def create_project(home: Path, name: str, example: str | None = None) -> Path:
+    validate_name(name)
     project = home / name
     if project.exists():
         raise ProjectError(f"project '{name}' already exists in {project}")

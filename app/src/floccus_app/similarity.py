@@ -25,6 +25,7 @@ from biofloc_review.dedup import embeddings as emb
 from biofloc_review.dedup.merge_confirmed import merge_confirmed_duplicates
 from biofloc_review.dedup.ollama_embed import default_embed_model
 
+from floccus_app.textsafe import redact
 from floccus_app.pipeline import (
     PipelineError,
     _read_records,
@@ -82,7 +83,8 @@ def dedup_similar(project: Path, judge=None, threshold: float = THRESHOLD, top_k
             pair.update(judge_verdict=v.verdict, judge_confidence=v.confidence, judge_reasoning=v.reasoning)
         except Exception as exc:  # counted, the pair is kept apart
             errors += 1
-            pair.update(judge_verdict="UNCLEAR", judge_confidence=0, judge_reasoning=f"LLM error: {exc}")
+            pair.update(judge_verdict="UNCLEAR", judge_confidence=0,
+                        judge_reasoning=f"LLM error: {type(exc).__name__}: {redact(str(exc))}")
         write_progress(project, done=i, errors=errors)
     new_primaries, new_full, _ = merge_confirmed_duplicates(full, pairs)
     _write_records(new_primaries, processed_dir(project) / "unique.parquet")

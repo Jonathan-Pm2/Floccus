@@ -203,7 +203,9 @@ def _ask(p: Protocol, c: Criterion, rec: Mapping[str, Any], chat: Chat, model: s
     try:
         text = chat(messages, model=model)
     except Exception as exc:  # recorded and counted, never silent
-        msg = f"{c.id}: {type(exc).__name__}: {exc}"
+        from floccus_app.textsafe import redact
+
+        msg = f"{c.id}: {type(exc).__name__}: {redact(str(exc))}"
         return CriterionAnswer(c.id, "UNCLEAR", 0, "(LLM error)", f"LLM error: {msg}", "llm"), msg
     a = parse_response(c.id, text)
     if mode == "sensitivity" and c.positive_question:

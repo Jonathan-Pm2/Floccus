@@ -170,9 +170,14 @@ def _run_controls() -> None:
              ("btn_l1", "screen-l1"), ("btn_l2", "screen-l2"), ("btn_clusters", "clusters"))
     for col, (label, step) in zip(cols, steps):
         if col.button(t(label, lang), disabled=bool(active), width="stretch", key=f"{step}-{current}"):
-            ui_logic.launch_step(home, current, step, int(limit) if step.startswith("screen") else None)
-            st.toast(t("launched", lang))
-            st.rerun()
+            try:
+                ui_logic.launch_step(home, current, step, int(limit) if step.startswith("screen") else None)
+            except pipeline.PipelineError as exc:
+                st.error(str(exc))
+            else:
+                st.session_state[f"polling-{current}"] = True
+                st.toast(t("launched", lang))
+                st.rerun()
     ident = counts.get("identification", {})
     dedup = counts.get("deduplication", {})
     final = counts.get("final_specificity_mode", {})
@@ -195,14 +200,19 @@ def _run_controls() -> None:
         price_out = c2.number_input(t("price_out", lang), min_value=0.0, value=0.0, step=0.5, key="price_out")
         st.caption(t("price_help", lang))
         n = min(n_unique, int(limit)) if limit else n_unique
-        e = cost.estimate(protocol, n, cost.DEFAULT_LAYER2_SHARE, cost.DEFAULT_USER_CHARS, price_in, price_out)
+        e = cost.estimate(protocol, n, cost.DEFAULT_LAYER2_SHARE, cost.project_user_chars(project), price_in, price_out)
         st.markdown(t("cost_result", lang).format(calls=_fmt(e.calls), tin=_fmt(e.input_tokens),
                                                   tout=_fmt(e.output_tokens), cost=f"{e.cost:,.2f}"))
 
     st.subheader(t("progress_title", lang))
 
-    @st.fragment(run_every=2 if active else None)
+    polling_key = f"polling-{current}"
+
+    @st.fragment(run_every=2 if active or st.session_state.get(polling_key) else None)
     def _progress() -> None:
+        if st.session_state.get(polling_key) and not pipeline.active_run(project):
+            st.session_state[polling_key] = False
+            st.rerun(scope="app")  # run finished: refresh counts and buttons
         prog = pipeline.read_progress(project)
         if not prog:
             return
@@ -210,6 +220,8 @@ def _run_controls() -> None:
         done = int(prog.get("done", 0))
         st.progress(min(done / total, 1.0), text=f"{prog.get('step')} · {done:,}/{total:,} · "
                                                     f"{t('status', lang)}: {prog.get('status')}")
+        if prog.get("status") == "failed":
+            st.error(prog.get("message") or prog.get("step"))
         if prog.get("errors"):
             st.warning(f"{t('errors', lang)}: {prog['errors']} — {t('errors_warn', lang)}")
         tail = ui_logic.log_tail(home, current, str(prog.get("step", "")))
@@ -290,9 +302,9 @@ def _review_own() -> None:
         pos = min(st.session_state.get(key, 0), len(q) - 1)
         row = q.iloc[pos]
         st.markdown(f"**{t('rv_record', lang)} {pos + 1}/{len(q)}** · {row.get('source', '')} · {row.get('year', '')}")
-        st.markdown(f"### {row.get('title', '')}")
+        st.markdown(f"### {ui_logic.md_escape(row.get('title', ''))}")
         if isinstance(row.get("doi"), str) and row["doi"]:
-            st.markdown(f"[doi:{row['doi']}](https://doi.org/{row['doi']})")
+            st.markdown(f"[doi:{ui_logic.md_escape(row['doi'])}]({ui_logic.doi_url(row['doi'])})")
         abstracts = _abstracts()
         st.write(abstracts.get(row["record_id"], "(no abstract)"))
         st.caption(f"{t('rv_pipeline', lang)}: **{row['final_decision']}** — {row.get('l2_reason') if isinstance(row.get('l2_reason'), str) else row.get('l1_reason', '')}")

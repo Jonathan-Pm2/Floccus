@@ -53,3 +53,18 @@ def estimate(p: Protocol, n_records: int, layer2_share: float, user_chars: int,
     output_tokens = calls * OUTPUT_TOKENS_PER_CALL
     total = input_tokens / 1e6 * price_in + output_tokens / 1e6 * price_out
     return Estimate(calls=calls, input_tokens=input_tokens, output_tokens=output_tokens, cost=total)
+
+
+def project_user_chars(project) -> int:
+    """Average record text length of the project's unique records."""
+    from pathlib import Path
+
+    import pandas as pd
+
+    path = Path(project) / "data" / "processed" / "unique.parquet"
+    if not path.is_file():
+        return DEFAULT_USER_CHARS
+    cols = ["title", "abstract", "keywords", "venue"]
+    df = pd.read_parquet(path, columns=cols)
+    df["keywords"] = df["keywords"].map(lambda k: ", ".join(k) if k is not None and len(k) else "")
+    return average_user_chars(df.to_dict("records"))

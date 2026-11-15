@@ -74,7 +74,7 @@ def test_ui_command_launches_streamlit_with_light_and_dark_themes(monkeypatch, t
     assert argv[1:4] == ["-m", "streamlit", "run"]
     assert argv[4] == str(APP)
     assert argv[5:] == [
-        "--server.port", "8600", "--server.headless", "true",
+        "--server.port", "8600", "--server.address", "localhost", "--server.headless", "true",
         "--browser.gatherUsageStats", "false", "--client.toolbarMode", "viewer",
         "--theme.light.primaryColor", "#2e8b7a", "--theme.dark.primaryColor", "#2e8b7a",
         "--", "--home", str(tmp_path),
