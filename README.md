@@ -14,7 +14,7 @@ It is the code archive of the article
 > Multi-Scale Unification of Biological-Floc Modelling Equations.**
 > Under review at *Algorithms* (MDPI).
 
-Version: **0.4.0** (adds the Floccus app, see [Changelog](#changelog)). The
+Version: **0.4.1** (adds the Floccus app, see [Changelog](#changelog)). The
 published article used **v0.3.0** (version DOI
 [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); the
 pipeline and results it describes are unchanged in v0.4.0.
@@ -256,6 +256,8 @@ release_data/         published decision tables
 
 ## Changelog
 
+- **v0.4.1 — (2026-11-15).** Interface header shows the full name, *Floccus – LLM-assisted
+  systematic review screening*. Recommended version for the Floccus app.
 - **v0.4.0 — Floccus app (2026-11-15).** Floccus app (`app/`): local bilingual interface to
   run the method on any systematic-review topic from a YAML protocol, with
   project import, exact and AI deduplication (embedded Qdrant, no Docker),
