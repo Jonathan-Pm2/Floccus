@@ -95,8 +95,8 @@ def test_creating_a_project_from_the_form_selects_it(tmp_path, monkeypatch):
     create_project(tmp_path, "demo", "biofloc")
     monkeypatch.setenv("FLOCCUS_HOME", str(tmp_path))
     at = AppTest.from_file(str(APP), default_timeout=30).run()
-    at.sidebar.text_input[0].input("Autismo")
+    at.sidebar.text_input[0].input("nueva-revision")
     at.sidebar.button[0].click().run()
     assert not at.exception
-    assert (tmp_path / "Autismo" / "protocol.yaml").is_file()
-    assert at.sidebar.selectbox(key="project").value == "Autismo"
+    assert (tmp_path / "nueva-revision" / "protocol.yaml").is_file()
+    assert at.sidebar.selectbox(key="project").value == "nueva-revision"
