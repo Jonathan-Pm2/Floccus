@@ -31,6 +31,10 @@ with st.sidebar:
     st.title(t("app_title", lang))
     projects = list_projects(home)
     names = [folder for folder, _ in projects]
+    # A project created in the form below is selected on the next run, before
+    # the selector exists (Streamlit forbids changing a drawn widget's key).
+    if st.session_state.get("pending_project") in names:
+        st.session_state["project"] = st.session_state.pop("pending_project")
     current = st.selectbox(t("project", lang), names, key="project") if names else None
     if not names:
         st.info(t("no_projects", lang))
@@ -42,7 +46,7 @@ with st.sidebar:
             if st.form_submit_button(t("create", lang)):
                 try:
                     create_project(home, new_name.strip(), "biofloc" if start == "biofloc" else None)
-                    st.session_state["project"] = new_name.strip()
+                    st.session_state["pending_project"] = new_name.strip()
                     st.rerun()
                 except (ProjectError, ProtocolError) as exc:
                     st.error(str(exc))
