@@ -7,6 +7,7 @@ on the validation sample, using Cohen's kappa.
 
 from __future__ import annotations
 
+import threading
 import time
 from collections import Counter
 from pathlib import Path
@@ -14,6 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 LABELS = ("include", "exclude")
+_SAVE_LOCK = threading.Lock()  # Streamlit sessions are threads of one process
 SEED = 20260101
 
 
@@ -51,16 +53,15 @@ def judgements(project: Path) -> pd.DataFrame:
 def save_judgement(project: Path, record_id: str, label: str, note: str, kind: str) -> None:
     if label not in LABELS:
         raise ValueError("label must be include or exclude")
-    j = judgements(project)
-    j = j[j["record_id"] != record_id]
-    row = pd.DataFrame([{"record_id": record_id, "label": label, "note": note or "", "kind": kind,
-                         "saved_at": time.strftime("%Y-%m-%d %H:%M:%S")}])
-    j = pd.concat([j, row], ignore_index=True)
-    path = judgements_path(project)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    j.to_csv(tmp, index=False)
-    tmp.replace(path)
+    from floccus_app.pipeline import atomic_write
+
+    with _SAVE_LOCK:
+        j = judgements(project)
+        j = j[~((j["record_id"] == record_id) & (j["kind"] == kind))]  # one label per record and kind
+        row = pd.DataFrame([{"record_id": record_id, "label": label, "note": note or "", "kind": kind,
+                             "saved_at": time.strftime("%Y-%m-%d %H:%M:%S")}])
+        j = pd.concat([j, row], ignore_index=True)
+        atomic_write(judgements_path(project), lambda tmp: j.to_csv(tmp, index=False))
 
 
 def cohens_kappa(a: list[str], b: list[str]) -> float | None:

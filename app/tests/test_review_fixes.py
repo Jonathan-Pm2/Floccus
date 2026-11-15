@@ -246,3 +246,138 @@ def test_record_text_is_escaped_for_markdown_and_doi_quoted():  # RISK-4
     assert ui_logic.md_escape("![x](https://tracker/p.png) *bold*") == \
         "\\!\\[x\\]\\(https://tracker/p.png\\) \\*bold\\*"
     assert ui_logic.doi_url("10.1/a b)c") == "https://doi.org/10.1/a%20b%29c"
+
+
+# ---------------------------------------------------------------- G3 data integrity
+
+def test_validation_label_survives_an_uncertain_judgement_of_the_same_record(tmp_path):  # REL-1
+    from floccus_app import review
+    from test_results_latest import _finished_project
+
+    p = _finished_project(tmp_path)
+    rid = review.queue(p, "uncertain")["record_id"].iloc[0]
+    review.save_judgement(p, rid, "include", "", "validation")
+    review.save_judgement(p, rid, "exclude", "", "uncertain")
+    j = review.judgements(p)
+    assert sorted(zip(j["kind"], j["label"])) == [("uncertain", "exclude"), ("validation", "include")]
+    assert review.agreement(p)["n"] == 1
+
+
+def _near_dup_project(tmp_path, monkeypatch):
+    from biofloc_review.dedup import embeddings as emb
+    from test_similarity import NEAR_DUP, _project, fake_vector
+
+    monkeypatch.setattr(emb, "embed_batch", lambda texts, model=None, **kw: [fake_vector(t) for t in texts])
+    return _project(tmp_path, NEAR_DUP)
+
+
+def test_failed_embeddings_stop_ai_dedup_and_keep_previous_results(tmp_path, monkeypatch):  # REL-3 / RES-1
+    from biofloc_review.dedup import embeddings as emb
+    from floccus_app import similarity
+    from test_similarity import judge_duplicate
+
+    p = _near_dup_project(tmp_path, monkeypatch)
+    similarity.dedup_similar(p, judge=judge_duplicate)
+    before = (p / "data" / "processed" / "unique.parquet").read_bytes()
+    counts_before = pipeline.read_counts(p)
+
+    def down(texts, model=None, **kw):
+        raise ConnectionError("ollama down")
+
+    monkeypatch.setattr(emb, "embed_batch", down)
+    with pytest.raises(pipeline.PipelineError, match="embeddings failed for 2 of 2 records"):
+        similarity.dedup_similar(p, judge=judge_duplicate)
+    assert (p / "data" / "processed" / "unique.parquet").read_bytes() == before
+    assert pipeline.read_counts(p) == counts_before
+
+
+def test_repeated_ai_dedup_keeps_the_exact_dedup_count(tmp_path, monkeypatch):  # REL-4
+    from floccus_app import similarity
+    from test_similarity import judge_duplicate
+
+    p = _near_dup_project(tmp_path, monkeypatch)
+    similarity.dedup_similar(p, judge=judge_duplicate)
+    similarity.dedup_similar(p, judge=judge_duplicate)
+    d = pipeline.read_counts(p)["deduplication"]
+    assert d["after_layer1_deterministic"] == 3 and d["after_round2_ieee_merges"] == 2
+
+
+def test_clusters_fail_clearly_when_embeddings_fail(tmp_path, monkeypatch):  # RES-7
+    from biofloc_review.dedup import embeddings as emb
+    from floccus_app import similarity
+    from test_similarity import _screened_groups
+
+    p = _screened_groups(tmp_path)
+
+    def down(texts, model=None, **kw):
+        raise ConnectionError("ollama down")
+
+    monkeypatch.setattr(emb, "embed_batch", down)
+    with pytest.raises(pipeline.PipelineError, match="embeddings failed for 60 of 60 eligible records"):
+        similarity.thematic_clusters(p)
+
+
+def test_umap_components_shrink_for_tiny_projects():  # RES-7
+    from floccus_app import similarity
+
+    assert similarity.cluster_params(10)["umap"]["n_components"] == 8
+    assert similarity.cluster_params(500)["umap"]["n_components"] == 10
+
+
+def test_unavailable_enrichment_is_counted_in_layer2(project):  # RES-3
+    pipeline.screen(project, layer=1, chat=fake_chat, model="m")
+
+    def no_enrichment(rec):
+        raise pipeline.EnrichmentError("OpenAlex down")
+
+    out = pipeline.screen(project, layer=2, chat=fake_chat, model="m", enrich=no_enrichment)
+    assert out["enrich_errors"] == 1
+    df = pd.read_parquet(project / "data" / "processed" / "screening_l2.parquet")
+    assert bool(df["l2_enrich_error"].iloc[0]) is True
+
+
+def test_consecutive_enrichment_failures_stop_layer2(tmp_path):  # RES-3
+    p = create_project(tmp_path, "demo")
+    many = pd.DataFrame({"Title": [f"T{i}" for i in range(8)], "DOI": [f"10.5/{i}" for i in range(8)],
+                         "Abstract": [None] * 8, "Year": [2020] * 8, "EID": [f"x{i}" for i in range(8)]})
+    pipeline.add_export(p, "scopus", "s.csv", many.to_csv(index=False).encode())
+    pipeline.import_records(p)
+    pipeline.deduplicate(p)
+    pipeline.screen(p, layer=1, chat=fake_chat, model="m")  # no abstract -> D1 -> all to layer 2
+
+    def no_enrichment(rec):
+        raise pipeline.EnrichmentError("OpenAlex down")
+
+    with pytest.raises(pipeline.PipelineError, match="OpenAlex and Europe PMC are not responding"):
+        pipeline.screen(p, layer=2, chat=fake_chat, model="m", enrich=no_enrichment)
+
+
+def test_concurrent_judgements_are_all_kept(tmp_path):  # RES-5
+    import threading
+
+    from floccus_app import review
+    from test_results_latest import _finished_project
+
+    p = _finished_project(tmp_path)
+    ids = list(review.queue(p, "validation", size=7)["record_id"])
+    threads = [threading.Thread(target=review.save_judgement, args=(p, rid, "include", "", "validation"))
+               for rid in ids]
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join()
+    assert sorted(review.judgements(p)["record_id"]) == sorted(ids)
+
+
+def test_atomic_write_leaves_old_file_when_writing_fails(tmp_path):  # RES-4
+    target = tmp_path / "a.csv"
+    target.write_text("old")
+
+    def bad_writer(path):
+        path.write_text("partial")
+        raise OSError("disk full")
+
+    with pytest.raises(OSError):
+        pipeline.atomic_write(target, bad_writer)
+    assert target.read_text() == "old"
+    assert [f.name for f in tmp_path.iterdir()] == ["a.csv"]

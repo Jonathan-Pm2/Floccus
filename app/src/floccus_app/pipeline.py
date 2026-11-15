@@ -41,6 +41,26 @@ class PipelineError(RuntimeError):
     """A step cannot run; the message says what the user should do."""
 
 
+class EnrichmentError(RuntimeError):
+    """OpenAlex / Europe PMC returned nothing for a record that has a DOI."""
+
+
+def atomic_write(path: Path, writer) -> None:
+    """Write through a unique temp file in the same folder, then replace: a
+    reader never sees a half-written file and a failure keeps the old one."""
+    import os
+    import uuid
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        writer(tmp)
+        os.replace(tmp, path)
+    except BaseException:
+        tmp.unlink(missing_ok=True)
+        raise
+
+
 def raw_dir(project: Path) -> Path:
     return project / "data" / "raw"
 
@@ -79,11 +99,8 @@ def list_exports(project: Path) -> dict[str, list[str]]:
 
 
 def _write_records(records: list[PaperRecord], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame([r.model_dump(mode="json") for r in records])
-    tmp = path.with_suffix(".tmp")
-    df.to_parquet(tmp, index=False)
-    tmp.replace(path)
+    atomic_write(path, lambda tmp: df.to_parquet(tmp, index=False))
 
 
 def _read_records(path: Path) -> list[PaperRecord]:
@@ -103,10 +120,7 @@ def read_counts(project: Path) -> dict:
 
 def write_counts(project: Path, counts: dict) -> None:
     path = latest_dir(project) / "prisma_counts.json"
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(counts, indent=2), encoding="utf-8")
-    tmp.replace(path)
+    atomic_write(path, lambda tmp: tmp.write_text(json.dumps(counts, indent=2), encoding="utf-8"))
 
 
 def import_records(project: Path) -> dict[str, int]:
@@ -297,7 +311,12 @@ def _default_enrich(rec: PaperRecord) -> str:
     from biofloc_review.screening.enricher import enrich_record
     from biofloc_review.screening.layer2 import _format_enriched_block
 
-    return _format_enriched_block(enrich_record(rec))
+    if not rec.doi:
+        return "(metadata enriquecida no disponible: el registro no tiene DOI)"
+    enriched = enrich_record(rec)
+    if not (enriched.oa_ok or enriched.pmc_ok):
+        raise EnrichmentError("OpenAlex and Europe PMC returned nothing")
+    return _format_enriched_block(enriched)
 
 
 def _record_id(rec: PaperRecord) -> str:
@@ -305,6 +324,7 @@ def _record_id(rec: PaperRecord) -> str:
 
 
 MAX_FAILING_RECORDS = 3  # stop when every LLM call failed for this many records in a row
+MAX_ENRICH_FAILURES = 5  # stop layer 2 when enrichment failed for this many records in a row
 
 
 def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mode: str = "specificity",
@@ -352,16 +372,32 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
     write_progress(project, step=step, status="starting", done=len(done), total=total, errors=errors)
 
     def flush() -> None:
-        tmp = out_path.with_suffix(".tmp")
-        pd.DataFrame(rows).to_parquet(tmp, index=False)
-        tmp.replace(out_path)
+        frame = pd.DataFrame(rows)
+        atomic_write(out_path, lambda tmp: frame.to_parquet(tmp, index=False))
 
     p = f"l{layer}_"
     n_llm = sum(1 for c in protocol.criteria if not c.deterministic)
     failing_in_a_row = 0
+    enrich_errors = 0
+    enrich_failing_in_a_row = 0
     try:
         for i, rec in enumerate(todo, start=1):
-            extra = enrich(rec) if enrich else None
+            extra, enrich_failed = None, False
+            if enrich:
+                try:
+                    extra = enrich(rec)
+                    enrich_failing_in_a_row = 0
+                except EnrichmentError:
+                    enrich_failed = True
+                    enrich_errors += 1
+                    enrich_failing_in_a_row += 1
+                    if enrich_failing_in_a_row >= MAX_ENRICH_FAILURES:
+                        if rows:
+                            flush()
+                        raise PipelineError(
+                            f"OpenAlex and Europe PMC are not responding (no metadata for {MAX_ENRICH_FAILURES} "
+                            "records in a row); layer 2 stopped. Check the internet connection and run it "
+                            "again: finished records are kept") from None
             result = screen_record(protocol, rec.model_dump(mode="json"), chat=chat, model=model, mode=mode,
                                    extra_context=extra, workers=workers)
             row = {"record_id": _record_id(rec), "source": str(rec.source), "source_id": rec.source_id,
@@ -372,6 +408,8 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
             row[p + "decision"] = result.decision.decision
             row[p + "reason"] = result.decision.reason
             row[p + "errors"] = result.errors
+            if enrich:
+                row[p + "enrich_error"] = enrich_failed
             rows.append(row)
             errors += result.errors
             failing_in_a_row = failing_in_a_row + 1 if n_llm and result.errors == n_llm else 0
@@ -384,7 +422,8 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
                     "records are kept and failed ones are retried")
             if i % checkpoint_every == 0:
                 flush()
-            write_progress(project, status="running", done=len(done) + i, errors=errors)
+            write_progress(project, status="running", done=len(done) + i, errors=errors,
+                           enrich_errors=enrich_errors)
         flush()
     except BaseException as exc:
         try:
@@ -397,8 +436,11 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
         raise
     write_progress(project, status="done")
     decisions = Counter(r[p + "decision"] for r in rows)
-    return {"screened": len(rows), "errors": errors, **{k: decisions.get(k, 0)
-                                                         for k in ("INCLUDE", "EXCLUDE", "HUMAN_REVIEW")}}
+    out = {"screened": len(rows), "errors": errors, **{k: decisions.get(k, 0)
+                                                        for k in ("INCLUDE", "EXCLUDE", "HUMAN_REVIEW")}}
+    if layer == 2:
+        out["enrich_errors"] = enrich_errors
+    return out
 
 
 def consolidate(project: Path) -> dict:
@@ -414,9 +456,7 @@ def consolidate(project: Path) -> dict:
     final = dec["l2_decision"] if "l2_decision" in dec else pd.Series([None] * len(dec))
     dec["final_decision"] = final.fillna(dec["l1_decision"])
     dec["decision_layer"] = final.notna().map({True: "L2", False: "L1"})
-    out = latest_dir(project) / "screening_decisions.csv"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    dec.to_csv(out, index=False)
+    atomic_write(latest_dir(project) / "screening_decisions.csv", lambda tmp: dec.to_csv(tmp, index=False))
 
     def tally(series) -> dict:
         c = Counter(series.dropna())

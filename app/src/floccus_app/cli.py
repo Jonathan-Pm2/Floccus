@@ -96,6 +96,9 @@ def _run(home: Path, args) -> int:
             if out["errors"]:
                 print(f"warning: {out['errors']} LLM calls failed; check the AI model settings",
                       file=sys.stderr)
+            if out.get("enrich_errors"):
+                print(f"warning: no OpenAlex/Europe PMC metadata for {out['enrich_errors']} records; "
+                      "they were screened without it", file=sys.stderr)
         if args.step in ("screen-l1", "screen-l2", "consolidate"):
             pipeline.consolidate(project)
         if not args.step.startswith("screen"):
