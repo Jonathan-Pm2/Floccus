@@ -1,6 +1,6 @@
 [project]
 name = "floccus-app"
-version = "0.4.1"
+version = "0.4.2"
 description = "Floccus app: local interface to run LLM-assisted systematic-review screening on any topic"
 readme = "README.md"
 authors = [
