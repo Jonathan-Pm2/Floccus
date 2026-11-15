@@ -36,6 +36,7 @@ def main(argv: list[str] | None = None) -> int:
             "--server.port", str(args.port),
             "--server.headless", "true" if args.headless or not sys.stdin.isatty() else "false",
             "--browser.gatherUsageStats", "false",
+            "--client.toolbarMode", "minimal",
             "--", "--home", str(home),
         ])
     try:

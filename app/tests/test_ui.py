@@ -71,7 +71,8 @@ def test_ui_command_launches_streamlit(monkeypatch, tmp_path):
     assert argv[4] == str(APP)
     assert argv[5:] == [
         "--server.port", "8600", "--server.headless", "true",
-        "--browser.gatherUsageStats", "false", "--", "--home", str(tmp_path),
+        "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal",
+        "--", "--home", str(tmp_path),
     ]
 
 
