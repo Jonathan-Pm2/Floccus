@@ -267,6 +267,66 @@ with tabs[3]:
         st.info(f"🚧 {t('under_construction', lang)}")
         st.write(t("results_soon", lang))
 
+def _review_own() -> None:
+    from floccus_app import review
+
+    kind = st.radio(t("rv_kind", lang), ["uncertain", "validation"], horizontal=True, key=f"rvkind-{current}",
+                    format_func=lambda k: t("rv_" + k, lang))
+    size = st.number_input(t("rv_size", lang), 10, 1000, 100, 10, key=f"rvsize-{current}") \
+        if kind == "validation" else 0
+    q = review.queue(project, kind, int(size) or 100)
+    if q.empty:
+        st.info(t("rv_empty", lang))
+    else:
+        done = review.judgements(project)
+        saved = dict(zip(done["record_id"], done["label"]))
+        st.progress(sum(r in saved for r in q["record_id"]) / len(q),
+                    text=t("rv_progress", lang).format(done=sum(r in saved for r in q["record_id"]), total=len(q)))
+        key = f"rvpos-{current}-{kind}"
+        pos = min(st.session_state.get(key, 0), len(q) - 1)
+        row = q.iloc[pos]
+        st.markdown(f"**{t('rv_record', lang)} {pos + 1}/{len(q)}** · {row.get('source', '')} · {row.get('year', '')}")
+        st.markdown(f"### {row.get('title', '')}")
+        if isinstance(row.get("doi"), str) and row["doi"]:
+            st.markdown(f"[doi:{row['doi']}](https://doi.org/{row['doi']})")
+        abstracts = _abstracts()
+        st.write(abstracts.get(row["record_id"], "(no abstract)"))
+        st.caption(f"{t('rv_pipeline', lang)}: **{row['final_decision']}** — {row.get('l2_reason') if isinstance(row.get('l2_reason'), str) else row.get('l1_reason', '')}")
+        if row["record_id"] in saved:
+            st.info(f"{t('rv_saved_as', lang)}: {saved[row['record_id']]}")
+        note = st.text_input(t("rv_note", lang), key=f"rvnote-{current}-{row['record_id']}")
+        c1, c2, c3, c4 = st.columns(4)
+        if c1.button(t("rv_prev", lang), disabled=pos == 0, key=f"rvprev-{current}"):
+            st.session_state[key] = pos - 1
+            st.rerun()
+        for col, label in ((c2, "include"), (c3, "exclude")):
+            if col.button(t("rv_" + label, lang), key=f"rv{label}-{current}", type="primary"):
+                review.save_judgement(project, row["record_id"], label, note, kind)
+                st.session_state[key] = min(pos + 1, len(q) - 1)
+                st.rerun()
+        if c4.button(t("rv_next", lang), disabled=pos >= len(q) - 1, key=f"rvnext-{current}"):
+            st.session_state[key] = pos + 1
+            st.rerun()
+    a = review.agreement(project)
+    if a["n"]:
+        st.subheader(t("rv_agreement", lang))
+        st.caption(t("rv_agreement_help", lang))
+        m1, m2, m3 = st.columns(3)
+        m1.metric(t("rv_reviewed", lang), a["n"])
+        m2.metric(t("rv_percent", lang), f"{a['percent_agreement']:.1f}")
+        m3.metric(t("rv_kappa", lang), "—" if a["kappa"] is None else f"{a['kappa']:.3f}")
+        st.dataframe(a["table"], width="stretch")
+
+
+def _abstracts() -> dict:
+    path = project / "data" / "processed" / "unique.parquet"
+    if not path.is_file():
+        return {}
+    df = pd.read_parquet(path, columns=["cluster_id", "source", "source_id", "abstract"])
+    ids = df["cluster_id"].fillna(df["source"].astype(str) + ":" + df["source_id"].astype(str))
+    return dict(zip(ids, df["abstract"].fillna("(no abstract)")))
+
+
 with tabs[4]:
     if run and run.validation is not None:
         st.write(t("validation_intro", lang) + f" ({_fmt(len(run.validation))} {t('records', lang)})")
@@ -275,9 +335,10 @@ with tabs[4]:
         v1.dataframe(res.validation_crosstab(run.validation, "reviewer_1"), width="stretch")
         v2.write(f"**{t('reviewer_2', lang)}**")
         v2.dataframe(res.validation_crosstab(run.validation, "reviewer_2"), width="stretch")
+    elif run and run.kind == "latest":
+        _review_own()
     else:
-        st.info(f"🚧 {t('under_construction', lang)}")
-        st.write(t("review_soon", lang))
+        st.info(t("rv_no_results", lang))
 
 with tabs[5]:
     st.markdown(t("model_used", lang))
