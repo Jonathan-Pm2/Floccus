@@ -53,6 +53,7 @@ with st.sidebar:
                 except (ProjectError, ProtocolError) as exc:
                     st.error(str(exc))
     st.divider()
+    st.caption(t("theme_hint", lang))
     st.caption(t("footer", lang).format(version=branding.version(), license=branding.LICENSE,
                                         doi=branding.DOI, doi_url=branding.DOI_URL, repo=branding.REPO_URL))
 

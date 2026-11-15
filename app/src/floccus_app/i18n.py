@@ -166,6 +166,8 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "feedback_bug": {"es": "🐞 Reportar un error", "en": "🐞 Report a problem"},
     "feedback_idea": {"es": "💡 Sugerir una mejora", "en": "💡 Suggest an improvement"},
+    "theme_hint": {"es": "Modo claro u oscuro: menú ⋮ (arriba a la derecha) → Settings → Theme.",
+                   "en": "Light or dark mode: ⋮ menu (top right) → Settings → Theme."},
     "footer": {"es": "Floccus {version} · Licencia {license} · DOI [{doi}]({doi_url}) · [Código fuente]({repo})",
                "en": "Floccus {version} · {license} licence · DOI [{doi}]({doi_url}) · [Source code]({repo})"},
 

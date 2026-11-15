@@ -57,7 +57,7 @@ def test_llm_settings_mask_the_api_key(monkeypatch):
     assert "sk-secret-123" not in repr(s)
 
 
-def test_ui_command_launches_streamlit(monkeypatch, tmp_path):
+def _ui_argv(monkeypatch, tmp_path, *extra):
     seen = {}
 
     def fake_call(argv):
@@ -65,15 +65,33 @@ def test_ui_command_launches_streamlit(monkeypatch, tmp_path):
         return 7
 
     monkeypatch.setattr(cli.subprocess, "call", fake_call)
-    assert cli.main(["--home", str(tmp_path), "ui", "--port", "8600", "--headless"]) == 7
-    argv = seen["argv"]
+    assert cli.main(["--home", str(tmp_path), "ui", "--port", "8600", "--headless", *extra]) == 7
+    return seen["argv"]
+
+
+def test_ui_command_launches_streamlit_with_light_and_dark_themes(monkeypatch, tmp_path):
+    argv = _ui_argv(monkeypatch, tmp_path)
     assert argv[1:4] == ["-m", "streamlit", "run"]
     assert argv[4] == str(APP)
     assert argv[5:] == [
         "--server.port", "8600", "--server.headless", "true",
-        "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal",
-        "--theme.primaryColor", "#2e8b7a", "--", "--home", str(tmp_path),
+        "--browser.gatherUsageStats", "false", "--client.toolbarMode", "viewer",
+        "--theme.light.primaryColor", "#2e8b7a", "--theme.dark.primaryColor", "#2e8b7a",
+        "--", "--home", str(tmp_path),
     ]
+
+
+def test_ui_command_can_force_dark_or_light(monkeypatch, tmp_path):
+    for mode in ("dark", "light"):
+        argv = _ui_argv(monkeypatch, tmp_path, "--theme", mode)
+        i = argv.index("--theme.base")
+        assert argv[i + 1] == mode
+        assert argv[argv.index("--theme.primaryColor") + 1] == "#2e8b7a"
+        assert "--theme.dark.primaryColor" not in argv
+
+
+def test_theme_hint_is_translated():
+    assert "⋮" in i18n.t("theme_hint", "es") and "⋮" in i18n.t("theme_hint", "en")
 
 
 def test_app_boots_and_switches_language(tmp_path, monkeypatch):

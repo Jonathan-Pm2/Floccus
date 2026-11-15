@@ -23,8 +23,16 @@ def _parser() -> argparse.ArgumentParser:
     sub.add_parser("list", help="list projects")
     ui = sub.add_parser("ui", help="open the graphical interface in the browser")
     ui.add_argument("--port", type=int, default=8501, help="local port (default 8501)")
+    ui.add_argument("--theme", choices=("auto", "dark", "light"), default="auto",
+                    help="auto follows the system and lets users switch in the ⋮ menu (default)")
     ui.add_argument("--headless", action="store_true", help="do not open a browser window")
     return p
+
+
+def _theme_args(mode: str) -> list[str]:
+    if mode == "auto":  # both themes branded -> Streamlit offers the light/dark switch
+        return ["--theme.light.primaryColor", PRIMARY_COLOR, "--theme.dark.primaryColor", PRIMARY_COLOR]
+    return ["--theme.base", mode, "--theme.primaryColor", PRIMARY_COLOR]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -37,8 +45,8 @@ def main(argv: list[str] | None = None) -> int:
             "--server.port", str(args.port),
             "--server.headless", "true" if args.headless or not sys.stdin.isatty() else "false",
             "--browser.gatherUsageStats", "false",
-            "--client.toolbarMode", "minimal",
-            "--theme.primaryColor", PRIMARY_COLOR,
+            "--client.toolbarMode", "viewer",  # hides Deploy, keeps the theme menu
+            *_theme_args(args.theme),
             "--", "--home", str(home),
         ])
     try:

@@ -22,7 +22,9 @@ uv run floccus ui                                 # open the interface at http:/
 
 `floccus ui` starts a local Streamlit app (Spanish/English selector) to create
 projects, edit the protocol criteria and see the AI-model settings. Options:
-`--port N`, `--headless` (do not open a browser). Run, results and human-review
+`--port N`, `--headless` (do not open a browser), `--theme auto|dark|light`
+(`auto`, the default, follows the system and lets users switch light/dark in
+the ⋮ menu → Settings → Theme). Run, results and human-review
 pages are still under construction.
 
 Do not run a plain `uv sync` in this repository: it removes analysis packages
