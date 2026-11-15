@@ -25,7 +25,7 @@ def _parser() -> argparse.ArgumentParser:
     sub.add_parser("list", help="list projects")
     run = sub.add_parser("run", help="run one pipeline step for a project")
     run.add_argument("project", help="project folder name")
-    run.add_argument("step", choices=("import", "dedup", "screen-l1", "screen-l2", "consolidate"))
+    run.add_argument("step", choices=("import", "dedup", "dedup-ai", "screen-l1", "screen-l2", "consolidate", "clusters"))
     run.add_argument("--limit", type=int, help="screen at most N more records (try a small sample first)")
     run.add_argument("--workers", type=int, default=2, help="parallel LLM calls per record (default 2)")
     run.add_argument("--mode", choices=("specificity", "sensitivity"), default="specificity")
@@ -58,6 +58,17 @@ def _run(home: Path, args) -> int:
         elif args.step == "dedup":
             s = pipeline.deduplicate(project)
             print(f"{s['unique']} unique records ({s['removed']} duplicates removed)")
+        elif args.step == "dedup-ai":
+            from floccus_app import similarity
+
+            s = similarity.dedup_similar(project, judge=similarity._default_judge())
+            print(f"{s['unique']} unique records after AI deduplication ({s['duplicates']} near duplicates merged)")
+        elif args.step == "clusters":
+            from floccus_app import similarity
+
+            info = similarity.thematic_clusters(project)
+            print(f"{info['clusters']} thematic clusters over {info['records']} eligible records "
+                  f"({info['noise']} unclustered)")
         elif args.step in ("screen-l1", "screen-l2"):
             out = pipeline.screen(project, layer=int(args.step[-1]), limit=args.limit,
                                   workers=args.workers, mode=args.mode)

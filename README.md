@@ -256,7 +256,8 @@ release_data/         published decision tables
 
 - **v0.4.0 — unreleased.** Floccus app (`app/`): local bilingual interface to
   run the method on any systematic-review topic from a YAML protocol, with
-  project import, deterministic deduplication, two-layer screening with
+  project import, exact and AI deduplication (embedded Qdrant, no Docker),
+  thematic clusters, two-layer screening with
   progress and resume, cost estimate, results charts, human review with
   Cohen's kappa, and the published review as example project. Optional
   Anthropic provider for text generation. The published pipeline and its

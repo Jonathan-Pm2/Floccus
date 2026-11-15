@@ -136,8 +136,9 @@ def deduplicate(project: Path) -> dict[str, int]:
     if not src.is_file():
         raise PipelineError("import the exports first")
     records = _read_records(src)
-    primaries, _, stats = dedup_deterministic(records)
+    primaries, full, stats = dedup_deterministic(records)
     _write_records(primaries, processed_dir(project) / "unique.parquet")
+    _write_records(full, processed_dir(project) / "dedup_full.parquet")
     counts = read_counts(project)
     counts["deduplication"] = {
         "method": "deterministic (exact DOI or normalised title)",

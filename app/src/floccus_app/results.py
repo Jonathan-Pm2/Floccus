@@ -186,5 +186,16 @@ def fig_clusters(eligible: pd.DataFrame, lang: str) -> go.Figure:
     return _bar(counts.index, counts.values, t("fig_clusters", lang), "#7a6aa6")
 
 
+def fig_umap(eligible: pd.DataFrame, lang: str) -> go.Figure:
+    fig = go.Figure()
+    for label, g in eligible.groupby("cluster_label"):
+        fig.add_trace(go.Scattergl(x=g["umap_x"], y=g["umap_y"], mode="markers", name=str(label),
+                                   text=g["title"], hovertemplate="%{text}<extra>" + str(label) + "</extra>",
+                                   marker={"size": 5, "opacity": 0.35 if label == "noise" else 0.8}))
+    fig.update_layout(title=t("fig_umap", lang), height=520, xaxis={"visible": False},
+                      yaxis={"visible": False}, margin={"l": 10, "r": 10, "t": 50, "b": 10})
+    return fig
+
+
 def validation_crosstab(validation: pd.DataFrame, reviewer: str) -> pd.DataFrame:
     return pd.crosstab(validation["pipeline_decision"], validation[reviewer].fillna("—"))

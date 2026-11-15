@@ -63,8 +63,16 @@ En **Ejecutar**:
 
 1. Subí los exports de cada base: Scopus, IEEE y SciELO en CSV; Web of Science
    y ProQuest en Excel.
-2. Corré los pasos en orden: **Importar → Deduplicar → Cribado capa 1 →
-   Cribado capa 2**. Cada paso corre en segundo plano y muestra su progreso.
+2. Corré los pasos en orden: **Importar → Deduplicar → (opcional) Deduplicar
+   con IA → Cribado capa 1 → Cribado capa 2 → (opcional) Clusters temáticos**.
+   Cada paso corre en segundo plano y muestra su progreso.
+   - **Deduplicar con IA** encuentra casi duplicados (títulos traducidos,
+     preprint y versión publicada): compara embeddings de título y abstract
+     (similitud ≥ 0,93) y un juez de IA confirma cada par.
+   - **Clusters temáticos** agrupa los registros elegibles por tema (UMAP +
+     HDBSCAN) y dibuja un mapa temático en Resultados.
+   - Ambos usan embeddings de Ollama guardados en un Qdrant local dentro del
+     proyecto (`data/qdrant/`): no hace falta Docker.
 3. Probá primero con pocos registros (campo "Probar primero con N registros").
 4. Si usás una API paga, cargá los precios de tu modelo y mirá el **costo
    estimado** antes de correr todo.
@@ -82,10 +90,10 @@ configuración del modelo. Una corrida interrumpida se retoma donde quedó.
 
 ## Límites de esta versión
 
-- La deduplicación de la app es exacta (DOI o título normalizado). Las capas
-  de embeddings y juez LLM del estudio publicado necesitan Qdrant y todavía no
-  están en la app.
-- Los clusters temáticos (UMAP) solo se muestran en el proyecto de ejemplo.
+- La deduplicación con IA y los clusters necesitan Ollama (embeddings), aun
+  si el cribado usa Anthropic.
+- Con menos de 400 registros elegibles, los clusters usan tamaños mínimos más
+  chicos que el estudio publicado (quedan registrados en `clusters.json`).
 - La capa 2 consulta OpenAlex y Europe PMC: necesita internet y DOI.
 
 ## Comentarios

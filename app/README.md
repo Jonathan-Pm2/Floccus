@@ -35,8 +35,10 @@ The same steps run from the terminal (one at a time, per-project lock):
 ```bash
 uv run floccus run my-review import
 uv run floccus run my-review dedup
+uv run floccus run my-review dedup-ai            # optional: embeddings + AI judge
 uv run floccus run my-review screen-l1 --limit 20   # try a sample first
 uv run floccus run my-review screen-l2
+uv run floccus run my-review clusters            # optional: thematic clusters
 ```
 
 The analysis scripts of the published review need the optional extra:

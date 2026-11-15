@@ -164,8 +164,10 @@ def _run_controls() -> None:
     if active:
         st.warning(f"{t('running', lang)}: {active.get('step')}")
     limit = st.number_input(t("limit", lang), min_value=0, value=0, step=10, key=f"limit-{current}")
-    cols = st.columns(4)
-    steps = (("btn_import", "import"), ("btn_dedup", "dedup"), ("btn_l1", "screen-l1"), ("btn_l2", "screen-l2"))
+    st.caption(t("steps_help", lang))
+    cols = st.columns(3) + st.columns(3)
+    steps = (("btn_import", "import"), ("btn_dedup", "dedup"), ("btn_dedup_ai", "dedup-ai"),
+             ("btn_l1", "screen-l1"), ("btn_l2", "screen-l2"), ("btn_clusters", "clusters"))
     for col, (label, step) in zip(cols, steps):
         if col.button(t(label, lang), disabled=bool(active), width="stretch", key=f"{step}-{current}"):
             ui_logic.launch_step(home, current, step, int(limit) if step.startswith("screen") else None)
@@ -254,6 +256,8 @@ with tabs[3]:
                         width="stretch")
         if run.eligible is not None:
             g4.plotly_chart(res.fig_clusters(run.eligible, lang), width="stretch")
+            if {"umap_x", "umap_y"} <= set(run.eligible.columns):
+                st.plotly_chart(res.fig_umap(run.eligible, lang), width="stretch")
         st.subheader(t("decisions_table", lang))
         table = res.active_decisions(run.decisions)
         options = sorted(table["final_decision"].dropna().unique())

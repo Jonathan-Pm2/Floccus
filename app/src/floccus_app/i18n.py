@@ -105,6 +105,7 @@ STRINGS: dict[str, dict[str, str]] = {
     "fig_final": {"es": "Decisión final", "en": "Final decision"},
     "fig_criteria": {"es": "Registros que cumplen cada criterio (capa 1, respuesta Sí)", "en": "Records meeting each criterion (layer 1, Yes answers)"},
     "fig_clusters": {"es": "Registros elegibles por cluster temático", "en": "Eligible records per thematic cluster"},
+    "fig_umap": {"es": "Mapa temático de los registros elegibles (UMAP)", "en": "Thematic map of eligible records (UMAP)"},
     "decisions_table": {"es": "Decisiones por registro", "en": "Decisions per record"},
     "filter_decision": {"es": "Filtrar por decisión final", "en": "Filter by final decision"},
     "download_csv": {"es": "Descargar CSV", "en": "Download CSV"},
@@ -179,6 +180,12 @@ STRINGS: dict[str, dict[str, str]] = {
     "run_steps": {"es": "2. Pasos del pipeline", "en": "2. Pipeline steps"},
     "btn_import": {"es": "Importar", "en": "Import"},
     "btn_dedup": {"es": "Deduplicar", "en": "Deduplicate"},
+    "btn_dedup_ai": {"es": "Deduplicar con IA", "en": "AI deduplication"},
+    "btn_clusters": {"es": "Clusters temáticos", "en": "Thematic clusters"},
+    "steps_help": {"es": "Orden: Importar → Deduplicar → (opcional) Deduplicar con IA → Cribado capa 1 → Cribado capa 2 → (opcional) Clusters temáticos. "
+                         "La deduplicación con IA y los clusters usan embeddings de Ollama guardados en un Qdrant local dentro del proyecto (sin Docker).",
+                   "en": "Order: Import → Deduplicate → (optional) AI deduplication → Screening layer 1 → Screening layer 2 → (optional) Thematic clusters. "
+                         "AI deduplication and clusters use Ollama embeddings stored in a local Qdrant inside the project (no Docker)."},
     "btn_l1": {"es": "Cribado capa 1", "en": "Screening layer 1"},
     "btn_l2": {"es": "Cribado capa 2", "en": "Screening layer 2"},
     "limit": {"es": "Probar primero con N registros (0 = todos)", "en": "Try N records first (0 = all)"},

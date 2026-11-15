@@ -63,8 +63,16 @@ In **Run**:
 
 1. Upload each database's exports: Scopus, IEEE and SciELO as CSV; Web of
    Science and ProQuest as Excel.
-2. Run the steps in order: **Import → Deduplicate → Screening layer 1 →
-   Screening layer 2**. Each step runs in the background and shows progress.
+2. Run the steps in order: **Import → Deduplicate → (optional) AI
+   deduplication → Screening layer 1 → Screening layer 2 → (optional) Thematic
+   clusters**. Each step runs in the background and shows progress.
+   - **AI deduplication** finds near duplicates (translated titles, preprint
+     and published version): it compares title + abstract embeddings
+     (similarity ≥ 0.93) and an AI judge confirms each pair.
+   - **Thematic clusters** groups the eligible records by topic (UMAP +
+     HDBSCAN) and draws a thematic map in Results.
+   - Both use Ollama embeddings stored in a local Qdrant inside the project
+     (`data/qdrant/`): no Docker needed.
 3. Try a few records first ("Try N records first").
 4. With a paid API, enter your model's prices and check the **estimated cost**
    before a full run.
@@ -82,9 +90,10 @@ settings. An interrupted run resumes where it stopped.
 
 ## Limits of this version
 
-- App deduplication is exact (DOI or normalised title). The embedding and
-  LLM-judge layers of the published study need Qdrant and are not in the app yet.
-- Thematic clusters (UMAP) are only shown for the example project.
+- AI deduplication and clusters need Ollama (embeddings), even when screening
+  uses Anthropic.
+- With fewer than 400 eligible records, clusters use smaller minimum sizes than
+  the published study (recorded in `clusters.json`).
 - Layer 2 queries OpenAlex and Europe PMC: it needs internet access and DOIs.
 
 ## Feedback
