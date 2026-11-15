@@ -5,7 +5,7 @@ from __future__ import annotations
 DEFAULT_LANG = "es"
 
 STRINGS: dict[str, dict[str, str]] = {
-    "app_title": {"es": "Floccus · Revisiones sistemáticas", "en": "Floccus · Systematic reviews"},
+    "app_title": {"es": "Floccus AI · Revisiones sistemáticas", "en": "Floccus AI · Systematic reviews"},
     "language": {"es": "Idioma", "en": "Language"},
     "project": {"es": "Proyecto", "en": "Project"},
     "no_projects": {"es": "Todavía no hay proyectos. Creá uno abajo.", "en": "No projects yet. Create one below."},
@@ -115,26 +115,26 @@ STRINGS: dict[str, dict[str, str]] = {
     "tagline": {"es": "Cribado asistido por IA para revisiones sistemáticas · libre y abierto",
                 "en": "AI-assisted screening for systematic reviews · free and open"},
     "start_what": {
-        "es": "Floccus aplica los criterios de inclusión y exclusión de tu revisión a miles de registros bibliográficos con un modelo de lenguaje, criterio por criterio, y deja cada decisión trazable para la revisión humana. El método fue validado en una revisión publicada sobre modelado de biofloc, incluida como proyecto de ejemplo.",
-        "en": "Floccus applies your review's inclusion and exclusion criteria to thousands of bibliographic records with a language model, one criterion at a time, and keeps every decision traceable for human review. The method was validated in a published review on biofloc modelling, included as the example project.",
+        "es": "Floccus AI aplica los criterios de inclusión y exclusión de tu revisión a miles de registros bibliográficos con un modelo de lenguaje, criterio por criterio, y deja cada decisión trazable para la revisión humana. El método fue validado en una revisión publicada sobre modelado de biofloc, incluida como proyecto de ejemplo.",
+        "en": "Floccus AI applies your review's inclusion and exclusion criteria to thousands of bibliographic records with a language model, one criterion at a time, and keeps every decision traceable for human review. The method was validated in a published review on biofloc modelling, included as the example project.",
     },
     "start_steps_title": {"es": "Antes de empezar", "en": "Before you start"},
     "start_steps": {
-        "es": "1. **Recomendado:** instalá [Gentle Shell]({gentle}), el entorno de trabajo con agentes de IA con el que se desarrolla Floccus.\n"
-              "2. Instalá Floccus: `git clone {repo}` y, dentro de la carpeta, `uv sync --all-packages`.\n"
+        "es": "1. **Recomendado:** instalá [Gentle Shell]({gentle}), el entorno de trabajo con agentes de IA con el que se desarrolla Floccus AI.\n"
+              "2. Instalá Floccus AI: `git clone {repo}` y, dentro de la carpeta, `uv sync --all-packages`.\n"
               "3. Configurá el modelo de IA en el archivo `.env` (ver `env.example`): Ollama local y gratis, o Anthropic pago.\n"
               "4. Creá un proyecto desde el **ejemplo biofloc** (barra lateral → Nuevo proyecto → Ejemplo) para ver cómo queda una revisión terminada.\n"
               "5. Creá tu proyecto en la barra lateral y escribí tu protocolo en la pestaña **Protocolo**.",
-        "en": "1. **Recommended:** install [Gentle Shell]({gentle}), the AI-agent workspace Floccus is developed with.\n"
-              "2. Install Floccus: `git clone {repo}` and, inside the folder, `uv sync --all-packages`.\n"
+        "en": "1. **Recommended:** install [Gentle Shell]({gentle}), the AI-agent workspace Floccus AI is developed with.\n"
+              "2. Install Floccus AI: `git clone {repo}` and, inside the folder, `uv sync --all-packages`.\n"
               "3. Set the AI model in the `.env` file (see `env.example`): local free Ollama, or paid Anthropic.\n"
               "4. Create a project from the **biofloc example** (sidebar → New project → Example) to see what a finished review looks like.\n"
               "5. Create your project in the sidebar and write your protocol in the **Protocol** tab.",
     },
     "cite_title": {"es": "Cómo citar", "en": "How to cite"},
-    "cite_text": {"es": "Si usás Floccus en un trabajo, citá el software: DOI [{doi}]({doi_url}).",
-                  "en": "If you use Floccus in your work, please cite the software: DOI [{doi}]({doi_url})."},
-    "feedback_title": {"es": "Tu opinión mejora Floccus", "en": "Your feedback improves Floccus"},
+    "cite_text": {"es": "Si usás Floccus AI en un trabajo, citá el software: DOI [{doi}]({doi_url}).",
+                  "en": "If you use Floccus AI in your work, please cite the software: DOI [{doi}]({doi_url})."},
+    "feedback_title": {"es": "Tu opinión mejora Floccus AI", "en": "Your feedback improves Floccus AI"},
     "feedback_text": {
         "es": "Los botones abren un formulario de GitHub ya completado con la versión y la pantalla. La app no envía nada: vos revisás el texto y lo publicás. No incluyas claves ni datos no publicados.",
         "en": "The buttons open a GitHub form prefilled with the version and screen. The app sends nothing: you review the text and submit it. Do not include keys or unpublished data.",
@@ -220,11 +220,11 @@ STRINGS: dict[str, dict[str, str]] = {
     "temperature": {"es": "temperatura", "en": "temperature"},
     "no_abstract": {"es": "(sin abstract)", "en": "(no abstract)"},
     "not_affiliated": {
-        "es": "Floccus (cribado de revisiones sistemáticas asistido por LLM) no tiene relación con la extensión de sincronización de marcadores Floccus (floccus.org) ni con la tienda Floccus Internacional S.L. (floccus.es).",
-        "en": "Floccus (LLM-assisted systematic review screening) is not affiliated with the Floccus bookmarks-sync extension (floccus.org) or the Floccus Internacional S.L. shop (floccus.es).",
+        "es": "Floccus AI (cribado de revisiones sistemáticas asistido por LLM) no tiene relación con la extensión de sincronización de marcadores Floccus (floccus.org) ni con la tienda Floccus Internacional S.L. (floccus.es).",
+        "en": "Floccus AI (LLM-assisted systematic review screening) is not affiliated with the Floccus bookmarks-sync extension (floccus.org) or the Floccus Internacional S.L. shop (floccus.es).",
     },
-    "footer": {"es": "Floccus {version} · Licencia {license} · DOI [{doi}]({doi_url}) · [Código fuente]({repo})",
-               "en": "Floccus {version} · {license} licence · DOI [{doi}]({doi_url}) · [Source code]({repo})"},
+    "footer": {"es": "Floccus AI {version} · Licencia {license} · DOI [{doi}]({doi_url}) · [Código fuente]({repo})",
+               "en": "Floccus AI {version} · {license} licence · DOI [{doi}]({doi_url}) · [Source code]({repo})"},
 
 }
 

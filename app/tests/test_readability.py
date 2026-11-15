@@ -87,13 +87,14 @@ def test_docs_name_real_buttons_and_scope_resume_to_screening():  # READ-3 / REA
 def test_name_has_descriptor_and_disambiguation():  # L21
     from floccus_app import branding
 
-    assert branding.FULL_NAME == "Floccus – LLM-assisted systematic review screening"
+    assert branding.APP_NAME == "Floccus AI"
+    assert branding.FULL_NAME == "Floccus AI – LLM-assisted systematic review screening"
     for lang in ("es", "en"):
         note = t("not_affiliated", lang)
         assert "floccus.org" in note and "floccus.es" in note
     for doc in ("README.md", "app/README.md", "app/docs/GUIA.md", "app/docs/GUIDE.md"):
         text = (REPO / doc).read_text(encoding="utf-8")
-        assert "LLM-assisted systematic review screening" in text, doc
+        assert "Floccus AI" in text and "LLM-assisted systematic review screening" in text, doc
         assert "floccus.org" in text and "floccus.es" in text, doc
 
 
@@ -127,3 +128,13 @@ def test_logo_assets_are_transparent_and_used_in_the_header(tmp_path, monkeypatc
     at = AppTest.from_file(str(SRC / "ui" / "app.py"), default_timeout=60).run()
     header = " ".join(str(m.value) for m in at.markdown[:3])
     assert "data:image/png;base64," in header and "🔬" not in header
+    assert "Floccus AI" in header
+
+
+def test_app_texts_use_the_app_name_but_keep_the_other_floccus_names():  # L27
+    for lang in ("es", "en"):
+        for key in ("app_title", "start_what", "feedback_title", "cite_text", "footer"):
+            assert "Floccus AI" in t(key, lang), (key, lang)
+        note = t("not_affiliated", lang)
+        assert note.startswith("Floccus AI") and "Floccus Internacional" in note
+        assert note.count("Floccus AI") == 1  # the bookmarks extension is just "Floccus"

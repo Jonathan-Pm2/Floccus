@@ -1,8 +1,10 @@
-# Floccus – LLM-assisted systematic review screening: user guide
+# Floccus AI – LLM-assisted systematic review screening: user guide
 
 *Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*
 
-Floccus applies your systematic review's inclusion and exclusion criteria to
+Floccus AI is the application of the Floccus screening method described in the published article (v0.3.0, DOI [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); the `floccus` command and the repository keep the original name.
+
+Floccus AI applies your systematic review's inclusion and exclusion criteria to
 thousands of records with a language model, one criterion at a time, and keeps
 every decision traceable for human review.
 

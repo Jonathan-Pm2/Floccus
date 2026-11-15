@@ -82,5 +82,5 @@ def test_app_and_pipeline_share_one_version():
 
     root = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
     app = tomllib.loads((REPO / "app" / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
-    assert app == root == "0.4.2"
-    assert branding.version() == "0.4.2"
+    assert app == root == "0.4.3"
+    assert branding.version() == "0.4.3"

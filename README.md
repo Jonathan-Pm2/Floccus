@@ -14,7 +14,7 @@ It is the code archive of the article
 > Multi-Scale Unification of Biological-Floc Modelling Equations.**
 > Under review at *Algorithms* (MDPI).
 
-Version: **0.4.2** (adds the Floccus app, see [Changelog](#changelog)). The
+Version: **0.4.3** (adds the Floccus AI app, see [Changelog](#changelog)). The
 published article used **v0.3.0** (version DOI
 [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); the
 pipeline and results it describes are unchanged in v0.4.0.
@@ -40,9 +40,11 @@ The counts above are those of the archived run (round 1). The round-2 corpus
 
 Stack: Python 3.12, uv, Pydantic, LangGraph, Qdrant (Docker), Ollama.
 
-## Floccus app – LLM-assisted systematic review screening (any topic)
+## Floccus AI – LLM-assisted systematic review screening (any topic)
 
 *Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*
+
+Floccus AI is the application of the Floccus screening method described in the published article (v0.3.0, DOI [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); the `floccus` command and the repository keep the original name.
 
 The [`app/`](app/README.md) folder contains a local, bilingual (ES/EN)
 interface to run the same method on any systematic-review topic, with this
@@ -256,8 +258,10 @@ release_data/         published decision tables
 
 ## Changelog
 
+- **v0.4.3 — (2026-11-15).** The app is named **Floccus AI** (display name; the `floccus`
+  command, repository and DOIs are unchanged). Recommended version of the app.
 - **v0.4.2 — (2026-11-15).** Floccus logo (floc-like star) in the interface header, browser
-  tab and app README. Recommended version for the Floccus app.
+  tab and app README.
 - **v0.4.1 — (2026-11-15).** Interface header shows the full name, *Floccus – LLM-assisted
   systematic review screening*.
 - **v0.4.0 — Floccus app (2026-11-15).** Floccus app (`app/`): local bilingual interface to

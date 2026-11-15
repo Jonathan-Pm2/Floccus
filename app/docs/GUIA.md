@@ -1,8 +1,10 @@
-# Guía de uso de Floccus – LLM-assisted systematic review screening
+# Guía de uso de Floccus AI – LLM-assisted systematic review screening
 
 *No tiene relación con la extensión de sincronización de marcadores Floccus ([floccus.org](https://floccus.org)) ni con la tienda Floccus Internacional S.L. ([floccus.es](https://floccus.es)).*
 
-Floccus aplica los criterios de inclusión y exclusión de tu revisión
+Floccus AI es la aplicación del método de cribado Floccus descrito en el artículo publicado (v0.3.0, DOI [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); el comando `floccus` y el repositorio conservan el nombre original.
+
+Floccus AI aplica los criterios de inclusión y exclusión de tu revisión
 sistemática a miles de registros con un modelo de lenguaje, criterio por
 criterio, y deja cada decisión trazable para la revisión humana.
 

@@ -1,8 +1,10 @@
 <img src="docs/logo.png" alt="Floccus logo" width="96">
 
-# Floccus app – LLM-assisted systematic review screening
+# Floccus AI – LLM-assisted systematic review screening
 
 *Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*
+
+Floccus AI is the application of the Floccus screening method described in the published article (v0.3.0, DOI [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); the `floccus` command and the repository keep the original name.
 
 Local tool to run the Floccus LLM-assisted screening method on **any**
 systematic-review topic. The published biofloc pipeline (`../src/biofloc_review`)
