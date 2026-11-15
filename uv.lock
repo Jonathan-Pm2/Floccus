@@ -81,7 +81,7 @@ wheels = [
 
 [[package]]
 name = "biofloc-review"
-version = "0.3.0"
+version = "0.4.0"
 source = { editable = "." }
 dependencies = [
     { name = "beautifulsoup4" },
@@ -322,7 +322,7 @@ wheels = [
 
 [[package]]
 name = "floccus-app"
-version = "0.1.0"
+version = "0.4.0"
 source = { editable = "app" }
 dependencies = [
     { name = "biofloc-review" },

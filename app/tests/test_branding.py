@@ -75,3 +75,12 @@ def test_start_tab_recommends_gentle_shell_and_offers_feedback(tmp_path, monkeyp
     assert branding.GENTLE_SHELL_URL in text
     assert branding.DOI in text
     assert "Apache-2.0" in text
+
+
+def test_app_and_pipeline_share_one_version():
+    import tomllib
+
+    root = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+    app = tomllib.loads((REPO / "app" / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+    assert app == root == "0.4.0"
+    assert branding.version() == "0.4.0"
