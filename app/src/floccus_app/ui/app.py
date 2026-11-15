@@ -126,7 +126,27 @@ with tabs[1]:
             else:
                 st.success(t("saved", lang))
 
-run = res.load_results(project) if project else None
+def _stamp(*paths: Path) -> tuple:
+    """Cache key: a file's identity changes when it is rewritten."""
+    out = []
+    for p in paths:
+        st_ = p.stat() if p.is_file() else None
+        out.append((str(p), st_.st_mtime_ns if st_ else 0, st_.st_size if st_ else 0))
+    return tuple(out)
+
+
+def _result_files(p: Path) -> tuple:
+    return _stamp(p / "results" / "published" / "prisma_counts.json",
+                  *(p / "results" / "latest" / f for f in
+                    ("prisma_counts.json", "screening_decisions.csv", "eligible_clusters.csv")))
+
+
+@st.cache_data(max_entries=4, show_spinner=False)
+def _cached_results(project_dir: str, stamp: tuple):
+    return res.load_results(Path(project_dir))
+
+
+run = _cached_results(str(project), _result_files(project)) if project else None
 
 
 def _fmt(n: int) -> str:
@@ -277,7 +297,7 @@ with tabs[3]:
         shown = table[table["final_decision"].isin(chosen)]
         st.caption(f"{_fmt(len(shown))} {t('records', lang)}")
         st.dataframe(shown, hide_index=True, width="stretch", height=360)
-        st.download_button(t("download_csv", lang), shown.to_csv(index=False).encode("utf-8"),
+        st.download_button(t("download_csv", lang), lambda: shown.to_csv(index=False).encode("utf-8"),
                            file_name="screening_decisions.csv", mime="text/csv")
     else:
         st.info(f"🚧 {t('under_construction', lang)}")
@@ -290,7 +310,8 @@ def _review_own() -> None:
                     format_func=lambda k: t("rv_" + k, lang))
     size = st.number_input(t("rv_size", lang), 10, 1000, 100, 10, key=f"rvsize-{current}") \
         if kind == "validation" else 0
-    q = review.queue(project, kind, int(size) or 100)
+    q = _cached_queue(str(project), kind, int(size) or 100,
+                      _stamp(project / "results" / "latest" / "screening_decisions.csv"))
     if q.empty:
         st.info(t("rv_empty", lang))
     else:
@@ -323,7 +344,8 @@ def _review_own() -> None:
         if c4.button(t("rv_next", lang), disabled=pos >= len(q) - 1, key=f"rvnext-{current}"):
             st.session_state[key] = pos + 1
             st.rerun()
-    a = review.agreement(project)
+    a = _cached_agreement(str(project), _stamp(project / "results" / "latest" / "screening_decisions.csv",
+                                               project / "results" / "latest" / "human_review.csv"))
     if a["n"]:
         st.subheader(t("rv_agreement", lang))
         st.caption(t("rv_agreement_help", lang))
@@ -334,8 +356,28 @@ def _review_own() -> None:
         st.dataframe(a["table"], width="stretch")
 
 
+@st.cache_data(max_entries=2, show_spinner=False)
+def _cached_queue(project_dir: str, kind: str, size: int, stamp: tuple):
+    from floccus_app import review
+
+    return review.queue(Path(project_dir), kind, size)
+
+
+@st.cache_data(max_entries=2, show_spinner=False)
+def _cached_agreement(project_dir: str, stamp: tuple):
+    from floccus_app import review
+
+    return review.agreement(Path(project_dir))
+
+
 def _abstracts() -> dict:
     path = project / "data" / "processed" / "unique.parquet"
+    return _cached_abstracts(str(path), _stamp(path))
+
+
+@st.cache_data(max_entries=2, show_spinner=False)
+def _cached_abstracts(path_str: str, stamp: tuple) -> dict:
+    path = Path(path_str)
     if not path.is_file():
         return {}
     df = pd.read_parquet(path, columns=["cluster_id", "source", "source_id", "abstract"])
