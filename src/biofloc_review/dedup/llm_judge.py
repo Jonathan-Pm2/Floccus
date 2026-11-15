@@ -15,10 +15,27 @@ log = logging.getLogger(__name__)
 
 
 DEFAULT_LLM_MODEL = "qwen3:14b"
+ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
+ANTHROPIC_VERSION = "2023-06-01"
+MAX_OUTPUT_TOKENS = 400
+
+
+def llm_provider() -> str:
+    """Generation backend: ``ollama`` (default) or ``anthropic`` (LLM_PROVIDER).
+
+    Embeddings always stay on Ollama; only text generation is switched.
+    """
+    _load_env_once()
+    return (os.environ.get("LLM_PROVIDER") or "ollama").strip().lower()
 
 
 def default_llm_model() -> str:
     _load_env_once()
+    if llm_provider() == "anthropic":
+        model = os.environ.get("ANTHROPIC_MODEL")
+        if not model:
+            raise RuntimeError("LLM_PROVIDER=anthropic requires ANTHROPIC_MODEL (or pass --model)")
+        return model
     return os.environ.get("OLLAMA_LLM_MODEL") or os.environ.get("OLLAMA_MODEL") or DEFAULT_LLM_MODEL
 
 
@@ -130,12 +147,19 @@ def parse_verdict(text: str) -> Verdict:
     reraise=True,
 )
 def _ollama_chat(messages: list[dict], model: str, temperature: float = 0.0, timeout: float = 90.0) -> str:
+    """Single chat entry point for every LLM call (name kept for compatibility).
+
+    Dispatches to Anthropic when LLM_PROVIDER=anthropic, with the same
+    prompts, temperature and output-token cap as the Ollama path.
+    """
+    if llm_provider() == "anthropic":
+        return _anthropic_chat(messages, model=model, temperature=temperature, timeout=timeout)
     payload = {
         "model": model,
         "messages": messages,
         "stream": False,
         "think": False,
-        "options": {"temperature": temperature, "num_predict": 400},
+        "options": {"temperature": temperature, "num_predict": MAX_OUTPUT_TOKENS},
     }
     r = requests.post(
         f"{ollama_url()}/api/chat",
@@ -146,6 +170,37 @@ def _ollama_chat(messages: list[dict], model: str, temperature: float = 0.0, tim
     r.raise_for_status()
     data = r.json()
     return data.get("message", {}).get("content", "")
+
+
+def _anthropic_chat(messages: list[dict], model: str, temperature: float, timeout: float) -> str:
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if not key:
+        raise RuntimeError("LLM_PROVIDER=anthropic requires ANTHROPIC_API_KEY")
+    system = "\n\n".join(m["content"] for m in messages if m["role"] == "system")
+    payload: dict[str, Any] = {
+        "model": model,
+        "messages": [m for m in messages if m["role"] != "system"],
+        "max_tokens": MAX_OUTPUT_TOKENS,
+    }
+    # Some newer models reject `temperature`; ANTHROPIC_TEMPERATURE=none omits it
+    # (the run is then not deterministic, unlike the temperature-0 Ollama runs).
+    if (os.environ.get("ANTHROPIC_TEMPERATURE") or "").strip().lower() != "none":
+        payload["temperature"] = temperature
+    if system:
+        payload["system"] = system
+    r = requests.post(
+        ANTHROPIC_URL,
+        json=payload,
+        headers={
+            "x-api-key": key,
+            "anthropic-version": ANTHROPIC_VERSION,
+            "content-type": "application/json",
+        },
+        timeout=timeout,
+    )
+    r.raise_for_status()
+    data = r.json()
+    return "".join(b.get("text", "") for b in data.get("content", []) if b.get("type") == "text")
 
 
 def judge_pair(rec_a: dict, rec_b: dict, score: float, model: str | None = None) -> Verdict:

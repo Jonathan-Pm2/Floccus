@@ -51,6 +51,13 @@ cp env.example .env      # set OLLAMA_URL, OLLAMA_TOKEN, OPENALEX_EMAIL
 uv run python -m pytest -q
 ```
 
+Optional: set `LLM_PROVIDER=anthropic` with `ANTHROPIC_API_KEY` and
+`ANTHROPIC_MODEL` to run text generation (screening and duplicate judge)
+through the Anthropic API instead of Ollama; embeddings stay on Ollama.
+`ANTHROPIC_TEMPERATURE=none` omits `temperature` for models that reject it,
+which makes runs non-deterministic. The published results used Ollama at
+temperature 0. The Anthropic API is paid; estimate the cost before a full run.
+
 ## Running the pipeline
 
 The database exports are read from the parent directory (`--data-dir ..`);
