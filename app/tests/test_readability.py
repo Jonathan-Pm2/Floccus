@@ -95,3 +95,16 @@ def test_name_has_descriptor_and_disambiguation():  # L21
         text = (REPO / doc).read_text(encoding="utf-8")
         assert "LLM-assisted systematic review screening" in text, doc
         assert "floccus.org" in text and "floccus.es" in text, doc
+
+
+def test_header_shows_the_full_name(tmp_path, monkeypatch):  # L23
+    from streamlit.testing.v1 import AppTest
+
+    from floccus_app.projects import create_project
+
+    create_project(tmp_path, "demo", "biofloc")
+    monkeypatch.setenv("FLOCCUS_HOME", str(tmp_path))
+    at = AppTest.from_file(str(SRC / "ui" / "app.py"), default_timeout=60).run()
+    assert not at.exception
+    header = " ".join(str(m.value) for m in at.markdown[:3])
+    assert "LLM-assisted systematic review screening" in header

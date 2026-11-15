@@ -57,7 +57,8 @@ with st.sidebar:
     st.caption(t("footer", lang).format(version=branding.version(), license=branding.LICENSE,
                                         doi=branding.DOI, doi_url=branding.DOI_URL, repo=branding.REPO_URL))
 
-st.markdown(f"## 🔬 {branding.APP_NAME} <span style='font-size:0.55em;opacity:0.6'>v{branding.version()}</span>",
+st.markdown(f"## 🔬 {branding.APP_NAME} <span style='font-size:0.55em;opacity:0.6'>v{branding.version()}</span>"
+            f"<br><span style='font-size:0.6em;font-weight:400'>{branding.FULL_NAME.split(' – ', 1)[1]}</span>",
             unsafe_allow_html=True)
 st.caption(t("tagline", lang))
 
