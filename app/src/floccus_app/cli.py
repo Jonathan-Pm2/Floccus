@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
+from pathlib import Path
 
 from biofloc_review.protocol import ProtocolError
 
@@ -18,12 +20,24 @@ def _parser() -> argparse.ArgumentParser:
     new.add_argument("name", help="project folder name (letters, digits, '-', '_')")
     new.add_argument("--example", help="start from a built-in protocol, e.g. 'biofloc'")
     sub.add_parser("list", help="list projects")
+    ui = sub.add_parser("ui", help="open the graphical interface in the browser")
+    ui.add_argument("--port", type=int, default=8501, help="local port (default 8501)")
+    ui.add_argument("--headless", action="store_true", help="do not open a browser window")
     return p
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     home = projects_home(args.home)
+    if args.command == "ui":
+        app = Path(__file__).resolve().parent / "ui" / "app.py"
+        return subprocess.call([
+            sys.executable, "-m", "streamlit", "run", str(app),
+            "--server.port", str(args.port),
+            "--server.headless", "true" if args.headless or not sys.stdin.isatty() else "false",
+            "--browser.gatherUsageStats", "false",
+            "--", "--home", str(home),
+        ])
     try:
         if args.command == "new":
             project = create_project(home, args.name, args.example)
