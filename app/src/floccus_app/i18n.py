@@ -66,6 +66,76 @@ STRINGS: dict[str, dict[str, str]] = {
         "en": "Set these in the .env file (see env.example). Ollama is local and free; "
               "LLM_PROVIDER=anthropic uses the paid Anthropic API. The key is never shown.",
     },
+    "step": {"es": "Paso", "en": "Step"},
+    "what": {"es": "Qué hace", "en": "What it does"},
+    "input": {"es": "Entrada", "en": "Input"},
+    "output": {"es": "Salida", "en": "Output"},
+    "step_import": {"es": "1. Importación", "en": "1. Import"},
+    "step_import_what": {"es": "Lee los exports de las bases (entrada = número de bases, salida = registros identificados).",
+                         "en": "Reads the database exports (input = number of databases, output = identified records)."},
+    "step_dedup": {"es": "2. Deduplicación", "en": "2. Deduplication"},
+    "step_dedup_what": {"es": "DOI/título exactos, similitud de embeddings y un juez LLM para los pares dudosos.",
+                        "en": "Exact DOI/title, embedding similarity and an LLM judge for doubtful pairs."},
+    "step_l1": {"es": "3. Cribado capa 1", "en": "3. Screening layer 1"},
+    "step_l1_what": {"es": "Cada criterio del protocolo es una pregunta Sí/No al LLM sobre título y abstract (salida = INCLUDE + revisión humana).",
+                     "en": "Each protocol criterion is a Yes/No question to the LLM over title and abstract (output = INCLUDE + human review)."},
+    "step_l2": {"es": "4. Cribado capa 2", "en": "4. Screening layer 2"},
+    "step_l2_what": {"es": "Los dudosos se re-evalúan con metadatos enriquecidos de OpenAlex y Europe PMC (salida = elegibles).",
+                     "en": "Uncertain records are re-assessed with enriched OpenAlex and Europe PMC metadata (output = eligible)."},
+    "run_done_example": {"es": "Este proyecto de ejemplo ya fue ejecutado completo: son los resultados publicados de la revisión biofloc. Usalo para ver cómo queda un proyecto terminado.",
+                         "en": "This example project has already been run end to end: these are the published results of the biofloc review. Use it to see what a finished project looks like."},
+    "run_model_used": {"es": "Modelo usado", "en": "Model used"},
+    "run_new_soon": {"es": "Lanzar corridas nuevas desde acá está en construcción.", "en": "Launching new runs from here is under construction."},
+    "m_identified": {"es": "Identificados", "en": "Identified"},
+    "m_unique": {"es": "Únicos", "en": "Unique"},
+    "m_include": {"es": "Incluidos", "en": "Included"},
+    "m_review": {"es": "Revisión humana", "en": "Human review"},
+    "m_exclude": {"es": "Excluidos", "en": "Excluded"},
+    "m_eligible": {"es": "Elegibles", "en": "Eligible"},
+    "n_unique": {"es": "Registros únicos", "en": "Unique records"},
+    "n_duplicates": {"es": "Duplicados eliminados", "en": "Duplicates removed"},
+    "n_l1_include": {"es": "Capa 1: incluidos", "en": "Layer 1: included"},
+    "n_l1_review": {"es": "Capa 1: dudosos → capa 2", "en": "Layer 1: uncertain → layer 2"},
+    "n_l1_exclude": {"es": "Capa 1: excluidos", "en": "Layer 1: excluded"},
+    "n_include": {"es": "Incluidos", "en": "Included"},
+    "n_review": {"es": "Revisión humana", "en": "Human review"},
+    "n_exclude": {"es": "Excluidos", "en": "Excluded"},
+    "fig_flow": {"es": "Flujo de registros por el pipeline", "en": "Record flow through the pipeline"},
+    "fig_sources": {"es": "Registros identificados por base", "en": "Records identified per database"},
+    "fig_final": {"es": "Decisión final", "en": "Final decision"},
+    "fig_criteria": {"es": "Registros que cumplen cada criterio (capa 1, respuesta Sí)", "en": "Records meeting each criterion (layer 1, Yes answers)"},
+    "fig_clusters": {"es": "Registros elegibles por cluster temático", "en": "Eligible records per thematic cluster"},
+    "decisions_table": {"es": "Decisiones por registro", "en": "Decisions per record"},
+    "filter_decision": {"es": "Filtrar por decisión final", "en": "Filter by final decision"},
+    "download_csv": {"es": "Descargar CSV", "en": "Download CSV"},
+    "no_results": {"es": "Este proyecto todavía no tiene resultados.", "en": "This project has no results yet."},
+    "validation_intro": {"es": "Muestra ciega de validación: decisiones del pipeline frente a dos revisores humanos independientes.",
+                         "en": "Blind validation sample: pipeline decisions against two independent human reviewers."},
+    "reviewer_1": {"es": "Pipeline (filas) vs revisor 1 (columnas)", "en": "Pipeline (rows) vs reviewer 1 (columns)"},
+    "reviewer_2": {"es": "Pipeline (filas) vs revisor 2 (columnas)", "en": "Pipeline (rows) vs reviewer 2 (columns)"},
+    "records": {"es": "registros", "en": "records"},
+    "model_used": {
+        "es": "**Usado en el proyecto de ejemplo (revisión biofloc publicada): Ollama**, IA local y gratuita.\n\n"
+              "- Generación (cribado y juez de duplicados): `qwen3:14b`, temperatura 0 (determinista), hasta 400 tokens por respuesta.\n"
+              "- Embeddings (deduplicación y clusters): `qwen3-embedding:8b`.",
+        "en": "**Used in the example project (published biofloc review): Ollama**, local and free AI.\n\n"
+              "- Generation (screening and duplicate judge): `qwen3:14b`, temperature 0 (deterministic), up to 400 tokens per answer.\n"
+              "- Embeddings (deduplication and clusters): `qwen3-embedding:8b`.",
+    },
+    "model_alternatives": {
+        "es": "**Para tus proyectos podés elegir:**\n\n"
+              "- **Ollama** con cualquier modelo que tengas instalado: local y gratis.\n"
+              "- **Anthropic (Claude)**: API paga, útil si no tenés IA local. El costo crece con registros × criterios; estimalo antes de correr el corpus completo.\n"
+              "- **Otro proveedor**: se puede agregar en el mismo punto del código que Anthropic.\n\n"
+              "Los embeddings siempre usan Ollama. La configuración va en el archivo `.env` (ver `env.example`); esta pantalla nunca muestra direcciones ni claves.",
+        "en": "**For your projects you can choose:**\n\n"
+              "- **Ollama** with any model you have installed: local and free.\n"
+              "- **Anthropic (Claude)**: paid API, useful without local AI. Cost grows with records × criteria; estimate it before a full run.\n"
+              "- **Another provider**: can be added at the same point in the code as Anthropic.\n\n"
+              "Embeddings always use Ollama. Settings go in the `.env` file (see `env.example`); this screen never shows addresses or keys.",
+    },
+    "model_current": {"es": "Configuración actual de esta instalación", "en": "Current configuration of this installation"},
+
 }
 
 

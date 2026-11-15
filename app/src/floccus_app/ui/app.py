@@ -10,6 +10,7 @@ import pandas as pd
 import streamlit as st
 from biofloc_review.protocol import CHECKS, CRITERION_TYPES, LANGUAGES, ProtocolError
 
+from floccus_app import results as res
 from floccus_app import ui_logic
 from floccus_app.i18n import t
 from floccus_app.projects import ProjectError, create_project, list_projects, projects_home
@@ -102,15 +103,73 @@ with tabs[1]:
             else:
                 st.success(t("saved", lang))
 
-for tab, key in ((tabs[2], "run_soon"), (tabs[3], "results_soon"), (tabs[4], "review_soon")):
-    with tab:
+run = res.load_results(project) if project else None
+
+
+def _fmt(n: int) -> str:
+    return f"{n:,}"
+
+
+with tabs[2]:
+    if run:
+        st.success(t("run_done_example", lang))
+        steps = pd.DataFrame(res.pipeline_steps(run.counts, lang)).rename(columns={
+            "step": t("step", lang), "what": t("what", lang), "in": t("input", lang), "out": t("output", lang)})
+        st.dataframe(steps, hide_index=True, use_container_width=True)
+        if run.info:
+            st.write(f"**{t('run_model_used', lang)}:** {run.info.get('provider', '?').capitalize()} · "
+                     f"`{run.info.get('generation_model', '?')}` · `{run.info.get('embedding_model', '?')}` · "
+                     f"temperature {run.info.get('temperature', '?')}")
+        st.info(f"🚧 {t('run_new_soon', lang)}")
+    else:
         st.info(f"🚧 {t('under_construction', lang)}")
-        st.write(t(key, lang))
+        st.write(t("run_soon", lang))
+
+with tabs[3]:
+    if run:
+        c, f = run.counts, run.counts["final_specificity_mode"]
+        cols = st.columns(6)
+        for col, (key, value) in zip(cols, (
+            ("m_identified", c["identification"]["total"]), ("m_unique", res._unique(c)),
+            ("m_include", f["include"]), ("m_review", f["human_review"]),
+            ("m_exclude", f["exclude"]), ("m_eligible", f["to_eligibility"]),
+        )):
+            col.metric(t(key, lang), _fmt(value))
+        st.plotly_chart(res.fig_flow(c, lang), use_container_width=True)
+        g1, g2 = st.columns(2)
+        g1.plotly_chart(res.fig_sources(c, lang), use_container_width=True)
+        g2.plotly_chart(res.fig_final_decisions(c, lang), use_container_width=True)
+        g3, g4 = st.columns(2)
+        g3.plotly_chart(res.fig_criteria(run.decisions, lang), use_container_width=True)
+        if run.eligible is not None:
+            g4.plotly_chart(res.fig_clusters(run.eligible, lang), use_container_width=True)
+        st.subheader(t("decisions_table", lang))
+        table = res.active_decisions(run.decisions)
+        options = sorted(table["final_decision"].dropna().unique())
+        chosen = st.multiselect(t("filter_decision", lang), options, default=options, key="filter_decision")
+        shown = table[table["final_decision"].isin(chosen)]
+        st.caption(f"{_fmt(len(shown))} {t('records', lang)}")
+        st.dataframe(shown, hide_index=True, use_container_width=True, height=360)
+        st.download_button(t("download_csv", lang), shown.to_csv(index=False).encode("utf-8"),
+                           file_name="screening_decisions.csv", mime="text/csv")
+    else:
+        st.info(f"🚧 {t('under_construction', lang)}")
+        st.write(t("results_soon", lang))
+
+with tabs[4]:
+    if run and run.validation is not None:
+        st.write(t("validation_intro", lang) + f" ({_fmt(len(run.validation))} {t('records', lang)})")
+        v1, v2 = st.columns(2)
+        v1.write(f"**{t('reviewer_1', lang)}**")
+        v1.dataframe(res.validation_crosstab(run.validation, "reviewer_1"), use_container_width=True)
+        v2.write(f"**{t('reviewer_2', lang)}**")
+        v2.dataframe(res.validation_crosstab(run.validation, "reviewer_2"), use_container_width=True)
+    else:
+        st.info(f"🚧 {t('under_construction', lang)}")
+        st.write(t("review_soon", lang))
 
 with tabs[5]:
+    st.markdown(t("model_used", lang))
+    st.markdown(t("model_alternatives", lang))
     s = ui_logic.llm_settings()
-    st.write(f"**{t('provider', lang)}:** {s['provider']}")
-    st.write(f"**{t('model', lang)}:** {s['model']}")
-    st.write(f"**{t('url', lang)}:** {s['url']}")
-    st.write(f"**{t('api_key', lang)}:** {s['api_key']}")
-    st.caption(t("llm_help", lang))
+    st.write(f"**{t('model_current', lang)}:** {s['provider'].capitalize()} · `{s['model']}`")

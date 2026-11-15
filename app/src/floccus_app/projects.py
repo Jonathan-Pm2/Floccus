@@ -35,6 +35,10 @@ def create_project(home: Path, name: str, example: str | None = None) -> Path:
     for sub in SUBDIRS:
         (project / sub).mkdir(parents=True)
     (project / "protocol.yaml").write_text(text, encoding="utf-8")
+    if example == "biofloc":
+        from floccus_app.results import install_example_results
+
+        install_example_results(project)
     return project
 
 
