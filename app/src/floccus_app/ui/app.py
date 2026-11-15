@@ -10,6 +10,7 @@ import pandas as pd
 import streamlit as st
 from biofloc_review.protocol import CHECKS, CRITERION_TYPES, LANGUAGES, ProtocolError
 
+from floccus_app import branding
 from floccus_app import results as res
 from floccus_app import ui_logic
 from floccus_app.i18n import t
@@ -23,7 +24,7 @@ def _home() -> Path:
     return projects_home()
 
 
-st.set_page_config(page_title="Floccus", layout="wide")
+st.set_page_config(page_title="Floccus", page_icon="🔬", layout="wide")
 home = _home()
 
 with st.sidebar:
@@ -51,9 +52,30 @@ with st.sidebar:
                     st.rerun()
                 except (ProjectError, ProtocolError) as exc:
                     st.error(str(exc))
+    st.divider()
+    st.caption(t("footer", lang).format(version=branding.version(), license=branding.LICENSE,
+                                        doi=branding.DOI, doi_url=branding.DOI_URL, repo=branding.REPO_URL))
 
-tabs = st.tabs([t(k, lang) for k in
-                ("tab_project", "tab_protocol", "tab_run", "tab_results", "tab_review", "tab_llm")])
+st.markdown(f"## 🔬 {branding.APP_NAME} <span style='font-size:0.55em;opacity:0.6'>v{branding.version()}</span>",
+            unsafe_allow_html=True)
+st.caption(t("tagline", lang))
+
+all_tabs = st.tabs([t(k, lang) for k in
+                ("tab_start", "tab_project", "tab_protocol", "tab_run", "tab_results", "tab_review", "tab_llm")])
+start_tab, tabs = all_tabs[0], all_tabs[1:]
+
+with start_tab:
+    st.write(t("start_what", lang))
+    st.subheader(t("start_steps_title", lang))
+    st.markdown(t("start_steps", lang).format(gentle=branding.GENTLE_SHELL_URL, repo=branding.REPO_URL))
+    st.subheader(t("feedback_title", lang))
+    st.write(t("feedback_text", lang))
+    b1, b2 = st.columns(2)
+    b1.link_button(t("feedback_bug", lang), branding.feedback_url("bug", t("tab_start", lang), lang))
+    b2.link_button(t("feedback_idea", lang), branding.feedback_url("idea", t("tab_start", lang), lang))
+    st.subheader(t("cite_title", lang))
+    st.markdown(t("cite_text", lang).format(doi=branding.DOI, doi_url=branding.DOI_URL)
+                + f" · {branding.LICENSE}")
 
 project = home / current if current else None
 protocol = ui_logic.load_project_protocol(project) if project else None

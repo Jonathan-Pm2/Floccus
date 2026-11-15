@@ -72,7 +72,7 @@ def test_ui_command_launches_streamlit(monkeypatch, tmp_path):
     assert argv[5:] == [
         "--server.port", "8600", "--server.headless", "true",
         "--browser.gatherUsageStats", "false", "--client.toolbarMode", "minimal",
-        "--", "--home", str(tmp_path),
+        "--theme.primaryColor", "#2e8b7a", "--", "--home", str(tmp_path),
     ]
 
 

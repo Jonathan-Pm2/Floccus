@@ -1,0 +1,40 @@
+name: Bug report / Reportar un error
+description: Something does not work as expected. / Algo no funciona como se espera.
+title: "[Bug] "
+labels: ["bug", "feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Floccus. Please do **not** paste API keys, tokens, server addresses or unpublished data.
+        Gracias por ayudar a mejorar Floccus. **No** pegues claves, tokens, direcciones de servidores ni datos no publicados.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened? / ¿Qué pasó?
+      description: Steps to reproduce and the message you saw. / Pasos para reproducirlo y el mensaje que viste.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect? / ¿Qué esperabas?
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Screen / Pantalla
+  - type: input
+    id: version
+    attributes:
+      label: Floccus version / Versión
+  - type: input
+    id: language
+    attributes:
+      label: Interface language / Idioma de la interfaz
+  - type: dropdown
+    id: provider
+    attributes:
+      label: AI provider / Proveedor de IA
+      options: ["Ollama", "Anthropic", "Other / Otro", "Not relevant / No aplica"]

@@ -38,6 +38,13 @@ The counts above are those of the archived run (round 1). The round-2 corpus
 
 Stack: Python 3.12, uv, Pydantic, LangGraph, Qdrant (Docker), Ollama.
 
+## Floccus app (any topic, graphical interface)
+
+The [`app/`](app/README.md) folder contains a local, bilingual (ES/EN)
+interface to run the same method on any systematic-review topic, with this
+review as the example project: `uv run floccus ui`. Feedback and contribution
+guidelines: [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Installation
 
 Requirements: [uv](https://docs.astral.sh/uv/), Docker (for Qdrant) and access

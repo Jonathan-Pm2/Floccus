@@ -9,6 +9,7 @@ from pathlib import Path
 
 from biofloc_review.protocol import ProtocolError
 
+from floccus_app.branding import PRIMARY_COLOR
 from floccus_app.projects import ProjectError, create_project, list_projects, projects_home
 
 
@@ -37,6 +38,7 @@ def main(argv: list[str] | None = None) -> int:
             "--server.headless", "true" if args.headless or not sys.stdin.isatty() else "false",
             "--browser.gatherUsageStats", "false",
             "--client.toolbarMode", "minimal",
+            "--theme.primaryColor", PRIMARY_COLOR,
             "--", "--home", str(home),
         ])
     try:

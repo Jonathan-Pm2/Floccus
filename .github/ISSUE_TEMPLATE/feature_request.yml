@@ -1,0 +1,33 @@
+name: Idea or improvement / Idea o mejora
+description: Suggest something that would make Floccus more useful. / Sugerí algo que haga Floccus más útil.
+title: "[Idea] "
+labels: ["enhancement", "feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the need in your own words; the maintainer decides how to implement it.
+        Contá la necesidad con tus palabras; el mantenedor decide cómo implementarla.
+  - type: textarea
+    id: need
+    attributes:
+      label: What do you need? / ¿Qué necesitás?
+      description: The problem or situation in your review. / El problema o la situación en tu revisión.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How would it help? / ¿Cómo ayudaría?
+  - type: input
+    id: page
+    attributes:
+      label: Screen / Pantalla
+  - type: input
+    id: version
+    attributes:
+      label: Floccus version / Versión
+  - type: input
+    id: language
+    attributes:
+      label: Interface language / Idioma de la interfaz

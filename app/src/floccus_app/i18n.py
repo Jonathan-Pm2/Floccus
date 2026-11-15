@@ -136,6 +136,39 @@ STRINGS: dict[str, dict[str, str]] = {
     },
     "model_current": {"es": "Configuración actual de esta instalación", "en": "Current configuration of this installation"},
 
+    "tab_start": {"es": "Inicio", "en": "Start"},
+    "tagline": {"es": "Cribado asistido por IA para revisiones sistemáticas · libre y abierto",
+                "en": "AI-assisted screening for systematic reviews · free and open"},
+    "start_what": {
+        "es": "Floccus aplica los criterios de inclusión y exclusión de tu revisión a miles de registros bibliográficos con un modelo de lenguaje, criterio por criterio, y deja cada decisión trazable para la revisión humana. El método fue validado en una revisión publicada sobre modelado de biofloc, incluida como proyecto de ejemplo.",
+        "en": "Floccus applies your review's inclusion and exclusion criteria to thousands of bibliographic records with a language model, one criterion at a time, and keeps every decision traceable for human review. The method was validated in a published review on biofloc modelling, included as the example project.",
+    },
+    "start_steps_title": {"es": "Antes de empezar", "en": "Before you start"},
+    "start_steps": {
+        "es": "1. **Recomendado:** instalá [Gentle Shell]({gentle}), el entorno de trabajo con agentes de IA con el que se desarrolla Floccus.\n"
+              "2. Instalá Floccus: `git clone {repo}` y, dentro de la carpeta, `uv sync --inexact --all-packages`.\n"
+              "3. Configurá el modelo de IA en el archivo `.env` (ver `env.example`): Ollama local y gratis, o Anthropic pago.\n"
+              "4. Explorá el proyecto **biofloc-ejemplo** para ver cómo queda una revisión terminada.\n"
+              "5. Creá tu proyecto en la barra lateral y escribí tu protocolo en la pestaña **Protocolo**.",
+        "en": "1. **Recommended:** install [Gentle Shell]({gentle}), the AI-agent workspace Floccus is developed with.\n"
+              "2. Install Floccus: `git clone {repo}` and, inside the folder, `uv sync --inexact --all-packages`.\n"
+              "3. Set the AI model in the `.env` file (see `env.example`): local free Ollama, or paid Anthropic.\n"
+              "4. Explore the **biofloc-ejemplo** project to see what a finished review looks like.\n"
+              "5. Create your project in the sidebar and write your protocol in the **Protocol** tab.",
+    },
+    "cite_title": {"es": "Cómo citar", "en": "How to cite"},
+    "cite_text": {"es": "Si usás Floccus en un trabajo, citá el software: DOI [{doi}]({doi_url}).",
+                  "en": "If you use Floccus in your work, please cite the software: DOI [{doi}]({doi_url})."},
+    "feedback_title": {"es": "Tu opinión mejora Floccus", "en": "Your feedback improves Floccus"},
+    "feedback_text": {
+        "es": "Los botones abren un formulario de GitHub ya completado con la versión y la pantalla. La app no envía nada: vos revisás el texto y lo publicás. No incluyas claves ni datos no publicados.",
+        "en": "The buttons open a GitHub form prefilled with the version and screen. The app sends nothing: you review the text and submit it. Do not include keys or unpublished data.",
+    },
+    "feedback_bug": {"es": "🐞 Reportar un error", "en": "🐞 Report a problem"},
+    "feedback_idea": {"es": "💡 Sugerir una mejora", "en": "💡 Suggest an improvement"},
+    "footer": {"es": "Floccus {version} · Licencia {license} · DOI [{doi}]({doi_url}) · [Código fuente]({repo})",
+               "en": "Floccus {version} · {license} licence · DOI [{doi}]({doi_url}) · [Source code]({repo})"},
+
 }
 
 
