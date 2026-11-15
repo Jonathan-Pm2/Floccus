@@ -84,3 +84,14 @@ def test_app_and_pipeline_share_one_version():
     app = tomllib.loads((REPO / "app" / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
     assert app == root == "0.4.3"
     assert branding.version() == "0.4.3"
+
+
+def test_zenodo_metadata_matches_the_release():
+    import json
+
+    import tomllib
+
+    version = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
+    meta = json.loads((REPO / ".zenodo.json").read_text(encoding="utf-8"))
+    assert meta["version"] == version
+    assert meta["title"] == "Floccus AI – LLM-assisted systematic review screening"
