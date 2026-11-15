@@ -36,6 +36,9 @@ biofloc-review = "biofloc_review:main"
 requires = ["uv_build>=0.11.2,<0.12.0"]
 build-backend = "uv_build"
 
+[tool.uv.workspace]
+members = ["app"]
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",

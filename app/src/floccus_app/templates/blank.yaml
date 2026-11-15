@@ -1,0 +1,25 @@
+# Review protocol. Edit the topic and criteria for your review.
+# language: es | en (language of the screening prompts)
+# type: inclusion (all must be YES) | exclusion (any YES excludes) |
+#       derivation (YES sends the record to human review)
+# check: optional deterministic rule, no LLM call:
+#   document_type (params: included, excluded) | abstract_too_short (params: min_words)
+name: microplastics-example
+language: en
+topic: microplastic transport modelling in rivers
+criteria:
+- id: I1
+  type: inclusion
+  question: Does the article study microplastics in rivers or streams?
+  justification: Defines the domain of the review.
+- id: E1
+  type: exclusion
+  question: Is the article only a laboratory toxicity test on organisms?
+  justification: Toxicity tests do not describe transport.
+- id: D1
+  type: derivation
+  question: Is the abstract too short to decide with confidence?
+  justification: Short abstracts go to human review.
+  check: abstract_too_short
+  params:
+    min_words: 100

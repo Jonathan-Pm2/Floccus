@@ -115,3 +115,6 @@ docs/*
 
 # MDPI journal template (third-party, not part of the software)
 submission_mpdi_revew/
+
+# Floccus app projects (user data)
+floccus-projects/
