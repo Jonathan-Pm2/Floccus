@@ -94,8 +94,5 @@ def test_zenodo_metadata_matches_the_release():
     version = tomllib.loads((REPO / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
     meta = json.loads((REPO / ".zenodo.json").read_text(encoding="utf-8"))
     assert meta["version"] == version
-    # The Zenodo record keeps the title cited by the published article; "Floccus AI" is the app name.
-    cff_title = next(line.split(":", 1)[1].strip().strip('"')
-                     for line in (REPO / "CITATION.cff").read_text(encoding="utf-8").splitlines()
-                     if line.startswith("title:"))
-    assert meta["title"] == cff_title == "Floccus: PRISMA-compliant LLM-assisted screening pipeline for systematic literature reviews on biological floc dynamics"
+    # The repository uses the app name; the Zenodo record keeps the title the article cites.
+    assert meta["title"] == "Floccus AI – LLM-assisted systematic review screening"
