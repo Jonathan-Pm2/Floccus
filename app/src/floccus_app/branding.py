@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _pkg_version
+from pathlib import Path
 from urllib.parse import urlencode
 
 APP_NAME = "Floccus"
@@ -14,6 +15,16 @@ LICENSE = "Apache-2.0"
 DOI = "10.5281/zenodo.21926426"  # concept DOI: always the latest version
 DOI_URL = f"https://doi.org/{DOI}"
 PRIMARY_COLOR = "#2e8b7a"
+ASSETS = Path(__file__).resolve().parent / "assets"
+LOGO_PATH = ASSETS / "logo.png"          # floc-like star, transparent background
+FAVICON_PATH = ASSETS / "favicon.png"
+HEADER_LOGO_PATH = ASSETS / "logo-128.png"  # small copy embedded in the page header
+
+
+def logo_data_uri() -> str:
+    import base64
+
+    return "data:image/png;base64," + base64.b64encode(HEADER_LOGO_PATH.read_bytes()).decode("ascii")
 TEMPLATES = {"bug": "bug_report.yml", "idea": "feature_request.yml"}
 
 

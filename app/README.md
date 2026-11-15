@@ -1,3 +1,5 @@
+<img src="docs/logo.png" alt="Floccus logo" width="96">
+
 # Floccus app – LLM-assisted systematic review screening
 
 *Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*

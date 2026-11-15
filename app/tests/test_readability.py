@@ -108,3 +108,22 @@ def test_header_shows_the_full_name(tmp_path, monkeypatch):  # L23
     assert not at.exception
     header = " ".join(str(m.value) for m in at.markdown[:3])
     assert "LLM-assisted systematic review screening" in header
+
+
+def test_logo_assets_are_transparent_and_used_in_the_header(tmp_path, monkeypatch):  # L25
+    from PIL import Image
+    from streamlit.testing.v1 import AppTest
+
+    from floccus_app import branding
+    from floccus_app.projects import create_project
+
+    for path, size in ((branding.LOGO_PATH, 512), (branding.FAVICON_PATH, 64)):
+        im = Image.open(path)
+        assert im.mode == "RGBA" and im.size == (size, size)
+        assert im.getpixel((0, 0))[3] == 0                    # transparent corner
+        assert im.getpixel((size // 2, size // 2))[3] == 0     # transparent central hole
+    create_project(tmp_path, "demo", "biofloc")
+    monkeypatch.setenv("FLOCCUS_HOME", str(tmp_path))
+    at = AppTest.from_file(str(SRC / "ui" / "app.py"), default_timeout=60).run()
+    header = " ".join(str(m.value) for m in at.markdown[:3])
+    assert "data:image/png;base64," in header and "🔬" not in header
