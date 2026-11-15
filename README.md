@@ -14,10 +14,10 @@ It is the code archive of the article
 > Multi-Scale Unification of Biological-Floc Modelling Equations.**
 > Under review at *Algorithms* (MDPI).
 
-Version: **0.3.0** (round-2 revision; the manuscript as first submitted cites
-v0.2.0, see [Changelog](#changelog)). The published article used **v0.3.0**
-(version DOI [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341));
-v0.4.0 (in development) adds the Floccus app.
+Version: **0.4.0** (adds the Floccus app, see [Changelog](#changelog)). The
+published article used **v0.3.0** (version DOI
+[10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341)); the
+pipeline and results it describes are unchanged in v0.4.0.
 
 ## Pipeline
 
@@ -254,7 +254,7 @@ release_data/         published decision tables
 
 ## Changelog
 
-- **v0.4.0 — unreleased.** Floccus app (`app/`): local bilingual interface to
+- **v0.4.0 — Floccus app (2026-11-15).** Floccus app (`app/`): local bilingual interface to
   run the method on any systematic-review topic from a YAML protocol, with
   project import, exact and AI deduplication (embedded Qdrant, no Docker),
   thematic clusters, two-layer screening with
