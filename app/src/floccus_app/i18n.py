@@ -15,7 +15,6 @@ STRINGS: dict[str, dict[str, str]] = {
     "blank": {"es": "Protocolo en blanco", "en": "Blank protocol"},
     "biofloc_example": {"es": "Ejemplo: revisión biofloc publicada", "en": "Example: published biofloc review"},
     "create": {"es": "Crear", "en": "Create"},
-    "created": {"es": "Proyecto creado", "en": "Project created"},
     "tab_project": {"es": "Proyecto", "en": "Project"},
     "tab_protocol": {"es": "Protocolo", "en": "Protocol"},
     "tab_run": {"es": "Ejecutar", "en": "Run"},
@@ -25,7 +24,6 @@ STRINGS: dict[str, dict[str, str]] = {
     "protocol_name": {"es": "Nombre del protocolo", "en": "Protocol name"},
     "topic": {"es": "Tema de la revisión", "en": "Review topic"},
     "prompt_language": {"es": "Idioma de los prompts", "en": "Prompt language"},
-    "criteria": {"es": "Criterios", "en": "Criteria"},
     "inclusion": {"es": "Inclusión", "en": "Inclusion"},
     "exclusion": {"es": "Exclusión", "en": "Exclusion"},
     "derivation": {"es": "Derivación a revisión humana", "en": "Routed to human review"},
@@ -43,29 +41,6 @@ STRINGS: dict[str, dict[str, str]] = {
     "valid": {"es": "El protocolo es válido.", "en": "The protocol is valid."},
     "saved": {"es": "Protocolo guardado.", "en": "Protocol saved."},
     "invalid": {"es": "Protocolo inválido", "en": "Invalid protocol"},
-    "under_construction": {"es": "En construcción", "en": "Under construction"},
-    "run_soon": {
-        "es": "Acá vas a lanzar el pipeline (carga, deduplicación, cribado) y ver el avance en vivo.",
-        "en": "Here you will launch the pipeline (import, dedup, screening) and watch live progress.",
-    },
-    "results_soon": {
-        "es": "Acá vas a ver los gráficos: fuentes, deduplicación, PRISMA, Sankey y clusters.",
-        "en": "Here you will see the plots: sources, dedup, PRISMA, Sankey and clusters.",
-    },
-    "review_soon": {
-        "es": "Acá vas a revisar a mano los registros dudosos y calcular el acuerdo (kappa).",
-        "en": "Here you will review uncertain records by hand and compute agreement (kappa).",
-    },
-    "provider": {"es": "Proveedor", "en": "Provider"},
-    "model": {"es": "Modelo", "en": "Model"},
-    "url": {"es": "URL del servidor", "en": "Server URL"},
-    "api_key": {"es": "API key", "en": "API key"},
-    "llm_help": {
-        "es": "Se configura en el archivo .env (ver env.example). Ollama es local y gratis; "
-              "LLM_PROVIDER=anthropic usa la API paga de Anthropic. La key nunca se muestra.",
-        "en": "Set these in the .env file (see env.example). Ollama is local and free; "
-              "LLM_PROVIDER=anthropic uses the paid Anthropic API. The key is never shown.",
-    },
     "step": {"es": "Paso", "en": "Step"},
     "what": {"es": "Qué hace", "en": "What it does"},
     "input": {"es": "Entrada", "en": "Input"},
@@ -77,15 +52,14 @@ STRINGS: dict[str, dict[str, str]] = {
     "step_dedup_what": {"es": "DOI/título exactos, similitud de embeddings y un juez LLM para los pares dudosos.",
                         "en": "Exact DOI/title, embedding similarity and an LLM judge for doubtful pairs."},
     "step_l1": {"es": "3. Cribado capa 1", "en": "3. Screening layer 1"},
-    "step_l1_what": {"es": "Cada criterio del protocolo es una pregunta Sí/No al LLM sobre título y abstract (salida = INCLUDE + revisión humana).",
-                     "en": "Each protocol criterion is a Yes/No question to the LLM over title and abstract (output = INCLUDE + human review)."},
+    "step_l1_what": {"es": "Cada criterio del protocolo es una pregunta Sí/No al LLM sobre título y abstract (salida = incluidos + revisión humana).",
+                     "en": "Each protocol criterion is a Yes/No question to the LLM over title and abstract (output = included + human review)."},
     "step_l2": {"es": "4. Cribado capa 2", "en": "4. Screening layer 2"},
     "step_l2_what": {"es": "Los dudosos se re-evalúan con metadatos enriquecidos de OpenAlex y Europe PMC (salida = elegibles).",
                      "en": "Uncertain records are re-assessed with enriched OpenAlex and Europe PMC metadata (output = eligible)."},
     "run_done_example": {"es": "Este proyecto de ejemplo ya fue ejecutado completo: son los resultados publicados de la revisión biofloc. Usalo para ver cómo queda un proyecto terminado.",
                          "en": "This example project has already been run end to end: these are the published results of the biofloc review. Use it to see what a finished project looks like."},
     "run_model_used": {"es": "Modelo usado", "en": "Model used"},
-    "run_new_soon": {"es": "Lanzar corridas nuevas desde acá está en construcción.", "en": "Launching new runs from here is under construction."},
     "m_identified": {"es": "Identificados", "en": "Identified"},
     "m_unique": {"es": "Únicos", "en": "Unique"},
     "m_include": {"es": "Incluidos", "en": "Included"},
@@ -149,12 +123,12 @@ STRINGS: dict[str, dict[str, str]] = {
         "es": "1. **Recomendado:** instalá [Gentle Shell]({gentle}), el entorno de trabajo con agentes de IA con el que se desarrolla Floccus.\n"
               "2. Instalá Floccus: `git clone {repo}` y, dentro de la carpeta, `uv sync --all-packages`.\n"
               "3. Configurá el modelo de IA en el archivo `.env` (ver `env.example`): Ollama local y gratis, o Anthropic pago.\n"
-              "4. Explorá el proyecto **biofloc-ejemplo** para ver cómo queda una revisión terminada.\n"
+              "4. Creá un proyecto desde el **ejemplo biofloc** (barra lateral → Nuevo proyecto → Ejemplo) para ver cómo queda una revisión terminada.\n"
               "5. Creá tu proyecto en la barra lateral y escribí tu protocolo en la pestaña **Protocolo**.",
         "en": "1. **Recommended:** install [Gentle Shell]({gentle}), the AI-agent workspace Floccus is developed with.\n"
               "2. Install Floccus: `git clone {repo}` and, inside the folder, `uv sync --all-packages`.\n"
               "3. Set the AI model in the `.env` file (see `env.example`): local free Ollama, or paid Anthropic.\n"
-              "4. Explore the **biofloc-ejemplo** project to see what a finished review looks like.\n"
+              "4. Create a project from the **biofloc example** (sidebar → New project → Example) to see what a finished review looks like.\n"
               "5. Create your project in the sidebar and write your protocol in the **Protocol** tab.",
     },
     "cite_title": {"es": "Cómo citar", "en": "How to cite"},
@@ -229,10 +203,43 @@ STRINGS: dict[str, dict[str, str]] = {
     "rv_percent": {"es": "Acuerdo (%)", "en": "Agreement (%)"},
     "rv_reviewed": {"es": "Revisados", "en": "Reviewed"},
     "rv_saved_as": {"es": "Tu decisión guardada", "en": "Your saved decision"},
+    "step_import": {"es": "Importar", "en": "Import"},
+    "step_dedup": {"es": "Deduplicar", "en": "Deduplicate"},
+    "step_dedup-ai": {"es": "Deduplicar con IA", "en": "AI deduplication"},
+    "step_screen-l1": {"es": "Cribado capa 1", "en": "Screening layer 1"},
+    "step_screen-l2": {"es": "Cribado capa 2", "en": "Screening layer 2"},
+    "step_clusters": {"es": "Clusters temáticos", "en": "Thematic clusters"},
+    "step_consolidate": {"es": "Consolidar resultados", "en": "Consolidate results"},
+    "status_starting": {"es": "iniciando", "en": "starting"},
+    "status_running": {"es": "en curso", "en": "running"},
+    "status_done": {"es": "terminado", "en": "finished"},
+    "status_failed": {"es": "falló", "en": "failed"},
+    "dec_INCLUDE": {"es": "Incluido", "en": "Included"},
+    "dec_EXCLUDE": {"es": "Excluido", "en": "Excluded"},
+    "dec_HUMAN_REVIEW": {"es": "Revisión humana", "en": "Human review"},
+    "temperature": {"es": "temperatura", "en": "temperature"},
+    "no_abstract": {"es": "(sin abstract)", "en": "(no abstract)"},
     "footer": {"es": "Floccus {version} · Licencia {license} · DOI [{doi}]({doi_url}) · [Código fuente]({repo})",
                "en": "Floccus {version} · {license} licence · DOI [{doi}]({doi_url}) · [Source code]({repo})"},
 
 }
+
+
+def _label(prefix: str, code: str, lang: str) -> str:
+    key = f"{prefix}{code}"
+    return t(key, lang) if key in STRINGS else code
+
+
+def step_label(step: str, lang: str = DEFAULT_LANG) -> str:
+    return _label("step_", step, lang)
+
+
+def status_label(status: str, lang: str = DEFAULT_LANG) -> str:
+    return _label("status_", status, lang)
+
+
+def decision_label(decision: str, lang: str = DEFAULT_LANG) -> str:
+    return _label("dec_", decision, lang)
 
 
 def t(key: str, lang: str = DEFAULT_LANG) -> str:

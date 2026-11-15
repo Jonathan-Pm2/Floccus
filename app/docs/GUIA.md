@@ -33,6 +33,7 @@ Copiá `env.example` como `.env` y elegí una opción:
 |---|---|---|
 | **Ollama** (local) | gratis | `OLLAMA_URL`, `OLLAMA_LLM_MODEL` (p. ej. `qwen3:14b`) |
 | **Anthropic** (API) | pago | `LLM_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` |
+| OpenAlex (capa 2) | gratis | `OPENALEX_EMAIL` (tu correo, recomendado) |
 
 La pestaña **Modelo de IA** muestra qué proveedor y modelo están activos; nunca
 muestra direcciones ni claves. El ejemplo publicado usó Ollama con `qwen3:14b`
@@ -78,7 +79,7 @@ En **Ejecutar**:
    estimado** antes de correr todo.
 
 Si aparecen **errores de IA**, esos registros quedan como dudosos: revisá la
-configuración del modelo. Una corrida interrumpida se retoma donde quedó.
+configuración del modelo. Un cribado interrumpido se retoma donde quedó.
 
 ## 5. Resultados y revisión humana
 

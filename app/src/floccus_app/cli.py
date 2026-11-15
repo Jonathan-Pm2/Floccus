@@ -26,10 +26,14 @@ def _parser() -> argparse.ArgumentParser:
     sub.add_parser("list", help="list projects")
     run = sub.add_parser("run", help="run one pipeline step for a project")
     run.add_argument("project", help="project folder name")
-    run.add_argument("step", choices=("import", "dedup", "dedup-ai", "screen-l1", "screen-l2", "consolidate", "clusters"))
+    run.add_argument("step", choices=("import", "dedup", "dedup-ai", "screen-l1", "screen-l2", "consolidate", "clusters"),
+                     help="order: import, dedup, dedup-ai (optional), screen-l1, screen-l2, clusters (optional); "
+                          "consolidate only rebuilds the results table and counts")
     run.add_argument("--limit", type=_positive_int, help="screen at most N more records (try a small sample first)")
     run.add_argument("--workers", type=int, default=2, help="parallel LLM calls per record (default 2)")
-    run.add_argument("--mode", choices=("specificity", "sensitivity"), default="specificity")
+    run.add_argument("--mode", choices=("specificity", "sensitivity"), default="specificity",
+                     help="specificity (default, published): fewer false inclusions; "
+                          "sensitivity: fewer missed records, more human review")
     ui = sub.add_parser("ui", help="open the graphical interface in the browser")
     ui.add_argument("--port", type=int, default=8501, help="local port (default 8501)")
     ui.add_argument("--theme", choices=("auto", "dark", "light"), default="auto",

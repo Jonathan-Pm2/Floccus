@@ -38,7 +38,7 @@ def test_partial_project_has_no_results(tmp_path):
 def test_latest_results_load_and_plot_with_any_sources(tmp_path):
     p = _finished_project(tmp_path)
     r = results.load_results(p)
-    assert r.kind == "latest"
+    assert r.kind == "own"
     assert r.counts["identification"]["by_source"] == {"scopus": 6, "wos": 2}
     flow = results.fig_flow(r.counts, "en")
     src = flow.data[0].link.source
@@ -53,7 +53,7 @@ def test_latest_results_load_and_plot_with_any_sources(tmp_path):
 
 def test_published_example_still_takes_precedence(tmp_path):
     p = create_project(tmp_path, "ex", "biofloc")
-    assert results.load_results(p).kind == "published"
+    assert results.load_results(p).kind == "example"
 
 
 def test_app_shows_own_project_results(tmp_path, monkeypatch):

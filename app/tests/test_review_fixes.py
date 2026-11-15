@@ -141,7 +141,7 @@ def test_failed_import_is_reported_in_progress(tmp_path, capsys):  # R4-import-d
 def test_cli_screen_consolidates_warns_and_releases_lock(project, capsys, monkeypatch):  # R3-007
     import biofloc_review.dedup.llm_judge as lj
 
-    monkeypatch.setattr(lj, "_ollama_chat", lambda m, model: (_ for _ in ()).throw(TimeoutError("x")))
+    monkeypatch.setattr(lj, "llm_chat", lambda m, model: (_ for _ in ()).throw(TimeoutError("x")))
     monkeypatch.setattr(lj, "default_llm_model", lambda: "m")
     assert cli.main(["--home", str(project.parent), "run", "demo", "screen-l1", "--limit", "2"]) == 0
     out = capsys.readouterr()

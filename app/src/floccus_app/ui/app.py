@@ -13,7 +13,7 @@ from biofloc_review.protocol import CHECKS, CRITERION_TYPES, LANGUAGES, Protocol
 from floccus_app import branding
 from floccus_app import results as res
 from floccus_app import ui_logic
-from floccus_app.i18n import t
+from floccus_app.i18n import decision_label, status_label, step_label, t
 from floccus_app.projects import ProjectError, create_project, list_projects, projects_home
 
 
@@ -63,7 +63,7 @@ st.caption(t("tagline", lang))
 
 all_tabs = st.tabs([t(k, lang) for k in
                 ("tab_start", "tab_project", "tab_protocol", "tab_run", "tab_results", "tab_review", "tab_llm")])
-start_tab, tabs = all_tabs[0], all_tabs[1:]
+start_tab, project_tab, protocol_tab, run_tab, results_tab, review_tab, model_tab = all_tabs
 
 with start_tab:
     st.write(t("start_what", lang))
@@ -81,7 +81,7 @@ with start_tab:
 project = home / current if current else None
 protocol = ui_logic.load_project_protocol(project) if project else None
 
-with tabs[0]:
+with project_tab:
     if protocol:
         st.subheader(protocol.name)
         st.write(f"**{t('topic', lang)}:** {protocol.topic}")
@@ -94,7 +94,7 @@ with tabs[0]:
     else:
         st.info(t("no_projects", lang))
 
-with tabs[1]:
+with protocol_tab:
     if protocol:
         name = st.text_input(t("protocol_name", lang), protocol.name, key=f"pname-{current}")
         topic = st.text_input(t("topic", lang), protocol.topic, key=f"ptopic-{current}")
@@ -163,7 +163,7 @@ def _run_controls() -> None:
     st.caption(t("run_exports_help", lang))
     with st.form(f"upload-{current}", clear_on_submit=True):
         source = st.selectbox(t("source", lang), list(pipeline.SOURCES),
-                              format_func=lambda s: res.SOURCE_LABELS.get(s, s.capitalize()))
+                              format_func=lambda s: res.SOURCE_LABELS.get(s, s))
         files = st.file_uploader(t("files", lang), accept_multiple_files=True,
                                  type=["csv", "xls", "xlsx"])
         if st.form_submit_button(t("save_files", lang)) and files:
@@ -175,14 +175,14 @@ def _run_controls() -> None:
                 st.error(str(exc))
     exports = pipeline.list_exports(project)
     if exports:
-        for src, names in exports.items():
-            st.write(f"**{res.SOURCE_LABELS.get(src, src)}:** {', '.join(names)}")
+        for src, files_of_source in exports.items():
+            st.write(f"**{res.SOURCE_LABELS.get(src, src)}:** {', '.join(files_of_source)}")
     else:
         st.caption(t("no_exports", lang))
 
     st.subheader(t("run_steps", lang))
     if active:
-        st.warning(f"{t('running', lang)}: {active.get('step')}")
+        st.warning(f"{t('running', lang)}: {step_label(active.get('step', ''), lang)}")
     limit = st.number_input(t("limit", lang), min_value=0, value=0, step=10, key=f"limit-{current}")
     st.caption(t("steps_help", lang))
     cols = st.columns(3) + st.columns(3)
@@ -203,13 +203,13 @@ def _run_controls() -> None:
     final = counts.get("final_specificity_mode", {})
     cols = st.columns(4)
     cols[0].metric(t("m_identified", lang), _fmt(ident.get("total", 0)))
-    cols[1].metric(t("m_unique", lang), _fmt(dedup.get("after_round2_ieee_merges", 0)))
+    cols[1].metric(t("m_unique", lang), _fmt(res.unique_count(counts) if dedup else 0))
     cols[2].metric(t("m_include", lang), _fmt(final.get("include", 0)))
     cols[3].metric(t("m_review", lang), _fmt(final.get("human_review", 0)))
 
     st.subheader(t("cost_title", lang))
     settings = ui_logic.llm_settings()
-    n_unique = dedup.get("after_round2_ieee_merges")
+    n_unique = res.unique_count(counts) if dedup else 0
     if settings["provider"] != "anthropic":
         st.caption(t("cost_local", lang))
     elif not n_unique:
@@ -238,8 +238,9 @@ def _run_controls() -> None:
             return
         total = max(int(prog.get("total", 0)), 1)
         done = int(prog.get("done", 0))
-        st.progress(min(done / total, 1.0), text=f"{prog.get('step')} · {done:,}/{total:,} · "
-                                                    f"{t('status', lang)}: {prog.get('status')}")
+        st.progress(min(done / total, 1.0),
+                    text=f"{step_label(str(prog.get('step', '')), lang)} · {done:,}/{total:,} · "
+                         f"{t('status', lang)}: {status_label(str(prog.get('status', '')), lang)}")
         if prog.get("status") == "failed":
             st.error(prog.get("message") or prog.get("step"))
         if prog.get("errors"):
@@ -252,8 +253,8 @@ def _run_controls() -> None:
     _progress()
 
 
-with tabs[2]:
-    if run and run.kind == "published":
+with run_tab:
+    if run and run.kind == "example":
         st.success(t("run_done_example", lang))
         steps = pd.DataFrame(res.pipeline_steps(run.counts, lang)).rename(columns={
             "step": t("step", lang), "what": t("what", lang), "in": t("input", lang), "out": t("output", lang)})
@@ -261,20 +262,20 @@ with tabs[2]:
         if run.info:
             st.write(f"**{t('run_model_used', lang)}:** {run.info.get('provider', '?').capitalize()} · "
                      f"`{run.info.get('generation_model', '?')}` · `{run.info.get('embedding_model', '?')}` · "
-                     f"temperature {run.info.get('temperature', '?')}")
+                     f"{t('temperature', lang)} {run.info.get('temperature', '?')}")
     elif project:
         _run_controls()
     else:
         st.info(t("no_projects", lang))
 
-with tabs[3]:
+with results_tab:
     if run:
-        if run.kind == "latest":
+        if run.kind == "own":
             st.caption(t("own_results_note", lang))
         c, f = run.counts, run.counts["final_specificity_mode"]
         cols = st.columns(6)
         for col, (key, value) in zip(cols, (
-            ("m_identified", c["identification"]["total"]), ("m_unique", res._unique(c)),
+            ("m_identified", c["identification"]["total"]), ("m_unique", res.unique_count(c)),
             ("m_include", f["include"]), ("m_review", f["human_review"]),
             ("m_exclude", f["exclude"]), ("m_eligible", f["to_eligibility"]),
         )):
@@ -300,8 +301,8 @@ with tabs[3]:
         st.download_button(t("download_csv", lang), lambda: shown.to_csv(index=False).encode("utf-8"),
                            file_name="screening_decisions.csv", mime="text/csv")
     else:
-        st.info(f"🚧 {t('under_construction', lang)}")
-        st.write(t("results_soon", lang))
+        st.info(t("no_results", lang))
+        st.write(t("rv_no_results", lang))
 
 def _review_own() -> None:
     from floccus_app import review
@@ -327,8 +328,9 @@ def _review_own() -> None:
         if isinstance(row.get("doi"), str) and row["doi"]:
             st.markdown(f"[doi:{ui_logic.md_escape(row['doi'])}]({ui_logic.doi_url(row['doi'])})")
         abstracts = _abstracts()
-        st.write(abstracts.get(row["record_id"], "(no abstract)"))
-        st.caption(f"{t('rv_pipeline', lang)}: **{row['final_decision']}** — {row.get('l2_reason') if isinstance(row.get('l2_reason'), str) else row.get('l1_reason', '')}")
+        st.write(abstracts.get(row["record_id"]) or t("no_abstract", lang))
+        reason = row.get("l2_reason") if isinstance(row.get("l2_reason"), str) else row.get("l1_reason", "")
+        st.caption(f"{t('rv_pipeline', lang)}: **{decision_label(row['final_decision'], lang)}** — {reason}")
         if row["record_id"] in saved:
             st.info(f"{t('rv_saved_as', lang)}: {saved[row['record_id']]}")
         note = st.text_input(t("rv_note", lang), key=f"rvnote-{current}-{row['record_id']}")
@@ -382,10 +384,10 @@ def _cached_abstracts(path_str: str, stamp: tuple) -> dict:
         return {}
     df = pd.read_parquet(path, columns=["cluster_id", "source", "source_id", "abstract"])
     ids = df["cluster_id"].fillna(df["source"].astype(str) + ":" + df["source_id"].astype(str))
-    return dict(zip(ids, df["abstract"].fillna("(no abstract)")))
+    return dict(zip(ids, df["abstract"].fillna("")))
 
 
-with tabs[4]:
+with review_tab:
     if run and run.validation is not None:
         st.write(t("validation_intro", lang) + f" ({_fmt(len(run.validation))} {t('records', lang)})")
         v1, v2 = st.columns(2)
@@ -393,12 +395,12 @@ with tabs[4]:
         v1.dataframe(res.validation_crosstab(run.validation, "reviewer_1"), width="stretch")
         v2.write(f"**{t('reviewer_2', lang)}**")
         v2.dataframe(res.validation_crosstab(run.validation, "reviewer_2"), width="stretch")
-    elif run and run.kind == "latest":
+    elif run and run.kind == "own":
         _review_own()
     else:
         st.info(t("rv_no_results", lang))
 
-with tabs[5]:
+with model_tab:
     st.markdown(t("model_used", lang))
     st.markdown(t("model_alternatives", lang))
     s = ui_logic.llm_settings()

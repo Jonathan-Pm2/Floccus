@@ -172,6 +172,10 @@ def _ollama_chat(messages: list[dict], model: str, temperature: float = 0.0, tim
     return data.get("message", {}).get("content", "")
 
 
+# Public name for the single chat entry point; it dispatches to Ollama or Anthropic.
+llm_chat = _ollama_chat
+
+
 def _anthropic_chat(messages: list[dict], model: str, temperature: float, timeout: float) -> str:
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:

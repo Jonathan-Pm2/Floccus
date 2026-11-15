@@ -33,6 +33,7 @@ Copy `env.example` to `.env` and choose one option:
 |---|---|---|
 | **Ollama** (local) | free | `OLLAMA_URL`, `OLLAMA_LLM_MODEL` (e.g. `qwen3:14b`) |
 | **Anthropic** (API) | paid | `LLM_PROVIDER=anthropic`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` |
+| OpenAlex (layer 2) | free | `OPENALEX_EMAIL` (your e-mail, recommended) |
 
 The **AI model** tab shows the active provider and model; it never shows
 addresses or keys. The published example used Ollama with `qwen3:14b` at
@@ -78,7 +79,7 @@ In **Run**:
    before a full run.
 
 If **AI errors** appear, those records stay uncertain: check the model
-settings. An interrupted run resumes where it stopped.
+settings. An interrupted screening run resumes where it stopped.
 
 ## 5. Results and human review
 

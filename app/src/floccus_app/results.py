@@ -31,8 +31,9 @@ EXAMPLE_RUN_INFO = {
     "max_output_tokens": 400,
     "operating_mode": "specificity",
 }
-SOURCES = ("scopus", "wos", "ieee", "scielo")
-SOURCE_LABELS = {"scopus": "Scopus", "wos": "Web of Science", "ieee": "IEEE Xplore", "scielo": "SciELO"}
+SOURCE_ORDER = ("scopus", "wos", "ieee", "scielo", "proquest")  # display order in charts
+SOURCE_LABELS = {"scopus": "Scopus", "wos": "Web of Science", "ieee": "IEEE Xplore", "scielo": "SciELO",
+                 "proquest": "ProQuest"}
 CRITERIA_ORDER = ("I1", "I2", "I3", "I4", "E1", "E2", "E3", "E4", "D1", "D2", "D3")
 
 
@@ -63,15 +64,15 @@ class Results:
     eligible: pd.DataFrame | None
     validation: pd.DataFrame | None
     info: dict
-    kind: str = "published"  # "published" (shipped example) or "latest" (own run)
+    kind: str = "example"  # "example" (shipped published review) or "own" (this project's latest run)
 
 
 def load_results(project: Path) -> Results | None:
     """Shipped example results first, else the project's latest finished run."""
     d = published_dir(project)
-    kind = "published"
+    kind = "example"
     if not (d / "prisma_counts.json").is_file():
-        d, kind = project / "results" / "latest", "latest"
+        d, kind = project / "results" / "latest", "own"
         if not (d / "screening_decisions.csv").is_file():
             return None
         if "final_specificity_mode" not in json.loads((d / "prisma_counts.json").read_text(encoding="utf-8")):
@@ -91,7 +92,9 @@ def load_results(project: Path) -> Results | None:
     )
 
 
-def _unique(c: dict) -> int:
+def unique_count(c: dict) -> int:
+    """Unique records after deduplication. The key names follow the published
+    prisma_counts.json schema, kept for compatibility for any project."""
     dd = c["deduplication"]
     return dd.get("after_round2_ieee_merges") or dd["after_layers2_3_and_merge"]
 
@@ -102,7 +105,7 @@ def pipeline_steps(c: dict, lang: str) -> list[dict]:
         {"step": t("step_import", lang), "what": t("step_import_what", lang),
          "in": len(c["identification"]["by_source"]), "out": c["identification"]["total"]},
         {"step": t("step_dedup", lang), "what": t("step_dedup_what", lang),
-         "in": c["identification"]["total"], "out": _unique(c)},
+         "in": c["identification"]["total"], "out": unique_count(c)},
         {"step": t("step_l1", lang), "what": t("step_l1_what", lang),
          "in": l1["input"], "out": l1["include"] + l1["human_review"]},
         {"step": t("step_l2", lang), "what": t("step_l2_what", lang),
@@ -112,7 +115,7 @@ def pipeline_steps(c: dict, lang: str) -> list[dict]:
 
 def _sources(c: dict) -> list[str]:
     by_src = c["identification"]["by_source"]
-    ordered = [k for k in SOURCES if k in by_src]
+    ordered = [k for k in SOURCE_ORDER if k in by_src]
     return ordered + [k for k in by_src if k not in ordered]
 
 

@@ -331,13 +331,13 @@ def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mo
            workers: int = 1, checkpoint_every: int = 25, limit: int | None = None, enrich=None) -> dict:
     """Screen layer 1 (all unique records) or layer 2 (layer-1 HUMAN_REVIEW, with
     enriched metadata). Resumes from the existing output; writes progress."""
-    from biofloc_review.dedup.llm_judge import _ollama_chat, default_llm_model
+    from biofloc_review.dedup.llm_judge import default_llm_model, llm_chat
 
     from floccus_app.screening import screen_record
     from floccus_app.ui_logic import load_project_protocol
 
     protocol = load_project_protocol(project)
-    chat = chat or _ollama_chat
+    chat = chat or llm_chat
     model = model or default_llm_model()
     step = f"screen-l{layer}"
     unique_path = processed_dir(project) / "unique.parquet"
