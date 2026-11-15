@@ -150,3 +150,191 @@ def deduplicate(project: Path) -> dict[str, int]:
         counts.pop(key, None)  # earlier screening no longer matches the corpus
     write_counts(project, counts)
     return {"input": len(records), "unique": len(primaries), "removed": stats["duplicates_removed"]}
+
+
+# ---------------------------------------------------------------- run control
+
+def runs_dir(project: Path) -> Path:
+    return project / "runs"
+
+
+def _pid_alive(pid: int) -> bool:
+    import os
+
+    try:
+        os.kill(pid, 0)
+    except (ProcessLookupError, ValueError, OverflowError):
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def active_run(project: Path) -> dict | None:
+    """The run holding the project lock, or None (stale locks are ignored)."""
+    lock = runs_dir(project) / "lock.json"
+    if not lock.is_file():
+        return None
+    try:
+        info = json.loads(lock.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    return info if _pid_alive(int(info.get("pid", -1))) else None
+
+
+def acquire_lock(project: Path, step: str) -> None:
+    import os
+
+    current = active_run(project)
+    if current:
+        raise PipelineError(f"another run is active in this project ({current.get('step')})")
+    runs_dir(project).mkdir(parents=True, exist_ok=True)
+    (runs_dir(project) / "lock.json").write_text(json.dumps({"pid": os.getpid(), "step": step}),
+                                                  encoding="utf-8")
+
+
+def release_lock(project: Path) -> None:
+    (runs_dir(project) / "lock.json").unlink(missing_ok=True)
+
+
+def write_progress(project: Path, **fields) -> None:
+    import time
+
+    path = runs_dir(project) / "progress.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    current = read_progress(project) if fields.get("status") != "starting" else {}
+    current.update(fields)
+    current["updated_at"] = time.time()
+    current.setdefault("started_at", current["updated_at"])
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(current), encoding="utf-8")
+    tmp.replace(path)
+
+
+def read_progress(project: Path) -> dict:
+    path = runs_dir(project) / "progress.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+    except json.JSONDecodeError:
+        return {}
+
+
+# ---------------------------------------------------------------- screening
+
+def _default_enrich(rec: PaperRecord) -> str:
+    from biofloc_review.screening.enricher import enrich_record
+    from biofloc_review.screening.layer2 import _format_enriched_block
+
+    return _format_enriched_block(enrich_record(rec))
+
+
+def _record_id(rec: PaperRecord) -> str:
+    return rec.cluster_id or f"{rec.source}:{rec.source_id}"
+
+
+def screen(project: Path, layer: int, *, chat=None, model: str | None = None, mode: str = "specificity",
+           workers: int = 1, checkpoint_every: int = 25, limit: int | None = None, enrich=None) -> dict:
+    """Screen layer 1 (all unique records) or layer 2 (layer-1 HUMAN_REVIEW, with
+    enriched metadata). Resumes from the existing output; writes progress."""
+    from biofloc_review.dedup.llm_judge import _ollama_chat, default_llm_model
+
+    from floccus_app.screening import screen_record
+    from floccus_app.ui_logic import load_project_protocol
+
+    protocol = load_project_protocol(project)
+    chat = chat or _ollama_chat
+    model = model or default_llm_model()
+    step = f"screen-l{layer}"
+    unique_path = processed_dir(project) / "unique.parquet"
+    if layer == 2 and not (processed_dir(project) / "screening_l1.parquet").is_file():
+        raise PipelineError("run layer 1 first")
+    if not unique_path.is_file():
+        raise PipelineError("import and deduplicate the exports first")
+    records = _read_records(unique_path)
+    if layer == 2:
+        l1 = processed_dir(project) / "screening_l1.parquet"
+        if not l1.is_file():
+            raise PipelineError("run layer 1 first")
+        uncertain = set(pd.read_parquet(l1).query("l1_decision == 'HUMAN_REVIEW'")["record_id"])
+        records = [r for r in records if _record_id(r) in uncertain]
+        enrich = enrich or _default_enrich
+    elif layer != 1:
+        raise PipelineError("layer must be 1 or 2")
+
+    out_path = processed_dir(project) / f"screening_l{layer}.parquet"
+    rows = pd.read_parquet(out_path).to_dict("records") if out_path.is_file() else []
+    done = {r["record_id"] for r in rows}
+    todo = [r for r in records if _record_id(r) not in done]
+    if limit is not None:
+        todo = todo[:limit]
+    total = len(done) + len(todo)
+    errors = sum(int(r.get(f"l{layer}_errors", 0)) for r in rows)
+    write_progress(project, step=step, status="starting", done=len(done), total=total, errors=errors)
+
+    def flush() -> None:
+        tmp = out_path.with_suffix(".tmp")
+        pd.DataFrame(rows).to_parquet(tmp, index=False)
+        tmp.replace(out_path)
+
+    p = f"l{layer}_"
+    try:
+        for i, rec in enumerate(todo, start=1):
+            extra = enrich(rec) if enrich else None
+            result = screen_record(protocol, rec.model_dump(mode="json"), chat=chat, model=model, mode=mode,
+                                   extra_context=extra, workers=workers)
+            row = {"record_id": _record_id(rec), "source": str(rec.source), "source_id": rec.source_id,
+                   "doi": rec.doi, "year": rec.year, "title": rec.title, "document_type": rec.document_type}
+            for cid, a in result.answers.items():
+                row[p + cid] = a.answer
+                row[p + cid + "_evidence"] = a.evidence
+            row[p + "decision"] = result.decision.decision
+            row[p + "reason"] = result.decision.reason
+            row[p + "errors"] = result.errors
+            rows.append(row)
+            errors += result.errors
+            if i % checkpoint_every == 0:
+                flush()
+            write_progress(project, status="running", done=len(done) + i, errors=errors)
+        flush()
+    except BaseException:
+        if rows:
+            flush()
+        write_progress(project, status="failed")
+        raise
+    write_progress(project, status="done")
+    decisions = Counter(r[p + "decision"] for r in rows)
+    return {"screened": len(rows), "errors": errors, **{k: decisions.get(k, 0)
+                                                         for k in ("INCLUDE", "EXCLUDE", "HUMAN_REVIEW")}}
+
+
+def consolidate(project: Path) -> dict:
+    """Final decision = layer 2 when the record went there, else layer 1."""
+    l1_path = processed_dir(project) / "screening_l1.parquet"
+    if not l1_path.is_file():
+        raise PipelineError("run layer 1 first")
+    l1 = pd.read_parquet(l1_path)
+    l2_path = processed_dir(project) / "screening_l2.parquet"
+    l2 = pd.read_parquet(l2_path) if l2_path.is_file() else pd.DataFrame(columns=["record_id"])
+    l2_cols = [c for c in l2.columns if c.startswith("l2_")]
+    dec = l1.merge(l2[["record_id", *l2_cols]], on="record_id", how="left")
+    final = dec["l2_decision"] if "l2_decision" in dec else pd.Series([None] * len(dec))
+    dec["final_decision"] = final.fillna(dec["l1_decision"])
+    dec["decision_layer"] = final.notna().map({True: "L2", False: "L1"})
+    out = latest_dir(project) / "screening_decisions.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    dec.to_csv(out, index=False)
+
+    def tally(series) -> dict:
+        c = Counter(series.dropna())
+        return {"include": c.get("INCLUDE", 0), "exclude": c.get("EXCLUDE", 0),
+                "human_review": c.get("HUMAN_REVIEW", 0)}
+
+    counts = read_counts(project)
+    counts["screening_layer1"] = {"input": len(l1), **tally(l1["l1_decision"])}
+    l2_in = l2[l2["record_id"].isin(l1["record_id"])] if len(l2) else l2
+    counts["screening_layer2"] = {"input": len(l2_in),
+                                  **tally(l2_in["l2_decision"] if "l2_decision" in l2_in else pd.Series([], dtype=object))}
+    f = tally(dec["final_decision"])
+    counts["final_specificity_mode"] = {**f, "to_eligibility": f["include"] + f["human_review"]}
+    write_counts(project, counts)
+    return counts
