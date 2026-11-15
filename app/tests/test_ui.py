@@ -118,3 +118,22 @@ def test_creating_a_project_from_the_form_selects_it(tmp_path, monkeypatch):
     assert not at.exception
     assert (tmp_path / "nueva-revision" / "protocol.yaml").is_file()
     assert at.sidebar.selectbox(key="project").value == "nueva-revision"
+
+
+def test_step_command_runs_the_cli_in_a_subprocess(tmp_path):
+    argv = ui_logic.step_command(tmp_path, "demo", "screen-l1", limit=20)
+    assert argv[1:3] == ["-m", "floccus_app.cli"]
+    assert argv[3:] == ["--home", str(tmp_path), "run", "demo", "screen-l1", "--limit", "20"]
+    assert ui_logic.step_command(tmp_path, "demo", "import")[-1] == "import"
+
+
+def test_run_tab_for_own_project_offers_uploads_and_steps(tmp_path, monkeypatch):
+    from streamlit.testing.v1 import AppTest
+
+    create_project(tmp_path, "mine")
+    monkeypatch.setenv("FLOCCUS_HOME", str(tmp_path))
+    at = AppTest.from_file(str(APP), default_timeout=60).run()
+    assert not at.exception
+    labels = [b.label for b in at.button]
+    for key in ("btn_import", "btn_dedup", "btn_l1", "btn_l2"):
+        assert i18n.t(key, "es") in labels

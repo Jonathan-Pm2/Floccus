@@ -63,12 +63,19 @@ class Results:
     eligible: pd.DataFrame | None
     validation: pd.DataFrame | None
     info: dict
+    kind: str = "published"  # "published" (shipped example) or "latest" (own run)
 
 
 def load_results(project: Path) -> Results | None:
+    """Shipped example results first, else the project's latest finished run."""
     d = published_dir(project)
+    kind = "published"
     if not (d / "prisma_counts.json").is_file():
-        return None
+        d, kind = project / "results" / "latest", "latest"
+        if not (d / "screening_decisions.csv").is_file():
+            return None
+        if "final_specificity_mode" not in json.loads((d / "prisma_counts.json").read_text(encoding="utf-8")):
+            return None
 
     def opt_csv(name: str) -> pd.DataFrame | None:
         return pd.read_csv(d / name, low_memory=False) if (d / name).is_file() else None
@@ -80,6 +87,7 @@ def load_results(project: Path) -> Results | None:
         eligible=opt_csv("eligible_clusters.csv"),
         validation=opt_csv("validation_sample.csv"),
         info=json.loads(info_path.read_text(encoding="utf-8")) if info_path.is_file() else {},
+        kind=kind,
     )
 
 
@@ -98,35 +106,42 @@ def pipeline_steps(c: dict, lang: str) -> list[dict]:
         {"step": t("step_l1", lang), "what": t("step_l1_what", lang),
          "in": l1["input"], "out": l1["include"] + l1["human_review"]},
         {"step": t("step_l2", lang), "what": t("step_l2_what", lang),
-         "in": c["screening_layer2"]["input"], "out": final["to_eligibility"]},
+         "in": (c.get("screening_layer2") or {}).get("input", 0), "out": final["to_eligibility"]},
     ]
 
 
+def _sources(c: dict) -> list[str]:
+    by_src = c["identification"]["by_source"]
+    ordered = [k for k in SOURCES if k in by_src]
+    return ordered + [k for k in by_src if k not in ordered]
+
+
 def fig_flow(c: dict, lang: str) -> go.Figure:
-    by_src, dedup = c["identification"]["by_source"], c["deduplicated_by_source"]
-    l1, l2 = c["screening_layer1"], c["screening_layer2"]
-    labels = [SOURCE_LABELS[s] for s in SOURCES] + [
+    by_src, dedup = c["identification"]["by_source"], c.get("deduplicated_by_source", {})
+    l1, l2 = c["screening_layer1"], c.get("screening_layer2") or {}
+    sources = _sources(c)
+    n = len(sources)
+    unique, dup, inc1, rev1, exc1, inc, rev, exc = range(n, n + 8)
+    labels = [SOURCE_LABELS.get(s, s) for s in sources] + [
         t("n_unique", lang), t("n_duplicates", lang),
         t("n_l1_include", lang), t("n_l1_review", lang), t("n_l1_exclude", lang),
         t("n_include", lang), t("n_review", lang), t("n_exclude", lang),
     ]
-    src, dst, val = [], [], []
-    for i, s in enumerate(SOURCES):
-        src += [i, i]
-        dst += [4, 5]
-        val += [dedup[s], by_src[s] - dedup[s]]
-    links = [
-        (4, 6, l1["include"]), (4, 7, l1["human_review"]), (4, 8, l1["exclude"]),
-        (6, 9, l1["include"]), (7, 9, l2["include"]), (7, 10, l2["human_review"]),
-        (7, 11, l2["exclude"]), (8, 11, l1["exclude"]),
+    links = []
+    for i, s in enumerate(sources):
+        kept = dedup.get(s, 0)
+        links += [(i, unique, kept), (i, dup, by_src[s] - kept)]
+    l2_review = l2.get("human_review", l1["human_review"]) if l2.get("input") else l1["human_review"]
+    links += [
+        (unique, inc1, l1["include"]), (unique, rev1, l1["human_review"]), (unique, exc1, l1["exclude"]),
+        (inc1, inc, l1["include"]), (rev1, inc, l2.get("include", 0)), (rev1, rev, l2_review),
+        (rev1, exc, l2.get("exclude", 0)), (exc1, exc, l1["exclude"]),
     ]
-    for a, b, v in links:
-        src.append(a)
-        dst.append(b)
-        val.append(v)
+    links = [x for x in links if x[2] > 0]
     fig = go.Figure(go.Sankey(
         node={"label": labels, "pad": 18},
-        link={"source": src, "target": dst, "value": val},
+        link={"source": [a for a, _, _ in links], "target": [b for _, b, _ in links],
+              "value": [v for _, _, v in links]},
     ))
     fig.update_layout(title=t("fig_flow", lang), height=480, margin={"l": 10, "r": 10, "t": 50, "b": 10})
     return fig
@@ -141,7 +156,8 @@ def _bar(x, y, title: str, color: str | None = None) -> go.Figure:
 
 def fig_sources(c: dict, lang: str) -> go.Figure:
     by_src = c["identification"]["by_source"]
-    return _bar([SOURCE_LABELS[s] for s in SOURCES], [by_src[s] for s in SOURCES], t("fig_sources", lang))
+    sources = _sources(c)
+    return _bar([SOURCE_LABELS.get(s, s) for s in sources], [by_src[s] for s in sources], t("fig_sources", lang))
 
 
 def fig_final_decisions(c: dict, lang: str) -> go.Figure:
@@ -158,9 +174,9 @@ def active_decisions(decisions: pd.DataFrame) -> pd.DataFrame:
     return decisions
 
 
-def fig_criteria(decisions: pd.DataFrame, lang: str) -> go.Figure:
+def fig_criteria(decisions: pd.DataFrame, lang: str, criteria_ids=None) -> go.Figure:
     d = active_decisions(decisions)
-    ids = [cid for cid in CRITERIA_ORDER if f"l1_{cid}" in d]
+    ids = [cid for cid in (criteria_ids or CRITERIA_ORDER) if f"l1_{cid}" in d]
     yes = [int((d[f"l1_{cid}"] == "YES").sum()) for cid in ids]
     return _bar(ids, yes, t("fig_criteria", lang), "#5b7fa6")
 

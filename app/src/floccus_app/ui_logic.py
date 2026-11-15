@@ -97,3 +97,31 @@ def llm_settings() -> dict[str, str]:
         "url": os.environ.get("OLLAMA_URL") or "http://localhost:11434",
         "api_key": "set" if os.environ.get("OLLAMA_TOKEN") else "not set",
     }
+
+
+def step_command(home: Path, project: str, step: str, limit: int | None = None) -> list[str]:
+    """Command line that runs one pipeline step for a project (used by the UI)."""
+    import sys
+
+    argv = [sys.executable, "-m", "floccus_app.cli", "--home", str(home), "run", project, step]
+    if limit:
+        argv += ["--limit", str(limit)]
+    return argv
+
+
+def launch_step(home: Path, project: str, step: str, limit: int | None = None) -> None:
+    """Start the step in the background; output goes to runs/<step>.log."""
+    import subprocess
+
+    log_path = home / project / "runs" / f"{step}.log"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "w", encoding="utf-8") as log:
+        subprocess.Popen(step_command(home, project, step, limit), stdout=log, stderr=subprocess.STDOUT,
+                         start_new_session=True)
+
+
+def log_tail(home: Path, project: str, step: str, lines: int = 15) -> str:
+    path = home / project / "runs" / f"{step}.log"
+    if not path.is_file():
+        return ""
+    return "\n".join(path.read_text(encoding="utf-8", errors="replace").splitlines()[-lines:])

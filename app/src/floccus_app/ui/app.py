@@ -103,7 +103,7 @@ with tabs[1]:
         st.caption(t("criteria_help", lang))
         table = pd.DataFrame(ui_logic.protocol_to_rows(protocol), columns=ui_logic.COLUMNS)
         edited = st.data_editor(
-            table, num_rows="dynamic", use_container_width=True, key=f"criteria-{current}",
+            table, num_rows="dynamic", width="stretch", key=f"criteria-{current}",
             column_config={
                 "type": st.column_config.SelectboxColumn(options=list(CRITERION_TYPES), required=True),
                 "check": st.column_config.SelectboxColumn(options=["", *CHECKS]),
@@ -133,23 +133,110 @@ def _fmt(n: int) -> str:
     return f"{n:,}"
 
 
+def _run_controls() -> None:
+    from floccus_app import cost, pipeline
+
+    counts = pipeline.read_counts(project)
+    active = pipeline.active_run(project)
+
+    st.subheader(t("run_exports", lang))
+    st.caption(t("run_exports_help", lang))
+    with st.form(f"upload-{current}", clear_on_submit=True):
+        source = st.selectbox(t("source", lang), list(pipeline.SOURCES),
+                              format_func=lambda s: res.SOURCE_LABELS.get(s, s.capitalize()))
+        files = st.file_uploader(t("files", lang), accept_multiple_files=True,
+                                 type=["csv", "xls", "xlsx"])
+        if st.form_submit_button(t("save_files", lang)) and files:
+            try:
+                for f in files:
+                    pipeline.add_export(project, source, f.name, f.getvalue())
+                st.success(t("saved_files", lang))
+            except pipeline.PipelineError as exc:
+                st.error(str(exc))
+    exports = pipeline.list_exports(project)
+    if exports:
+        for src, names in exports.items():
+            st.write(f"**{res.SOURCE_LABELS.get(src, src)}:** {', '.join(names)}")
+    else:
+        st.caption(t("no_exports", lang))
+
+    st.subheader(t("run_steps", lang))
+    if active:
+        st.warning(f"{t('running', lang)}: {active.get('step')}")
+    limit = st.number_input(t("limit", lang), min_value=0, value=0, step=10, key=f"limit-{current}")
+    cols = st.columns(4)
+    steps = (("btn_import", "import"), ("btn_dedup", "dedup"), ("btn_l1", "screen-l1"), ("btn_l2", "screen-l2"))
+    for col, (label, step) in zip(cols, steps):
+        if col.button(t(label, lang), disabled=bool(active), width="stretch", key=f"{step}-{current}"):
+            ui_logic.launch_step(home, current, step, int(limit) if step.startswith("screen") else None)
+            st.toast(t("launched", lang))
+            st.rerun()
+    ident = counts.get("identification", {})
+    dedup = counts.get("deduplication", {})
+    final = counts.get("final_specificity_mode", {})
+    cols = st.columns(4)
+    cols[0].metric(t("m_identified", lang), _fmt(ident.get("total", 0)))
+    cols[1].metric(t("m_unique", lang), _fmt(dedup.get("after_round2_ieee_merges", 0)))
+    cols[2].metric(t("m_include", lang), _fmt(final.get("include", 0)))
+    cols[3].metric(t("m_review", lang), _fmt(final.get("human_review", 0)))
+
+    st.subheader(t("cost_title", lang))
+    settings = ui_logic.llm_settings()
+    n_unique = dedup.get("after_round2_ieee_merges")
+    if settings["provider"] != "anthropic":
+        st.caption(t("cost_local", lang))
+    elif not n_unique:
+        st.caption(t("cost_need_dedup", lang))
+    else:
+        c1, c2 = st.columns(2)
+        price_in = c1.number_input(t("price_in", lang), min_value=0.0, value=0.0, step=0.5, key="price_in")
+        price_out = c2.number_input(t("price_out", lang), min_value=0.0, value=0.0, step=0.5, key="price_out")
+        st.caption(t("price_help", lang))
+        n = min(n_unique, int(limit)) if limit else n_unique
+        e = cost.estimate(protocol, n, cost.DEFAULT_LAYER2_SHARE, cost.DEFAULT_USER_CHARS, price_in, price_out)
+        st.markdown(t("cost_result", lang).format(calls=_fmt(e.calls), tin=_fmt(e.input_tokens),
+                                                  tout=_fmt(e.output_tokens), cost=f"{e.cost:,.2f}"))
+
+    st.subheader(t("progress_title", lang))
+
+    @st.fragment(run_every=2 if active else None)
+    def _progress() -> None:
+        prog = pipeline.read_progress(project)
+        if not prog:
+            return
+        total = max(int(prog.get("total", 0)), 1)
+        done = int(prog.get("done", 0))
+        st.progress(min(done / total, 1.0), text=f"{prog.get('step')} · {done:,}/{total:,} · "
+                                                    f"{t('status', lang)}: {prog.get('status')}")
+        if prog.get("errors"):
+            st.warning(f"{t('errors', lang)}: {prog['errors']} — {t('errors_warn', lang)}")
+        tail = ui_logic.log_tail(home, current, str(prog.get("step", "")))
+        if tail:
+            with st.expander(t("log", lang)):
+                st.code(tail)
+
+    _progress()
+
+
 with tabs[2]:
-    if run:
+    if run and run.kind == "published":
         st.success(t("run_done_example", lang))
         steps = pd.DataFrame(res.pipeline_steps(run.counts, lang)).rename(columns={
             "step": t("step", lang), "what": t("what", lang), "in": t("input", lang), "out": t("output", lang)})
-        st.dataframe(steps, hide_index=True, use_container_width=True)
+        st.dataframe(steps, hide_index=True, width="stretch")
         if run.info:
             st.write(f"**{t('run_model_used', lang)}:** {run.info.get('provider', '?').capitalize()} · "
                      f"`{run.info.get('generation_model', '?')}` · `{run.info.get('embedding_model', '?')}` · "
                      f"temperature {run.info.get('temperature', '?')}")
-        st.info(f"🚧 {t('run_new_soon', lang)}")
+    elif project:
+        _run_controls()
     else:
-        st.info(f"🚧 {t('under_construction', lang)}")
-        st.write(t("run_soon", lang))
+        st.info(t("no_projects", lang))
 
 with tabs[3]:
     if run:
+        if run.kind == "latest":
+            st.caption(t("own_results_note", lang))
         c, f = run.counts, run.counts["final_specificity_mode"]
         cols = st.columns(6)
         for col, (key, value) in zip(cols, (
@@ -158,21 +245,22 @@ with tabs[3]:
             ("m_exclude", f["exclude"]), ("m_eligible", f["to_eligibility"]),
         )):
             col.metric(t(key, lang), _fmt(value))
-        st.plotly_chart(res.fig_flow(c, lang), use_container_width=True)
+        st.plotly_chart(res.fig_flow(c, lang), width="stretch")
         g1, g2 = st.columns(2)
-        g1.plotly_chart(res.fig_sources(c, lang), use_container_width=True)
-        g2.plotly_chart(res.fig_final_decisions(c, lang), use_container_width=True)
+        g1.plotly_chart(res.fig_sources(c, lang), width="stretch")
+        g2.plotly_chart(res.fig_final_decisions(c, lang), width="stretch")
         g3, g4 = st.columns(2)
-        g3.plotly_chart(res.fig_criteria(run.decisions, lang), use_container_width=True)
+        g3.plotly_chart(res.fig_criteria(run.decisions, lang, [c.id for c in protocol.criteria]),
+                        width="stretch")
         if run.eligible is not None:
-            g4.plotly_chart(res.fig_clusters(run.eligible, lang), use_container_width=True)
+            g4.plotly_chart(res.fig_clusters(run.eligible, lang), width="stretch")
         st.subheader(t("decisions_table", lang))
         table = res.active_decisions(run.decisions)
         options = sorted(table["final_decision"].dropna().unique())
         chosen = st.multiselect(t("filter_decision", lang), options, default=options, key="filter_decision")
         shown = table[table["final_decision"].isin(chosen)]
         st.caption(f"{_fmt(len(shown))} {t('records', lang)}")
-        st.dataframe(shown, hide_index=True, use_container_width=True, height=360)
+        st.dataframe(shown, hide_index=True, width="stretch", height=360)
         st.download_button(t("download_csv", lang), shown.to_csv(index=False).encode("utf-8"),
                            file_name="screening_decisions.csv", mime="text/csv")
     else:
@@ -184,9 +272,9 @@ with tabs[4]:
         st.write(t("validation_intro", lang) + f" ({_fmt(len(run.validation))} {t('records', lang)})")
         v1, v2 = st.columns(2)
         v1.write(f"**{t('reviewer_1', lang)}**")
-        v1.dataframe(res.validation_crosstab(run.validation, "reviewer_1"), use_container_width=True)
+        v1.dataframe(res.validation_crosstab(run.validation, "reviewer_1"), width="stretch")
         v2.write(f"**{t('reviewer_2', lang)}**")
-        v2.dataframe(res.validation_crosstab(run.validation, "reviewer_2"), use_container_width=True)
+        v2.dataframe(res.validation_crosstab(run.validation, "reviewer_2"), width="stretch")
     else:
         st.info(f"🚧 {t('under_construction', lang)}")
         st.write(t("review_soon", lang))
