@@ -1,4 +1,6 @@
-# Floccus user guide
+# Floccus – LLM-assisted systematic review screening: user guide
+
+*Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*
 
 Floccus applies your systematic review's inclusion and exclusion criteria to
 thousands of records with a language model, one criterion at a time, and keeps

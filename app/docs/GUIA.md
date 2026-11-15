@@ -1,4 +1,6 @@
-# Guía de uso de Floccus
+# Guía de uso de Floccus – LLM-assisted systematic review screening
+
+*No tiene relación con la extensión de sincronización de marcadores Floccus ([floccus.org](https://floccus.org)) ni con la tienda Floccus Internacional S.L. ([floccus.es](https://floccus.es)).*
 
 Floccus aplica los criterios de inclusión y exclusión de tu revisión
 sistemática a miles de registros con un modelo de lenguaje, criterio por

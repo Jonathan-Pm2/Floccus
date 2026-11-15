@@ -82,3 +82,16 @@ def test_docs_name_real_buttons_and_scope_resume_to_screening():  # READ-3 / REA
     assert "Report a problem" in contributing and "Reportar un error" in contributing
     assert "An interrupted screening run resumes" in (REPO / "app/docs/GUIDE.md").read_text(encoding="utf-8")
     assert "Un cribado interrumpido se retoma" in (REPO / "app/docs/GUIA.md").read_text(encoding="utf-8")
+
+
+def test_name_has_descriptor_and_disambiguation():  # L21
+    from floccus_app import branding
+
+    assert branding.FULL_NAME == "Floccus – LLM-assisted systematic review screening"
+    for lang in ("es", "en"):
+        note = t("not_affiliated", lang)
+        assert "floccus.org" in note and "floccus.es" in note
+    for doc in ("README.md", "app/README.md", "app/docs/GUIA.md", "app/docs/GUIDE.md"):
+        text = (REPO / doc).read_text(encoding="utf-8")
+        assert "LLM-assisted systematic review screening" in text, doc
+        assert "floccus.org" in text and "floccus.es" in text, doc

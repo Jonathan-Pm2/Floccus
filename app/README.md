@@ -1,4 +1,6 @@
-# Floccus app
+# Floccus app – LLM-assisted systematic review screening
+
+*Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*
 
 Local tool to run the Floccus LLM-assisted screening method on **any**
 systematic-review topic. The published biofloc pipeline (`../src/biofloc_review`)

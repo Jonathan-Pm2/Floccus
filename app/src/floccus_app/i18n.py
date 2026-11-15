@@ -219,6 +219,10 @@ STRINGS: dict[str, dict[str, str]] = {
     "dec_HUMAN_REVIEW": {"es": "Revisión humana", "en": "Human review"},
     "temperature": {"es": "temperatura", "en": "temperature"},
     "no_abstract": {"es": "(sin abstract)", "en": "(no abstract)"},
+    "not_affiliated": {
+        "es": "Floccus (cribado de revisiones sistemáticas asistido por LLM) no tiene relación con la extensión de sincronización de marcadores Floccus (floccus.org) ni con la tienda Floccus Internacional S.L. (floccus.es).",
+        "en": "Floccus (LLM-assisted systematic review screening) is not affiliated with the Floccus bookmarks-sync extension (floccus.org) or the Floccus Internacional S.L. shop (floccus.es).",
+    },
     "footer": {"es": "Floccus {version} · Licencia {license} · DOI [{doi}]({doi_url}) · [Código fuente]({repo})",
                "en": "Floccus {version} · {license} licence · DOI [{doi}]({doi_url}) · [Source code]({repo})"},
 

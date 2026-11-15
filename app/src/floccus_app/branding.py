@@ -7,6 +7,7 @@ from importlib.metadata import version as _pkg_version
 from urllib.parse import urlencode
 
 APP_NAME = "Floccus"
+FULL_NAME = "Floccus – LLM-assisted systematic review screening"
 REPO_URL = "https://github.com/Jonathan-Pm2/Floccus"
 GENTLE_SHELL_URL = "https://github.com/Gentleman-Programming/gentle-shell"
 LICENSE = "Apache-2.0"

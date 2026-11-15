@@ -24,7 +24,7 @@ def _home() -> Path:
     return projects_home()
 
 
-st.set_page_config(page_title="Floccus", page_icon="🔬", layout="wide")
+st.set_page_config(page_title=branding.FULL_NAME, page_icon="🔬", layout="wide")
 home = _home()
 
 with st.sidebar:
@@ -77,6 +77,7 @@ with start_tab:
     st.subheader(t("cite_title", lang))
     st.markdown(t("cite_text", lang).format(doi=branding.DOI, doi_url=branding.DOI_URL)
                 + f" · {branding.LICENSE}")
+    st.caption(t("not_affiliated", lang))
 
 project = home / current if current else None
 protocol = ui_logic.load_project_protocol(project) if project else None

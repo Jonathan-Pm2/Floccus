@@ -40,7 +40,9 @@ The counts above are those of the archived run (round 1). The round-2 corpus
 
 Stack: Python 3.12, uv, Pydantic, LangGraph, Qdrant (Docker), Ollama.
 
-## Floccus app (any topic, graphical interface)
+## Floccus app – LLM-assisted systematic review screening (any topic)
+
+*Not affiliated with the Floccus bookmarks-sync extension ([floccus.org](https://floccus.org)) or the Floccus Internacional S.L. shop ([floccus.es](https://floccus.es)).*
 
 The [`app/`](app/README.md) folder contains a local, bilingual (ES/EN)
 interface to run the same method on any systematic-review topic, with this
