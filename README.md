@@ -15,7 +15,9 @@ It is the code archive of the article
 > Under review at *Algorithms* (MDPI).
 
 Version: **0.3.0** (round-2 revision; the manuscript as first submitted cites
-v0.2.0, see [Changelog](#changelog)).
+v0.2.0, see [Changelog](#changelog)). The published article used **v0.3.0**
+(version DOI [10.5281/zenodo.23719341](https://doi.org/10.5281/zenodo.23719341));
+v0.4.0 (in development) adds the Floccus app.
 
 ## Pipeline
 
@@ -52,6 +54,7 @@ to an Ollama server with `qwen3-embedding:8b` and `qwen3:14b`.
 
 ```bash
 uv sync
+uv sync --all-packages --extra analysis   # analysis scripts (clustering, figures)
 docker run -d --name qdrant-biofloc -p 6333:6333 -p 6334:6334 \
   -v "$(pwd)/qdrant_storage:/qdrant/storage" qdrant/qdrant:latest
 cp env.example .env      # set OLLAMA_URL, OLLAMA_TOKEN, OPENALEX_EMAIL
@@ -251,6 +254,14 @@ release_data/         published decision tables
 
 ## Changelog
 
+- **v0.4.0 — unreleased.** Floccus app (`app/`): local bilingual interface to
+  run the method on any systematic-review topic from a YAML protocol, with
+  project import, deterministic deduplication, two-layer screening with
+  progress and resume, cost estimate, results charts, human review with
+  Cohen's kappa, and the published review as example project. Optional
+  Anthropic provider for text generation. The published pipeline and its
+  results are unchanged (the biofloc protocol is pinned to the published
+  prompts and decision rule by tests).
 - **v0.3.0 — round 2.** IEEE Xplore identifier-collision integrity check and
   98 verified duplicate merges; E5 re-screen of the 31 records excluded by
   the retired language criterion alone; round-2 corpus (16,965 unique, 4,883

@@ -29,6 +29,18 @@ dependencies = [
     "xlrd>=2.0.2",
 ]
 
+[project.optional-dependencies]
+# Analysis scripts of the published review (clustering, figures). Install
+# with `uv sync --all-packages --extra analysis`.
+analysis = [
+    "hdbscan>=0.8",
+    "kaleido>=0.2",
+    "plotly>=5",
+    "scikit-learn>=1.3",
+    "scipy>=1.10",
+    "umap-learn>=0.5",
+]
+
 [project.scripts]
 biofloc-review = "biofloc_review:main"
 

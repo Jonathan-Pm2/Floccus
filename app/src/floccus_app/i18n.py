@@ -146,12 +146,12 @@ STRINGS: dict[str, dict[str, str]] = {
     "start_steps_title": {"es": "Antes de empezar", "en": "Before you start"},
     "start_steps": {
         "es": "1. **Recomendado:** instalá [Gentle Shell]({gentle}), el entorno de trabajo con agentes de IA con el que se desarrolla Floccus.\n"
-              "2. Instalá Floccus: `git clone {repo}` y, dentro de la carpeta, `uv sync --inexact --all-packages`.\n"
+              "2. Instalá Floccus: `git clone {repo}` y, dentro de la carpeta, `uv sync --all-packages`.\n"
               "3. Configurá el modelo de IA en el archivo `.env` (ver `env.example`): Ollama local y gratis, o Anthropic pago.\n"
               "4. Explorá el proyecto **biofloc-ejemplo** para ver cómo queda una revisión terminada.\n"
               "5. Creá tu proyecto en la barra lateral y escribí tu protocolo en la pestaña **Protocolo**.",
         "en": "1. **Recommended:** install [Gentle Shell]({gentle}), the AI-agent workspace Floccus is developed with.\n"
-              "2. Install Floccus: `git clone {repo}` and, inside the folder, `uv sync --inexact --all-packages`.\n"
+              "2. Install Floccus: `git clone {repo}` and, inside the folder, `uv sync --all-packages`.\n"
               "3. Set the AI model in the `.env` file (see `env.example`): local free Ollama, or paid Anthropic.\n"
               "4. Explore the **biofloc-ejemplo** project to see what a finished review looks like.\n"
               "5. Create your project in the sidebar and write your protocol in the **Protocol** tab.",
